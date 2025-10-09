@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Pathfinder: Auto-regenerate diagrams after journey map changes
+[ -f .pathfinder/journeys.json ] || exit 0
+
+# Check if journeys.json was in the last commit
+if git diff-tree --no-commit-id --name-only -r HEAD | grep -q "journeys.json"; then
+  SCRIPT_DIR="$(git config core.hooksPath 2>/dev/null || echo ".githooks")"
+  PATHFINDER_ROOT="$(dirname "$SCRIPT_DIR")"
+  DIAGRAM_SCRIPT="${PATHFINDER_ROOT}/skill/scripts/generate-diagrams.py"
+
+  if [ -f "$DIAGRAM_SCRIPT" ]; then
+    python3 "$DIAGRAM_SCRIPT" .pathfinder/journeys.json 2>/dev/null || true
+  fi
+fi

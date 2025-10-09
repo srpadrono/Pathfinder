@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Pathfinder: Block direct push to main/master
+set -euo pipefail
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+  echo "✘ Pathfinder: Direct push to $BRANCH is blocked."
+  echo "  Create a feature branch: git checkout -b feat/<name>"
+  echo "  Then create a PR to merge."
+  exit 1
+fi
+
+exit 0

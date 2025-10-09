@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Pathfinder: Ensure journeys.json stays valid
+set -euo pipefail
+
+[ -f .pathfinder/journeys.json ] || exit 0
+
+# Validate JSON
+python3 -c "import json; json.load(open('.pathfinder/journeys.json'))" 2>/dev/null || {
+  echo "✘ Pathfinder: .pathfinder/journeys.json is invalid JSON."
+  exit 1
+}
+
+exit 0

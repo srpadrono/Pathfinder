@@ -1,0 +1,17 @@
+{
+  "name": "pathfinder",
+  "version": "2.0.0",
+  "description": "UI test coverage mapping tool for AI coding agents",
+  "author": "Sergio Padron <srpadron@outlook.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/srpadrono/Pathfinder.git"
+  },
+  "scripts": {
+    "init": "python3 scripts/pathfinder-init.py",
+    "coverage": "python3 scripts/coverage-score.py .pathfinder/journeys.json",
+    "diagrams": "python3 skill/scripts/generate-diagrams.py .pathfinder/journeys.json",
+    "test": "python3 -m pytest tests/ -v 2>/dev/null || for t in tests/test_*.py; do python3 $t; done"
+  }
+}
