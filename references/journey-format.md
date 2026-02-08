@@ -1,38 +1,35 @@
 # Trail Map Format
 
-Standard format for `USER-JOURNEYS.md` — the expedition's master map.
+Standard format for `USER-JOURNEYS.md`.
 
-## File Location
+## Location
 
 ```
-project/
-└── docs/
-    └── test-coverage/
-        └── USER-JOURNEYS.md   ← Master trail map
+project/docs/test-coverage/USER-JOURNEYS.md
 ```
 
 ## Structure
 
 ```markdown
-# 🗺️ Trail Map — User Journeys
+# 🗺️ Trail Map
 
 ## Coverage Summary
-| Journey | Coverage | Checkpoints | Last Scouted |
-|---------|----------|-------------|--------------|
-| Auth    | 56%      | 5/9         | 2026-02-08   |
+| Journey | Coverage | Checkpoints |
+|---------|----------|-------------|
+| Auth    | 56%      | 5/9         |
 
-## [Journey Name]
+## Auth Journey
 
 ### Trail Map
-[Mermaid diagram with markers]
+[Mermaid diagram]
 
 ### Checkpoints
-[Table with status]
+[Status table]
 ```
 
-## Mermaid Diagram Format
+## Mermaid Diagram
 
-Embed checkpoint IDs and markers directly in nodes:
+Embed IDs and markers in nodes:
 
 ```mermaid
 graph TD
@@ -42,12 +39,9 @@ graph TD
     C --> E[Next Step 🔄 FEAT-03]
 ```
 
-**Node format:** `[Description MARKER ID]`
-- `[Login Success ✅ AUTH-01]`
-- `[Error Message ❌ AUTH-02]`
-- `[Loading State 🔄 AUTH-03]`
+**Format:** `[Description MARKER ID]`
 
-## Checkpoint Table Format
+## Checkpoint Table
 
 ```markdown
 | ID | Checkpoint | Category | Status | Last Run |
@@ -56,86 +50,50 @@ graph TD
 | AUTH-02 | Invalid password | Error | ❌ | - |
 ```
 
-**Columns:**
-- **ID:** Unique identifier (`{JOURNEY}-{NUMBER}`)
-- **Checkpoint:** What is being tested
-- **Category:** Happy Path, Error, Edge Case, Empty State
-- **Status:** Trail marker
-- **Last Run:** Date of last test execution
-
 ## Trail Markers
 
-| Marker | Name | Meaning | When Used |
-|--------|------|---------|-----------|
-| ❌ | Uncharted | Checkpoint identified, not tested | Scout identified test case |
-| 🔄 | Scouted | Test written, not passing | Scout wrote test, awaiting builder |
-| ✅ | Cleared | Test passing | Builder made test pass |
-| ⚠️ | Unstable | Flaky test | Intermittent failures |
-| ⏭️ | Skipped | Intentionally not tested | Out of scope or blocked |
+| Marker | Name | Meaning |
+|--------|------|---------|
+| ❌ | Uncharted | Identified, not tested |
+| 🔄 | Scouted | Test written, awaiting build |
+| ✅ | Cleared | Test passing |
+| ⚠️ | Unstable | Flaky |
+| ⏭️ | Skipped | Out of scope |
 
 ## Checkpoint Naming
 
 **Format:** `{JOURNEY}-{NUMBER}`
 
-**Examples:**
-- `AUTH-01`, `AUTH-02` — Authentication journey
-- `DASH-01`, `DASH-02` — Dashboard journey
-- `WELL-01`, `WELL-02` — Wells journey
+- `AUTH-01`, `AUTH-02`
+- `DASH-01`, `DASH-02`
+- `WELL-01`, `WELL-02`
 
-**Rules:**
-- Always uppercase
-- Numbers are zero-padded for sorting (`01` not `1`)
-- Journey prefix matches section name
+Always uppercase, zero-padded.
 
 ## Categories
 
-Organize checkpoints by type:
-
-| Category | Description | Example |
-|----------|-------------|---------|
-| Happy Path | Normal user flow | "Login succeeds" |
-| Error | Error handling | "Invalid password shows message" |
-| Edge Case | Boundary conditions | "Empty list shows message" |
-| Empty State | No data scenarios | "No wells displays prompt" |
-| Hazard | Security/performance | "SQL injection prevented" |
+| Category | Example |
+|----------|---------|
+| Happy Path | Login succeeds |
+| Error | Invalid password message |
+| Edge Case | Empty list message |
+| Empty State | No data prompt |
+| Hazard | Security check |
 
 ## Coverage Calculation
 
 ```
-Coverage = (✅ Cleared) / (Total Checkpoints) × 100
+Coverage = ✅ / Total × 100
 ```
 
-**Counts toward total:**
-- ❌ Uncharted (0 points)
-- 🔄 Scouted (0 points)  
-- ✅ Cleared (1 point)
-- ⚠️ Unstable (0.5 points)
-- ⏭️ Skipped (excluded from total)
+- ❌ = 0 pts
+- 🔄 = 0 pts
+- ✅ = 1 pt
+- ⚠️ = 0.5 pts
+- ⏭️ = excluded
 
 ## Auto-Update
 
-Use the coverage script to sync test results:
-
 ```bash
-# From test results file
-npx tsx scripts/update-coverage.ts --results /tmp/test-results.json
-
-# Manual update
-npx tsx scripts/update-coverage.ts --status AUTH-01:pass,AUTH-02:fail
-
-# Auto-detect latest results
 npx tsx scripts/update-coverage.ts
-```
-
-## Expedition History
-
-Track all scouting missions:
-
-```markdown
-## Expedition History
-
-| Date | Scout | Expedition | Checkpoints Cleared |
-|------|-------|------------|---------------------|
-| 2026-02-08 | Henry | Dashboard feature | DASH-01 through DASH-08 |
-| 2026-02-07 | Henry | Auth flow | AUTH-01 through AUTH-05 |
 ```
