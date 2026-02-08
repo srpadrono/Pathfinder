@@ -1,6 +1,16 @@
 ---
 name: pathfinder
-description: Marks the trail before others follow. TDD workflow that maps user journeys with Mermaid diagrams, plants test checkpoints, and guides implementation. Two agents (scout + builder) work in parallel. Use when building features, validating user flows, or creating PRs with complete test evidence.
+description: >
+  TDD workflow using expedition metaphor: scouts write tests, builders implement.
+  Maps user journeys with Mermaid diagrams and trail markers (❌→🔄→✅).
+  Use when: (1) Building features with test-first approach, (2) Creating user journey maps,
+  (3) Writing E2E tests with Playwright, (4) Generating PRs with test evidence and diagrams,
+  (5) Coordinating scout/builder agent pairs for parallel TDD.
+metadata:
+  openclaw:
+    emoji: "🗺️"
+    requires:
+      bins: ["npx"]
 ---
 
 # Pathfinder
