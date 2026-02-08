@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="50%" style="stop-color:#1e1b4b"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+    <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22d3ee"/>
+      <stop offset="100%" style="stop-color:#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e2e8f0"/>
+      <stop offset="100%" style="stop-color:#f8fafc"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1280" height="640" fill="url(#bgGrad)"/>
+  
+  <!-- Grid pattern -->
+  <g opacity="0.1">
+    <line x1="0" y1="160" x2="1280" y2="160" stroke="#6366f1" stroke-width="1"/>
+    <line x1="0" y1="320" x2="1280" y2="320" stroke="#6366f1" stroke-width="1"/>
+    <line x1="0" y1="480" x2="1280" y2="480" stroke="#6366f1" stroke-width="1"/>
+    <line x1="320" y1="0" x2="320" y2="640" stroke="#6366f1" stroke-width="1"/>
+    <line x1="640" y1="0" x2="640" y2="640" stroke="#6366f1" stroke-width="1"/>
+    <line x1="960" y1="0" x2="960" y2="640" stroke="#6366f1" stroke-width="1"/>
+  </g>
+  
+  <!-- Decorative path lines -->
+  <path d="M0 500 Q200 400 400 450 T800 350 T1280 400" 
+        fill="none" stroke="url(#accentGrad)" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+  <path d="M0 550 Q300 450 500 500 T900 380 T1280 450" 
+        fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+  
+  <!-- Path nodes -->
+  <circle cx="400" cy="450" r="6" fill="#22d3ee" opacity="0.6"/>
+  <circle cx="800" cy="350" r="6" fill="#22d3ee" opacity="0.6"/>
+  <circle cx="600" cy="400" r="4" fill="#8b5cf6" opacity="0.5"/>
+  
+  <!-- Logo (simplified compass) -->
+  <g transform="translate(200, 320)">
+    <circle cx="0" cy="0" r="100" fill="#0f172a" stroke="url(#pathGrad)" stroke-width="4"/>
+    <circle cx="0" cy="0" r="80" fill="none" stroke="#475569" stroke-width="1"/>
+    
+    <!-- Compass points -->
+    <circle cx="0" cy="-75" r="6" fill="#6366f1"/>
+    <circle cx="0" cy="75" r="4" fill="#475569"/>
+    <circle cx="-75" cy="0" r="4" fill="#475569"/>
+    <circle cx="75" cy="0" r="4" fill="#475569"/>
+    
+    <!-- Path line on compass -->
+    <path d="M-50 40 Q-20 10 0 0 T40 -30 T60 -50" 
+          fill="none" stroke="url(#accentGrad)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/>
+    
+    <!-- Navigation arrow -->
+    <polygon points="0,-60 15,20 0,0 -15,20" fill="url(#pathGrad)"/>
+    <polygon points="0,60 15,-20 0,0 -15,-20" fill="#475569"/>
+    
+    <!-- Center -->
+    <circle cx="0" cy="0" r="12" fill="#0f172a" stroke="url(#accentGrad)" stroke-width="2"/>
+    <circle cx="0" cy="0" r="5" fill="url(#accentGrad)"/>
+    
+    <!-- Path nodes on compass -->
+    <circle cx="0" cy="0" r="4" fill="#22d3ee"/>
+    <circle cx="40" cy="-30" r="4" fill="#22d3ee"/>
+  </g>
+  
+  <!-- Title -->
+  <text x="380" y="300" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="96" font-weight="700" fill="url(#textGrad)">pathfinder</text>
+  
+  <!-- Tagline -->
+  <text x="385" y="370" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="28" font-weight="400" fill="#94a3b8">Navigate your way forward</text>
+  
+  <!-- Decorative elements -->
+  <circle cx="1150" cy="120" r="40" fill="none" stroke="#6366f1" stroke-width="2" opacity="0.3"/>
+  <circle cx="1150" cy="120" r="60" fill="none" stroke="#8b5cf6" stroke-width="1" opacity="0.2"/>
+  <circle cx="100" cy="100" r="30" fill="none" stroke="#22d3ee" stroke-width="1" opacity="0.2"/>
+</svg>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22d3ee"/>
+      <stop offset="100%" style="stop-color:#06b6d4"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#0f172a"/>
+  
+  <!-- Outer ring -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#pathGrad)" stroke-width="8"/>
+  
+  <!-- Compass cardinal points -->
+  <circle cx="256" cy="56" r="12" fill="#6366f1"/>
+  <circle cx="256" cy="456" r="8" fill="#475569"/>
+  <circle cx="56" cy="256" r="8" fill="#475569"/>
+  <circle cx="456" cy="256" r="8" fill="#475569"/>
+  
+  <!-- Path/route lines -->
+  <path d="M120 380 Q180 300 200 260 T280 180 T360 140" 
+        fill="none" stroke="url(#accentGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="12 8"/>
+  
+  <!-- Navigation arrow/pointer -->
+  <polygon points="256,100 290,280 256,240 222,280" fill="url(#pathGrad)"/>
+  <polygon points="256,412 290,232 256,272 222,232" fill="#475569"/>
+  
+  <!-- Center dot -->
+  <circle cx="256" cy="256" r="24" fill="#0f172a" stroke="url(#accentGrad)" stroke-width="4"/>
+  <circle cx="256" cy="256" r="10" fill="url(#accentGrad)"/>
+  
+  <!-- Small path nodes -->
+  <circle cx="200" cy="260" r="8" fill="#22d3ee"/>
+  <circle cx="280" cy="180" r="8" fill="#22d3ee"/>
+  <circle cx="360" cy="140" r="8" fill="#22d3ee"/>
+</svg>
