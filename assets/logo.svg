@@ -1,41 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
   <defs>
-    <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6366f1"/>
-      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    <linearGradient id="mountainGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5a87;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#22d3ee"/>
-      <stop offset="100%" style="stop-color:#06b6d4"/>
+    <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />
     </linearGradient>
   </defs>
   
   <!-- Background circle -->
-  <circle cx="256" cy="256" r="240" fill="#0f172a"/>
+  <circle cx="60" cy="60" r="58" fill="url(#skyGrad)" stroke="#334155" stroke-width="2"/>
   
-  <!-- Outer ring -->
-  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#pathGrad)" stroke-width="8"/>
+  <!-- Stars -->
+  <circle cx="25" cy="25" r="1.5" fill="#fbbf24"/>
+  <circle cx="95" cy="20" r="1" fill="#fbbf24"/>
+  <circle cx="80" cy="35" r="1.2" fill="#fbbf24"/>
+  <circle cx="40" cy="18" r="0.8" fill="#fbbf24"/>
   
-  <!-- Compass cardinal points -->
-  <circle cx="256" cy="56" r="12" fill="#6366f1"/>
-  <circle cx="256" cy="456" r="8" fill="#475569"/>
-  <circle cx="56" cy="256" r="8" fill="#475569"/>
-  <circle cx="456" cy="256" r="8" fill="#475569"/>
+  <!-- Mountain range background -->
+  <polygon points="10,85 35,50 60,75 85,45 110,85" fill="#1e3a5f" opacity="0.6"/>
   
-  <!-- Path/route lines -->
-  <path d="M120 380 Q180 300 200 260 T280 180 T360 140" 
-        fill="none" stroke="url(#accentGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="12 8"/>
+  <!-- Main mountain -->
+  <polygon points="20,95 60,35 100,95" fill="url(#mountainGrad)"/>
   
-  <!-- Navigation arrow/pointer -->
-  <polygon points="256,100 290,280 256,240 222,280" fill="url(#pathGrad)"/>
-  <polygon points="256,412 290,232 256,272 222,232" fill="#475569"/>
+  <!-- Snow cap -->
+  <polygon points="60,35 50,50 60,47 70,50" fill="#e2e8f0"/>
   
-  <!-- Center dot -->
-  <circle cx="256" cy="256" r="24" fill="#0f172a" stroke="url(#accentGrad)" stroke-width="4"/>
-  <circle cx="256" cy="256" r="10" fill="url(#accentGrad)"/>
+  <!-- Trail/Path (dotted line going up) -->
+  <path d="M 30,90 Q 40,75 45,70 T 55,55 T 60,45" 
+        fill="none" 
+        stroke="url(#pathGrad)" 
+        stroke-width="3" 
+        stroke-linecap="round"
+        stroke-dasharray="1,6"/>
   
-  <!-- Small path nodes -->
-  <circle cx="200" cy="260" r="8" fill="#22d3ee"/>
-  <circle cx="280" cy="180" r="8" fill="#22d3ee"/>
-  <circle cx="360" cy="140" r="8" fill="#22d3ee"/>
+  <!-- Checkpoint markers -->
+  <circle cx="30" cy="90" r="4" fill="#22c55e" stroke="#fff" stroke-width="1.5"/>
+  <circle cx="45" cy="70" r="4" fill="#f59e0b" stroke="#fff" stroke-width="1.5"/>
+  <circle cx="55" cy="55" r="4" fill="#f59e0b" stroke="#fff" stroke-width="1.5"/>
+  <circle cx="60" cy="42" r="5" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+  
+  <!-- Flag at summit -->
+  <line x1="60" y1="35" x2="60" y2="22" stroke="#fff" stroke-width="2"/>
+  <polygon points="60,22 75,27 60,32" fill="#ef4444"/>
 </svg>
