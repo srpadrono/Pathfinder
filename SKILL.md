@@ -3,62 +3,43 @@ name: pathfinder
 description: >
   TDD workflow using expedition metaphor: scouts write tests, builders implement.
   Maps user journeys with Mermaid diagrams and trail markers (❌→🔄→✅).
-  Use when: building features test-first, creating user journey maps, writing E2E tests,
-  generating PRs with test evidence, or coordinating scout/builder agent pairs.
-metadata:
-  openclaw:
-    emoji: "🗺️"
-    requires:
-      bins: ["npx"]
+  Composable skills architecture with Playwright CLI integration.
+tags:
+  - tdd
+  - testing
+  - playwright
+  - e2e
+  - workflow
+  - ai-agent
+author: srpadrono
+repository: https://github.com/srpadrono/Pathfinder
+license: MIT
+version: 0.2.0
 ---
 
 # Pathfinder
 
 *Marks the trail before others follow.*
 
-**Read [AGENTS.md](AGENTS.md) for the complete workflow.**
-
-This skill implements structured TDD through role separation:
-- **Scout**: Survey terrain, chart maps, write tests (❌→🔄)
-- **Builder**: Follow trail, implement features (🔄→✅)
+A TDD workflow skill for AI coding agents using an expedition metaphor.
+Scouts survey and write tests, Builders implement until all tests pass.
 
 ## Quick Start
 
-```bash
-# Establish base camp
-npx tsx scripts/setup-auth.ts
+1. Read `AGENTS.md` for the full workflow
+2. Use `/survey` to start a new feature
+3. Use `/scout` to write tests
+4. Use `/build` to implement
+5. Use `/report` to create PR
 
-# Scout the trail
-npx tsx e2e/test-{feature}.ts
+## Skills
 
-# Update coverage
-npx tsx scripts/update-coverage.ts
-```
+Individual skills in `skills/` provide focused instructions per phase.
+SessionStart hook auto-loads `skills/using-pathfinder/SKILL.md`.
 
-## Trail Markers
+## Powered By
 
-| Marker | Meaning |
-|--------|---------|
-| ❌ | Uncharted — checkpoint identified |
-| 🔄 | Scouted — test written, awaiting implementation |
-| ✅ | Cleared — test passing |
-| ⚠️ | Unstable — flaky test |
-| ⏭️ | Skipped — out of scope |
-
-## Resources
-
-| File | Purpose |
-|------|---------|
-| [AGENTS.md](AGENTS.md) | Complete workflow instructions |
-| [assets/PR_TEMPLATE.md](assets/PR_TEMPLATE.md) | Expedition report template |
-| [assets/example-test.ts](assets/example-test.ts) | Test file starter |
-| [references/](references/) | Detailed documentation |
-
-## Environment
-
-Required in `.env.local`:
-```
-TEST_EMAIL=scout@example.com
-TEST_PASSWORD=secret
-BASE_URL=http://localhost:3000
-```
+- **Playwright CLI** — `npx playwright test`, `codegen`, `show-report`, `show-trace`
+- **Composable Skills** — Inspired by [obra/superpowers](https://github.com/obra/superpowers)
+- **Anti-Rationalization** — Explicit guards against skipping TDD
+- **Evidence Verification** — No claims without proof

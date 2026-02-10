@@ -1,0 +1,66 @@
+name: Pathfinder
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Run Pathfinder tests
+        env:
+          CI: 'true'
+          TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          BASE_URL: http://localhost:3000
+        run: npx playwright test
+
+      - name: Update coverage
+        if: always()
+        run: npx tsx scripts/update-coverage.ts
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 7
+
+      - name: Comment coverage on PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && always()
+        with:
+          script: |
+            const fs = require('fs');
+            const checkpointsFile = 'test-results/checkpoints.json';
+            if (!fs.existsSync(checkpointsFile)) return;
+            const data = JSON.parse(fs.readFileSync(checkpointsFile, 'utf8'));
+            const { passed, failed, total, coverage } = data.summary || {};
+            const status = failed > 0 ? '❌' : '✅';
+            github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: `## 🗺️ Pathfinder Coverage: ${coverage || '?'}% ${status}\n\n✅ Cleared: ${passed || 0} | ❌ Blocked: ${failed || 0} | 📊 Total: ${total || 0}`
+            });

@@ -1,164 +1,151 @@
 #!/usr/bin/env npx tsx
 /**
- * Update Coverage - Syncs test results to USER-JOURNEYS.md
- * 
- * Reads test results JSON and updates the trail map with current status.
- * 
- * Usage: npx tsx update-coverage.ts --results /tmp/test-results.json
- *        npx tsx update-coverage.ts --journey wells --status WELL-01:pass,WELL-02:fail
+ * Update Coverage — JSON-based checkpoint state management
+ *
+ * Reads test results from PathfinderReporter (test-results/checkpoints.json)
+ * and updates the structured checkpoint state (checkpoints.json).
+ *
+ * Usage:
+ *   npx tsx scripts/update-coverage.ts
+ *   npx tsx scripts/update-coverage.ts --results test-results/checkpoints.json
+ *   npx tsx scripts/update-coverage.ts --status WELL-01:pass,WELL-02:fail
  */
 
 import * as fs from 'fs';
-import * as path from 'path';
 
-interface TestResult {
+interface CheckpointState {
   id: string;
-  status: 'pass' | 'fail' | 'skip';
-  description?: string;
-  error?: string;
+  description: string;
+  status: 'pass' | 'fail' | 'skip' | 'wip' | 'uncharted';
+  lastRun: string;
   durationMs?: number;
+  error?: string;
 }
 
-interface CoverageUpdate {
-  journeyFile: string;
-  results: TestResult[];
-  timestamp: string;
+interface JourneyState {
+  checkpoints: Record<string, CheckpointState>;
 }
 
-const STATUS_ICONS: Record<string, string> = {
-  'pass': '✅',
-  'fail': '❌',
-  'skip': '⏭️',
-  'flaky': '⚠️',
-  'wip': '🔄',
-};
+interface CoverageState {
+  lastUpdated: string;
+  journeys: Record<string, JourneyState>;
+}
 
-function parseArgs(): { resultsFile?: string; journeyFile: string; manual?: string } {
+const STATE_FILE = 'checkpoints.json';
+const RESULTS_FILE = 'test-results/checkpoints.json';
+
+function loadState(): CoverageState {
+  if (fs.existsSync(STATE_FILE)) {
+    return JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8'));
+  }
+  return { lastUpdated: new Date().toISOString(), journeys: {} };
+}
+
+function saveState(state: CoverageState): void {
+  state.lastUpdated = new Date().toISOString();
+  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+}
+
+function parseArgs(): { resultsFile?: string; manual?: string } {
   const args = process.argv.slice(2);
   let resultsFile: string | undefined;
-  let journeyFile = 'docs/test-coverage/USER-JOURNEYS.md';
   let manual: string | undefined;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--results' && args[i + 1]) {
       resultsFile = args[++i];
-    } else if (args[i] === '--journey-file' && args[i + 1]) {
-      journeyFile = args[++i];
     } else if (args[i] === '--status' && args[i + 1]) {
       manual = args[++i];
     }
   }
 
-  return { resultsFile, journeyFile, manual };
-}
-
-function updateMarkdownTable(content: string, results: TestResult[]): string {
-  let updated = content;
-  const timestamp = new Date().toISOString().split('T')[0];
-
-  for (const result of results) {
-    const icon = STATUS_ICONS[result.status] || '❓';
-    
-    // Update table rows: | ID | Description | Status | Last Run |
-    const tableRowRegex = new RegExp(
-      `(\\|\\s*${result.id}\\s*\\|[^|]+\\|)\\s*[^|]+\\s*(\\|[^|]*\\|?)`,
-      'g'
-    );
-    updated = updated.replace(tableRowRegex, `$1 ${icon} | ${timestamp} |`);
-
-    // Update Mermaid diagram markers
-    const mermaidRegex = new RegExp(
-      `(\\[.*?)(❌|✅|🔄|⚠️)(\\s*${result.id}\\])`,
-      'g'
-    );
-    updated = updated.replace(mermaidRegex, `$1${icon}$3`);
-  }
-
-  return updated;
-}
-
-function calculateCoverage(content: string): { passed: number; total: number; percentage: number } {
-  const passMatches = content.match(/✅/g) || [];
-  const failMatches = content.match(/❌/g) || [];
-  const wipMatches = content.match(/🔄/g) || [];
-  const flakyMatches = content.match(/⚠️/g) || [];
-
-  const passed = passMatches.length;
-  const total = passed + failMatches.length + wipMatches.length + flakyMatches.length;
-  const percentage = total > 0 ? Math.round((passed / total) * 100) : 0;
-
-  return { passed, total, percentage };
-}
-
-function updateCoverageSummary(content: string): string {
-  const coverage = calculateCoverage(content);
-  
-  // Update coverage percentage in summary section
-  const summaryRegex = /Coverage:\s*\d+%/g;
-  return content.replace(summaryRegex, `Coverage: ${coverage.percentage}%`);
+  return { resultsFile, manual };
 }
 
 async function main() {
-  const { resultsFile, journeyFile, manual } = parseArgs();
-  
-  console.log('🗺️  Pathfinder Coverage Update');
-  console.log(`   Journey file: ${journeyFile}`);
+  const { resultsFile, manual } = parseArgs();
 
-  // Read current journey file
-  if (!fs.existsSync(journeyFile)) {
-    console.error(`❌ Journey file not found: ${journeyFile}`);
-    process.exit(1);
+  console.log('🗺️  Pathfinder Coverage Update');
+
+  const state = loadState();
+  const timestamp = new Date().toISOString().split('T')[0];
+  let updateCount = 0;
+
+  if (manual) {
+    // Parse manual format: WELL-01:pass,WELL-02:fail
+    const entries = manual.split(',').map((item) => {
+      const [id, status] = item.split(':');
+      return { id: id.trim(), status: status.trim() as CheckpointState['status'] };
+    });
+
+    for (const entry of entries) {
+      const journeyPrefix = entry.id.replace(/-\d+$/, '').toLowerCase();
+      if (!state.journeys[journeyPrefix]) {
+        state.journeys[journeyPrefix] = { checkpoints: {} };
+      }
+      state.journeys[journeyPrefix].checkpoints[entry.id] = {
+        id: entry.id,
+        description: state.journeys[journeyPrefix].checkpoints[entry.id]?.description || '',
+        status: entry.status,
+        lastRun: timestamp,
+      };
+      updateCount++;
+    }
+    console.log(`   Manual update: ${updateCount} checkpoints`);
+  } else {
+    // Read from PathfinderReporter output
+    const file = resultsFile || RESULTS_FILE;
+
+    if (!fs.existsSync(file)) {
+      console.log(`   No results file found at ${file}`);
+      console.log('   Run tests first: npx playwright test');
+      console.log('   Or use manual: --status WELL-01:pass,WELL-02:fail');
+      process.exit(0);
+    }
+
+    const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    const checkpoints = data.checkpoints || {};
+
+    for (const [id, checkpoint] of Object.entries(checkpoints) as [string, any][]) {
+      const journeyPrefix = id.replace(/-\d+$/, '').toLowerCase();
+      if (!state.journeys[journeyPrefix]) {
+        state.journeys[journeyPrefix] = { checkpoints: {} };
+      }
+      state.journeys[journeyPrefix].checkpoints[id] = {
+        id,
+        description: checkpoint.description || '',
+        status: checkpoint.status,
+        lastRun: timestamp,
+        durationMs: checkpoint.durationMs,
+        error: checkpoint.error,
+      };
+      updateCount++;
+    }
+    console.log(`   Read from: ${file}`);
   }
 
-  let content = fs.readFileSync(journeyFile, 'utf-8');
-  let results: TestResult[] = [];
+  saveState(state);
 
-  // Parse results from file or manual input
-  if (resultsFile && fs.existsSync(resultsFile)) {
-    const data = JSON.parse(fs.readFileSync(resultsFile, 'utf-8'));
-    results = data.results || data;
-    console.log(`   Reading from: ${resultsFile}`);
-  } else if (manual) {
-    // Parse manual format: WELL-01:pass,WELL-02:fail
-    results = manual.split(',').map(item => {
-      const [id, status] = item.split(':');
-      return { id, status: status as 'pass' | 'fail' | 'skip' };
-    });
-    console.log(`   Manual update: ${results.length} checkpoints`);
-  } else {
-    // Look for latest results in /tmp
-    const tmpDir = '/tmp/test-screenshots';
-    if (fs.existsSync(tmpDir)) {
-      const dirs = fs.readdirSync(tmpDir).sort().reverse();
-      if (dirs.length > 0) {
-        const latestResults = path.join(tmpDir, dirs[0], 'results.json');
-        if (fs.existsSync(latestResults)) {
-          results = JSON.parse(fs.readFileSync(latestResults, 'utf-8'));
-          console.log(`   Auto-detected: ${latestResults}`);
-        }
-      }
+  // Print summary
+  let totalPassed = 0;
+  let totalCheckpoints = 0;
+
+  for (const journey of Object.values(state.journeys)) {
+    for (const cp of Object.values(journey.checkpoints)) {
+      totalCheckpoints++;
+      if (cp.status === 'pass') totalPassed++;
     }
   }
 
-  if (results.length === 0) {
-    console.log('   No results to update. Use --results or --status');
-    process.exit(0);
-  }
+  const coverage = totalCheckpoints > 0 ? Math.round((totalPassed / totalCheckpoints) * 100) : 0;
 
-  // Update content
-  content = updateMarkdownTable(content, results);
-  content = updateCoverageSummary(content);
-
-  // Write back
-  fs.writeFileSync(journeyFile, content);
-
-  // Print summary
-  const coverage = calculateCoverage(content);
-  console.log(`\n✅ Updated ${results.length} checkpoints`);
-  console.log(`📊 Coverage: ${coverage.passed}/${coverage.total} (${coverage.percentage}%)`);
+  console.log(`\n✅ Updated ${updateCount} checkpoints`);
+  console.log(`📊 Coverage: ${totalPassed}/${totalCheckpoints} (${coverage}%)`);
+  console.log(`📁 State: ${STATE_FILE}`);
+  console.log('\nRun `npm run test:generate-map` to regenerate USER-JOURNEYS.md');
 }
 
-main().catch(e => {
+main().catch((e) => {
   console.error('❌ Update failed:', e.message);
   process.exit(1);
 });
