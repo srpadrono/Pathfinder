@@ -1,0 +1,42 @@
+{
+  "name": "pathfinder",
+  "version": "0.1.0",
+  "description": "TDD workflow using expedition metaphor for AI coding agents",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:setup": "playwright test --project=setup",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:codegen": "playwright codegen --load-storage=.auth/state.json",
+    "test:coverage": "tsx scripts/update-coverage.ts",
+    "test:trace": "playwright show-trace",
+    "test:generate-map": "tsx scripts/generate-map.ts",
+    "lint": "eslint scripts/ e2e/",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "dotenv": "^16.4.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "tdd",
+    "test-driven-development",
+    "playwright",
+    "e2e",
+    "ai-agent",
+    "skill",
+    "workflow"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/srpadrono/Pathfinder.git"
+  }
+}

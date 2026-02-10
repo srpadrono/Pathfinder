@@ -3,286 +3,202 @@
 </p>
 
 <p align="center">
-  <strong>Marks the trail before others follow.</strong><br>
-  A TDD workflow that charts user journeys, plants test checkpoints, and guides implementation along a proven trail.
+  <strong>Marks the trail before others follow.</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/srpadrono/Pathfinder/actions/workflows/pathfinder.yml">
-    <img src="https://github.com/srpadrono/Pathfinder/actions/workflows/pathfinder.yml/badge.svg" alt="CI Status">
-  </a>
+  <em>A TDD workflow skill for AI coding agents using an expedition metaphor.</em>
+</p>
+
+<p align="center">
   <a href="https://github.com/srpadrono/Pathfinder/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
-  <a href="https://github.com/srpadrono/Pathfinder/releases">
-    <img src="https://img.shields.io/github/v/release/srpadrono/Pathfinder?include_prereleases" alt="Release">
-  </a>
-  <a href="https://github.com/srpadrono/Pathfinder/stargazers">
-    <img src="https://img.shields.io/github/stars/srpadrono/Pathfinder?style=social" alt="Stars">
-  </a>
-  <br>
-  <a href="https://www.typescriptlang.org/">
-    <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <a href="https://github.com/srpadrono/Pathfinder">
+    <img src="https://img.shields.io/badge/AI_Agent-Skill-green.svg" alt="AI Agent Skill">
   </a>
   <a href="https://playwright.dev/">
-    <img src="https://img.shields.io/badge/Playwright-Powered-45ba4b?logo=playwright&logoColor=white" alt="Playwright">
+    <img src="https://img.shields.io/badge/Playwright-CLI-orange.svg" alt="Playwright">
   </a>
-  <a href="https://github.com/srpadrono/Pathfinder/pulls">
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
-  </a>
-</p>
-
-<p align="center">
-  <a href="#-features">Features</a> •
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-the-expedition">The Expedition</a> •
-  <a href="#-agent-compatibility">Agent Compatibility</a> •
-  <a href="#-documentation">Documentation</a> •
-  <a href="#-contributing">Contributing</a>
 </p>
 
 ---
 
-## 🎯 What is Pathfinder?
+## What is Pathfinder?
 
-<img src="assets/logo.png" alt="Pathfinder Logo" width="120" align="right">
+Pathfinder is a **TDD methodology packaged as an AI agent skill**. It uses an expedition metaphor to enforce disciplined test-driven development:
 
-**Pathfinder** is a structured TDD (Test-Driven Development) workflow designed for teams and AI agents building modern web applications. It uses an expedition metaphor where:
+- **Scouts** survey terrain, chart maps, and write failing tests (❌ → 🔄)
+- **Builders** implement minimal code until tests pass (🔄 → ✅)
 
-- **Scouts** survey terrain, chart maps, and mark trails (write tests first)
-- **Builders** follow the marked trail and clear checkpoints (implement features)
+Built on [Playwright CLI](https://playwright.dev/docs/test-cli) and inspired by [obra/superpowers](https://github.com/obra/superpowers).
 
-The result? Every feature ships with complete test coverage, visual documentation, and a clear audit trail.
+## Features
 
-### Why Pathfinder?
+- **7-Phase Workflow** — Survey → Chart → Mark → Scout → Build → Dispatch → Report
+- **Composable Skills** — 12 focused skills loaded on-demand from `skills/`
+- **SessionStart Hook** — Auto-injects workflow at session start
+- **Slash Commands** — `/survey`, `/scout`, `/build`, `/report`
+- **Anti-Rationalization** — Explicit guards against skipping TDD
+- **Playwright CLI Integration** — `codegen`, `test`, `show-report`, `show-trace`
+- **Checkpoint Fixture** — Custom Playwright fixture for trail marker tracking
+- **Custom Reporter** — Outputs `test-results/checkpoints.json` for trail map updates
+- **Evidence Verification** — No claims without proof
+- **Two-Stage Review** — Trail compliance + code quality reviews
+- **Fresh Context Dispatch** — Complete templates for Scout/Builder subagents
+- **CI/CD Ready** — GitHub Actions workflow included
 
-Traditional TDD often devolves into "write tests after implementation" — missing the point entirely. Pathfinder enforces **true test-first development** through role separation:
+## Quick Start
 
-| Problem | Pathfinder Solution |
-|---------|---------------------|
-| Tests written after code | Scout writes tests before Builder sees the feature |
-| Vague requirements | Trail maps force explicit checkpoint definition |
-| No visual documentation | Mermaid diagrams ship with every PR |
-| Untraceable coverage | Marker system (❌→🔄→✅) tracks every test |
-| Flaky test culture | Evidence screenshots catch regressions |
-
-## ✨ Features
-
-- 🗺️ **Visual Trail Maps** — Mermaid diagrams show user journeys at a glance
-- ✅ **Checkpoint System** — Track test status with intuitive markers (❌ → 🔄 → ✅)
-- 👥 **Two-Agent Workflow** — Scout/Builder pattern prevents test-after-implementation
-- 📸 **Evidence Collection** — Automatic screenshots for every checkpoint
-- 🔄 **CI/CD Ready** — GitHub Actions workflow included
-- 📊 **Coverage Tracking** — Auto-sync test results to trail maps
-- 🎨 **PR Templates** — Expedition reports with evidence and diagrams
-- 🤖 **Universal Agent Support** — Works with OpenClaw, Codex, Claude Code, and more
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- npm or pnpm
-- Playwright (for E2E tests)
-
-### Installation
+### 1. Install
 
 ```bash
-# Clone the repository
-git clone https://github.com/srpadrono/Pathfinder.git
-cd pathfinder
-
-# Install dependencies
 npm install
-
-# Install Playwright browsers
-npx playwright install chromium
+npx playwright install --with-deps chromium
 ```
 
-### First Expedition
+### 2. Configure
 
 ```bash
-# 1. Set up environment
 cp .env.example .env.local
 # Edit .env.local with your test credentials
-
-# 2. Establish base camp (authenticate)
-npx tsx scripts/setup-auth.ts
-
-# 3. Run the expedition
-npx tsx e2e/test-example.ts
-
-# 4. Update the trail map
-npx tsx scripts/update-coverage.ts
 ```
 
-## 🏔️ The Expedition
+### 3. Use with AI Agent
 
-Like real pathfinders on an expedition, development follows a structured journey:
+The `AGENTS.md` file provides universal instructions. The `skills/` directory contains composable skills that are loaded on-demand.
 
-| Phase | Action | Output |
-|-------|--------|--------|
-| **1. Survey** | Review specs, identify edge cases | Clarifying questions |
-| **2. Chart** | Draw user journey diagram | Mermaid trail map |
-| **3. Mark** | Identify all checkpoints | Test case IDs (❌) |
-| **4. Scout** | Write failing tests | Tests ready (🔄) |
-| **5. Build** | Implement features | Tests passing (✅) |
-| **6. Report** | Create PR with evidence | Expedition report |
+**Start a new feature:**
+```
+/survey    → Gather requirements
+/scout     → Write tests
+/build     → Implement
+/report    → Create PR
+```
 
-### Trail Markers
+### 4. Run Tests
 
-| Marker | Status | Meaning |
-|--------|--------|---------|
+```bash
+# Run all tests
+npx playwright test
+
+# Run specific checkpoint
+npx playwright test --grep "AUTH-01"
+
+# Debug a test
+npx playwright test --grep "AUTH-01" --debug
+
+# Generate test from recording
+npx playwright codegen --load-storage=.auth/state.json http://localhost:3000
+
+# View HTML report
+npx playwright show-report
+
+# View failure trace
+npx playwright show-trace test-results/<test>/trace.zip
+
+# Update coverage
+npm run test:coverage
+
+# Generate trail map
+npm run test:generate-map
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  ENFORCEMENT LAYER                   │
+│  hooks/hooks.json → skills/using-pathfinder/         │
+│  Anti-rationalization, "The Rule", verification      │
+├─────────────────────────────────────────────────────┤
+│                  METHODOLOGY LAYER                   │
+│  skills/ (composable), commands/ (slash)             │
+│  Survey → Chart → Mark → Scout → Build → Report     │
+├─────────────────────────────────────────────────────┤
+│                  INTEGRATION LAYER                   │
+│  e2e/fixtures/pathfinder.ts (checkpoint fixture)     │
+│  e2e/reporters/pathfinder-reporter.ts (reporter)     │
+│  playwright.config.ts (projects, auth, evidence)     │
+├─────────────────────────────────────────────────────┤
+│                  TOOLING LAYER                       │
+│  scripts/ (coverage, map generation)                 │
+│  templates/ (user-journeys, tests, PR)               │
+├─────────────────────────────────────────────────────┤
+│                  PLATFORM LAYER                      │
+│  npx playwright test/codegen/show-report/show-trace  │
+│  @playwright/test, Node.js, TypeScript               │
+└─────────────────────────────────────────────────────┘
+```
+
+## Repository Structure
+
+```
+pathfinder/
+├── package.json                    # Dependencies and scripts
+├── tsconfig.json                   # TypeScript configuration
+├── playwright.config.ts            # Playwright config with projects
+├── .gitignore                      # Ignore credentials, node_modules, results
+├── AGENTS.md                       # Universal agent instructions (concise)
+├── SKILL.md                        # OpenClaw/skill marketplace metadata
+├── PROPOSAL.md                     # Improvement proposal and roadmap
+├── skills/                         # Composable skills (Superpowers-inspired)
+│   ├── using-pathfinder/SKILL.md   #   Meta-skill: routing + enforcement
+│   ├── surveying/SKILL.md          #   Phase 1: Requirements gathering
+│   ├── charting/SKILL.md           #   Phase 2: Trail map creation
+│   ├── marking/SKILL.md            #   Phase 3: Checkpoint extraction
+│   ├── scouting/SKILL.md           #   Phase 4: Writing failing tests
+│   ├── building/SKILL.md           #   Phase 5: Implementation
+│   ├── dispatching/SKILL.md        #   Phase 6: Multi-agent coordination
+│   ├── reporting/SKILL.md          #   Phase 7: PR with evidence
+│   ├── test-driven-development/    #   Core TDD enforcement
+│   ├── verification-before-completion/  # Evidence verification
+│   ├── systematic-debugging/       #   Root-cause debugging
+│   └── writing-skills/SKILL.md     #   Meta: how to write new skills
+├── hooks/hooks.json                # SessionStart hook config
+├── commands/                       # Slash commands
+│   ├── survey.md                   #   /survey
+│   ├── scout.md                    #   /scout
+│   ├── build.md                    #   /build
+│   └── report.md                   #   /report
+├── e2e/                            # Playwright test files
+│   ├── auth.setup.ts               #   Auth state setup
+│   ├── example.spec.ts             #   Example test with checkpoints
+│   ├── fixtures/pathfinder.ts      #   Checkpoint tracking fixture
+│   └── reporters/pathfinder-reporter.ts  # Trail map reporter
+├── scripts/
+│   ├── update-coverage.ts          #   JSON-based coverage sync
+│   ├── generate-map.ts             #   Generate USER-JOURNEYS.md
+│   ├── run-tests.ts                #   Legacy test runner (deprecated)
+│   └── setup-auth.ts               #   Legacy auth setup (deprecated)
+├── templates/                      # Templates for new projects
+│   ├── user-journeys.md            #   Trail map template
+│   ├── test-file.ts                #   Test file template
+│   └── pr-template.md              #   PR template
+├── .github/
+│   ├── workflows/pathfinder.yml    #   CI/CD workflow
+│   └── PULL_REQUEST_TEMPLATE.md    #   PR template
+├── docs/                           # Reference documentation
+├── references/                     # Methodology reference docs
+└── assets/                         # Branding (banner, logo)
+```
+
+## Trail Markers
+
+| Marker | Name | Meaning |
+|--------|------|---------|
 | ❌ | Uncharted | Checkpoint identified, no test yet |
 | 🔄 | Scouted | Test written, awaiting implementation |
 | ✅ | Cleared | Test passing |
 | ⚠️ | Unstable | Flaky test needs attention |
 | ⏭️ | Skipped | Out of scope for this expedition |
 
-### Example Trail Map
+## Inspiration
 
-```mermaid
-graph TD
-    A[Login Page] --> B{Credentials Valid?}
-    B -->|Yes| C[Dashboard ✅ AUTH-01]
-    B -->|No| D[Error Message ✅ AUTH-02]
-    C --> E[Load Wells ✅ DASH-01]
-    E --> F{Wells Exist?}
-    F -->|Yes| G[Well Grid 🔄 DASH-02]
-    F -->|No| H[Empty State ❌ DASH-03]
-```
+- [obra/superpowers](https://github.com/obra/superpowers) — Composable skills architecture, SessionStart hooks, anti-rationalization tables, TDD enforcement, verification-before-completion
+- [Playwright CLI](https://playwright.dev/docs/test-cli) — Native test runner, codegen, show-report, show-trace, custom fixtures and reporters
+- [@playwright/cli](https://testdino.com/blog/playwright-cli/) — Token-efficient browser automation for AI agents
 
-## 🤖 Agent Compatibility
+## License
 
-Pathfinder is designed as a **universal agent skill** — it works with any AI coding assistant:
-
-| Platform | Skill File | How to Use |
-|----------|------------|------------|
-| **OpenClaw** | `SKILL.md` | Auto-loaded as skill; agent reads AGENTS.md |
-| **Claude Code** | `AGENTS.md` | Place in project root or add to context |
-| **Codex** | `AGENTS.md` | Include in session or reference directly |
-| **Cursor/Windsurf** | `AGENTS.md` | Add to project context |
-| **Any LLM** | `AGENTS.md` | Paste or reference in system prompt |
-
-### Using with AI Agents
-
-```bash
-# OpenClaw (auto-discovers skills)
-openclaw chat "Scout the login journey for my app"
-
-# Claude Code (manual context)
-claude "Read AGENTS.md and scout the dashboard feature"
-
-# Codex
-codex "Follow Pathfinder workflow to test the checkout flow"
-```
-
-The `AGENTS.md` file contains complete instructions for any agent to adopt the Scout/Builder workflow.
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [AGENTS.md](AGENTS.md) | Universal agent instructions |
-| [Installation Guide](references/installation.md) | Add Pathfinder to existing projects |
-| [TDD Workflow](references/tdd-workflow.md) | Scout/Builder protocol details |
-| [Journey Format](references/journey-format.md) | Trail map specification |
-| [Component Integration](references/component-driven.md) | Works with component-driven dev |
-| [CI/CD Setup](references/ci-integration.md) | GitHub Actions configuration |
-
-## 🗂️ Project Structure
-
-```
-pathfinder/
-├── 📄 README.md             # This file
-├── 📄 AGENTS.md             # Universal agent instructions
-├── 📄 SKILL.md              # OpenClaw skill definition
-├── 📁 assets/               # Templates and branding
-│   ├── PR_TEMPLATE.md       # Expedition report template
-│   ├── USER-JOURNEYS-TEMPLATE.md
-│   ├── example-test.ts      # Test file starter
-│   ├── logo.png             # Project logo
-│   └── banner.png           # GitHub banner
-├── 📁 references/           # Documentation
-│   ├── installation.md
-│   ├── tdd-workflow.md
-│   ├── journey-format.md
-│   ├── component-driven.md
-│   └── ci-integration.md
-└── 📁 scripts/              # Core utilities
-    ├── setup-auth.ts        # Authentication setup
-    ├── run-tests.ts         # Test runner
-    └── update-coverage.ts   # Coverage sync
-```
-
-## 🛠️ Scripts
-
-| Script | Purpose |
-|--------|---------|
-| `setup-auth.ts` | Establish base camp — saves authentication state |
-| `run-tests.ts` | Execute tests with screenshot evidence |
-| `update-coverage.ts` | Sync test results to trail maps |
-
-## 🤝 Contributing
-
-We love contributions! Pathfinder is built by the community, for the community.
-
-### Ways to Contribute
-
-- 🐛 **Report Bugs** — [Open an issue](https://github.com/srpadrono/Pathfinder/issues/new?template=bug_report.md)
-- 💡 **Request Features** — [Start a discussion](https://github.com/srpadrono/Pathfinder/discussions)
-- 📝 **Improve Docs** — Fix typos, add examples, clarify explanations
-- 🔧 **Submit PRs** — Bug fixes, features, and improvements welcome
-
-### Development Setup
-
-```bash
-# Fork and clone
-git clone https://github.com/YOUR_USERNAME/pathfinder.git
-cd pathfinder
-
-# Create a branch
-git checkout -b feature/amazing-feature
-
-# Make changes and test
-npm test
-
-# Submit a PR
-```
-
-## 📋 Roadmap
-
-- [ ] VS Code extension for trail map visualization
-- [ ] Support for additional test frameworks (Jest, Vitest, Cypress)
-- [ ] Interactive dashboard for coverage metrics
-- [ ] Slack/Discord integration for expedition updates
-- [ ] Auto-generation of trail maps from user stories
-- [ ] Multi-language support (Python, Go, Rust)
-
-See the [open issues](https://github.com/srpadrono/Pathfinder/issues) for a full list of proposed features.
-
-## 💬 Community
-
-- 💡 [GitHub Discussions](https://github.com/srpadrono/Pathfinder/discussions) — Questions, ideas, and showcases
-- 🐛 [Issue Tracker](https://github.com/srpadrono/Pathfinder/issues) — Bug reports and feature requests
-
-## 📄 License
-
-Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
-
-## 🙏 Acknowledgments
-
-- [Playwright](https://playwright.dev/) — Reliable end-to-end testing
-- [Mermaid](https://mermaid.js.org/) — Diagramming and charting
-- [OpenClaw](https://openclaw.ai) — AI agent platform
-- The open source community for inspiration and feedback
-
----
-
-<p align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/srpadrono">the Pathfinder team</a></sub>
-</p>
-
-<p align="center">
-  <a href="#-what-is-pathfinder">Back to top ↑</a>
-</p>
+MIT
