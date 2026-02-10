@@ -30,6 +30,7 @@ Thinking "I'll save time by skipping"? You won't. Invoke the skill.
 | Implementing features | `pathfinder:building` | After ALL tests written (unit + E2E) |
 | Coordinating scout/builder agents | `pathfinder:dispatching` | Multi-agent mode |
 | Creating PR or expedition report | `pathfinder:reporting` | After all tests pass |
+| Creating branches, committing, opening PRs | `pathfinder:git-workflow` | Start and end of expedition |
 | Something is broken/failing | `pathfinder:systematic-debugging` | Any time |
 | Claiming task completion | `pathfinder:verification-before-completion` | Before ANY completion claim |
 
@@ -75,3 +76,4 @@ If you find yourself NOT invoking a skill, check these:
 | "Tests will slow me down" | Tests catch the bugs you'd spend 10x fixing later | Invoke `pathfinder:test-driven-development` |
 | "I'll add tests after" | Tests-after are biased by implementation | Delete code, invoke `pathfinder:scouting` |
 | "E2E tests are enough, no unit tests needed" | E2E tells you something broke. Unit tests tell you what broke. | Invoke `pathfinder:unit-testing` |
+| "I'll commit to main, it's a small change" | Small changes on main break CI for everyone. | Invoke `pathfinder:git-workflow` |

@@ -13,20 +13,21 @@
 3. [The Expedition Metaphor](#3-the-expedition-metaphor)
 4. [Architecture: The Five Layers](#4-architecture-the-five-layers)
 5. [How It Boots Up: The SessionStart Hook](#5-how-it-boots-up-the-sessionstart-hook)
-6. [The 13 Composable Skills](#6-the-13-composable-skills)
+6. [The 14 Composable Skills](#6-the-14-composable-skills)
 7. [The 7-Phase Workflow in Detail](#7-the-7-phase-workflow-in-detail)
 8. [Slash Commands: The Quick Entry Points](#8-slash-commands-the-quick-entry-points)
 9. [The Anti-Rationalization Engine](#9-the-anti-rationalization-engine)
 10. [Playwright Integration Under the Hood](#10-playwright-integration-under-the-hood)
 11. [Unit Testing with Vitest](#11-unit-testing-with-vitest)
-12. [The Checkpoint Fixture: Custom Test Instrumentation](#12-the-checkpoint-fixture-custom-test-instrumentation)
-13. [The Custom Reporter: From Tests to Structured Data](#13-the-custom-reporter-from-tests-to-structured-data)
-14. [The JSON Data Pipeline](#14-the-json-data-pipeline)
-15. [Multi-Agent Dispatch and Two-Stage Review](#15-multi-agent-dispatch-and-two-stage-review)
-16. [CI/CD Integration](#16-cicd-integration)
-17. [Step-by-Step Usage Guide](#17-step-by-step-usage-guide)
-18. [How to Extend Pathfinder: Writing New Skills](#18-how-to-extend-pathfinder-writing-new-skills)
-19. [Inspirations and Credits](#19-inspirations-and-credits)
+12. [Git Workflow: Branches, Commits, and Pull Requests](#12-git-workflow-branches-commits-and-pull-requests)
+13. [The Checkpoint Fixture: Custom Test Instrumentation](#13-the-checkpoint-fixture-custom-test-instrumentation)
+14. [The Custom Reporter: From Tests to Structured Data](#14-the-custom-reporter-from-tests-to-structured-data)
+15. [The JSON Data Pipeline](#15-the-json-data-pipeline)
+16. [Multi-Agent Dispatch and Two-Stage Review](#16-multi-agent-dispatch-and-two-stage-review)
+17. [CI/CD Integration](#17-cicd-integration)
+18. [Step-by-Step Usage Guide](#18-step-by-step-usage-guide)
+19. [How to Extend Pathfinder: Writing New Skills](#19-how-to-extend-pathfinder-writing-new-skills)
+20. [Inspirations and Credits](#20-inspirations-and-credits)
 
 ---
 
@@ -188,7 +189,7 @@ This ensures the rules are always present, even if the agent's context was wiped
 
 ---
 
-## 6. The 13 Composable Skills
+## 6. The 14 Composable Skills
 
 Skills are the building blocks of Pathfinder. Each one is a standalone Markdown file in the `skills/` directory with YAML frontmatter, a clear goal, step-by-step instructions, CLI commands, and anti-rationalization tables.
 
@@ -233,7 +234,9 @@ The original Pathfinder had a single `AGENTS.md` file at 429 lines. That's too m
 
 **12. `unit-testing`** — Unit test enforcement using Vitest. Complements E2E scouting with fine-grained function/component tests. Defines when unit tests are required (pure functions, API handlers, state management, utilities, component rendering) vs when E2E is preferred (full user journeys, cross-page flows). Uses co-located test files (`src/utils/validate-email.test.ts` next to `validate-email.ts`). Unit checkpoints use a `U` suffix (`AUTH-U01`) to distinguish from E2E checkpoints (`AUTH-01`). Includes Vitest CLI commands, watch mode guidance, and anti-rationalizations countering "E2E covers everything" and "This function is too simple to unit test."
 
-**13. `systematic-debugging`** — Root-cause investigation in five steps: Reproduce → Isolate → Diagnose → Fix → Verify. Each step has specific Playwright CLI commands. The Fix step requires writing a test that reproduces the bug FIRST (maintaining TDD even during debugging). Includes a flaky test protocol: mark ⚠️, run 10x, fix root cause, run 10x again, update to ✅.
+**13. `git-workflow`** — Branch creation, commit conventions, and PR workflow. Defines branch naming (`expedition/auth-login-flow`, `scout/`, `builder/`, `fix/`, `hotfix/`), commit message format (`Scout: Mark trail for AUTH-01 through AUTH-05`, `Builder: Clear AUTH-01`), step-by-step PR creation with `gh pr create`, multi-agent branch strategy (single branch recommended vs separate branches), and pre-commit verification commands. Anti-rationalizations counter "I'll just commit to main" and "commit messages don't matter."
+
+**14. `systematic-debugging`** — Root-cause investigation in five steps: Reproduce → Isolate → Diagnose → Fix → Verify. Each step has specific Playwright CLI commands. The Fix step requires writing a test that reproduces the bug FIRST (maintaining TDD even during debugging). Includes a flaky test protocol: mark ⚠️, run 10x, fix root cause, run 10x again, update to ✅.
 
 ---
 
@@ -642,7 +645,80 @@ npm run test:all
 
 ---
 
-## 12. The Checkpoint Fixture: Custom Test Instrumentation
+## 12. Git Workflow: Branches, Commits, and Pull Requests
+
+The original Pathfinder had no guidance on branching, commits, or PR creation. The reporting skill said "create a PR" without explaining how. The `git-workflow` skill fills this gap with a complete git strategy designed around the expedition lifecycle.
+
+### Branch Strategy
+
+Every expedition gets its own branch. Never work directly on `main`.
+
+**Branch naming convention:** `<role>/<journey>-<short-description>`
+
+| Prefix | When | Example |
+|--------|------|---------|
+| `expedition/` | Single agent, full expedition | `expedition/auth-login-flow` |
+| `scout/` | Scout-only branch (multi-agent) | `scout/auth-login-flow` |
+| `builder/` | Builder-only branch (multi-agent) | `builder/auth-login-flow` |
+| `fix/` | Bug fixes | `fix/auth-token-expiry` |
+| `hotfix/` | Critical production fixes | `hotfix/auth-session-crash` |
+
+**When to create:** After Survey is approved, before Scouting begins. The Scout's first commit (tests + trail map) should already be on the expedition branch.
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b expedition/auth-login-flow
+git push -u origin expedition/auth-login-flow
+```
+
+### Commit Conventions
+
+Every commit message follows the pattern: `<Role>: <Action> <checkpoint-range>`
+
+| Phase | Example |
+|-------|---------|
+| Survey | `Survey: Chart requirements for auth login` |
+| Chart | `Chart: Map auth journey with 5 checkpoints` |
+| Mark | `Mark: Define checkpoints AUTH-01 through AUTH-05` |
+| Scout | `Scout: Mark trail for AUTH-01 through AUTH-05` |
+| Build | `Builder: Clear AUTH-01` |
+| Report | `Report: Expedition complete for auth journey` |
+
+Key rules:
+- **One checkpoint per commit during Build** — enables `git bisect`
+- **Scout and Builder work never in the same commit** — clean role separation in git history
+- **Checkpoint IDs in every message** — `git log --oneline` becomes a trail map
+
+### PR Creation
+
+After all checkpoints are ✅:
+
+```bash
+# Final commit
+git add USER-JOURNEYS.md checkpoints.json
+git commit -m "Report: Expedition complete for auth journey"
+
+# Push and create PR
+git push origin expedition/auth-login-flow
+gh pr create \
+  --base main \
+  --head expedition/auth-login-flow \
+  --title "Expedition: Auth Login Flow (AUTH-01 through AUTH-05)" \
+  --body-file .github/PULL_REQUEST_TEMPLATE.md
+```
+
+The PR body uses the expedition report template with trail map, checkpoint table, coverage stats, and evidence links.
+
+### Multi-Agent Branch Strategy
+
+**Single branch (recommended):** Scout creates branch, commits tests. Builder pulls same branch, implements, commits per checkpoint. One PR at the end.
+
+**Separate branches (complex):** Scout works on `scout/auth-login-flow`, Builder branches from it to `builder/auth-login-flow`. Two PRs — Scout into expedition, Builder into main.
+
+---
+
+## 13. The Checkpoint Fixture: Custom Test Instrumentation
 
 The checkpoint fixture is the bridge between Playwright tests and the Pathfinder trail marker system. It's a custom Playwright fixture defined in `e2e/fixtures/pathfinder.ts`.
 
@@ -724,7 +800,7 @@ The JSON files written to `test-results/` are consumed by the PathfinderReporter
 
 ---
 
-## 13. The Custom Reporter: From Tests to Structured Data
+## 14. The Custom Reporter: From Tests to Structured Data
 
 The PathfinderReporter (`e2e/reporters/pathfinder-reporter.ts`) is a custom Playwright reporter that extracts checkpoint information from test results and produces structured JSON output.
 
@@ -827,7 +903,7 @@ The reporter produces `test-results/checkpoints.json`:
 
 ---
 
-## 14. The JSON Data Pipeline
+## 15. The JSON Data Pipeline
 
 This is one of Pathfinder's most important architectural decisions. The original system used regex to parse and update Markdown files — fragile, error-prone, and unmaintainable. The new system uses a structured JSON pipeline:
 
@@ -898,7 +974,7 @@ npx tsx scripts/update-coverage.ts --status WELL-01:pass,WELL-02:fail
 
 ---
 
-## 15. Multi-Agent Dispatch and Two-Stage Review
+## 16. Multi-Agent Dispatch and Two-Stage Review
 
 Pathfinder supports a multi-agent workflow where different agents handle different roles, coordinated by the dispatching skill.
 
@@ -969,7 +1045,7 @@ When one agent handles both roles (the common case):
 
 ---
 
-## 16. CI/CD Integration
+## 17. CI/CD Integration
 
 Pathfinder includes a complete GitHub Actions workflow in `.github/workflows/pathfinder.yml`.
 
@@ -1015,7 +1091,7 @@ Two artifacts are uploaded:
 
 ---
 
-## 17. Step-by-Step Usage Guide
+## 18. Step-by-Step Usage Guide
 
 ### Getting Started
 
@@ -1138,7 +1214,7 @@ npx tsx scripts/update-coverage.ts --status AUTH-01:pass,AUTH-02:fail,AUTH-03:sk
 
 ---
 
-## 18. How to Extend Pathfinder: Writing New Skills
+## 19. How to Extend Pathfinder: Writing New Skills
 
 Pathfinder is designed to grow. The `writing-skills` meta-skill teaches you how to create new skills using the same TDD methodology that Pathfinder enforces for code.
 
@@ -1199,7 +1275,7 @@ Update the skill routing table in `skills/using-pathfinder/SKILL.md`:
 
 ---
 
-## 19. Inspirations and Credits
+## 20. Inspirations and Credits
 
 ### obra/superpowers
 
@@ -1229,7 +1305,7 @@ Pathfinder/
 ├── vitest.config.ts                   # Unit test configuration (Vitest)
 ├── .gitignore                         # node_modules, .auth, test-results, etc.
 │
-├── skills/                            # 13 composable skill files
+├── skills/                            # 14 composable skill files
 │   ├── using-pathfinder/SKILL.md      # Meta-skill (auto-loaded via SessionStart)
 │   ├── writing-skills/SKILL.md        # Meta-skill for creating new skills
 │   ├── surveying/SKILL.md             # Phase 1: Requirements gathering
@@ -1241,6 +1317,7 @@ Pathfinder/
 │   ├── reporting/SKILL.md             # Phase 7: Expedition report + PR
 │   ├── test-driven-development/SKILL.md      # Cross-cutting: TDD enforcement
 │   ├── unit-testing/SKILL.md          # Cross-cutting: Vitest unit test enforcement
+│   ├── git-workflow/SKILL.md          # Cross-cutting: Branches, commits, PRs
 │   ├── verification-before-completion/SKILL.md # Cross-cutting: Evidence required
 │   └── systematic-debugging/SKILL.md  # Cross-cutting: Root-cause investigation
 │
