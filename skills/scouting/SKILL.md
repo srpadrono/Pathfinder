@@ -10,7 +10,7 @@ description: >
 **Goal:** Write failing tests for ALL checkpoints before any implementation.
 
 **Prerequisite:** Checkpoints marked (Phase 3 complete).
-**Territory:** `e2e/` and `USER-JOURNEYS.md` ONLY. Do NOT modify `src/`.
+**Territory:** `e2e/` and `USER-JOURNEYS.md` for E2E tests. `src/**/*.test.ts` for unit tests. Do NOT modify implementation code in `src/`.
 
 ## The Iron Law
 
@@ -59,13 +59,35 @@ npx playwright codegen --viewport-size="375,812" http://localhost:3000/feature
 - Edge case tests (boundary values)
 - Validation tests (invalid inputs)
 
+## Write Unit Tests (Alongside E2E)
+
+For every function, module, or component that the E2E checkpoint depends on, write co-located unit tests. See `pathfinder:unit-testing` for full details.
+
+```typescript
+// src/utils/validate-email.test.ts
+import { describe, it, expect } from 'vitest';
+import { validateEmail } from './validate-email';
+
+describe('Auth Journey — Unit', () => {
+  it('AUTH-U01: validateEmail rejects empty string', () => {
+    expect(validateEmail('')).toBe(false);
+  });
+});
+```
+
+Unit checkpoints use the `U` suffix: `AUTH-U01`, `AUTH-U02`, etc.
+
 ## Verify RED (Mandatory)
 
 ```bash
+# E2E tests
 npx playwright test e2e/feature.spec.ts --reporter=list
+
+# Unit tests
+npx vitest run src/**/feature*.test.ts --reporter=verbose
 ```
 
-Confirm:
+Confirm for BOTH layers:
 - Test FAILS (not errors from typos)
 - Failure message is the expected one
 - Fails because feature is MISSING, not because test is broken
@@ -73,8 +95,8 @@ Confirm:
 ## After Scouting
 
 1. Update diagram markers: ❌ → 🔄
-2. Run ALL tests to confirm they FAIL
-3. Commit: `"Scout: Mark trail for FEAT-01 through FEAT-05"`
+2. Run ALL tests to confirm they FAIL: `npm run test:all`
+3. Commit: `"Scout: Mark trail for FEAT-01 through FEAT-05 (E2E + unit)"`
 
 ## Anti-Rationalization
 
@@ -84,3 +106,4 @@ Confirm:
 | "This test is too simple to verify RED" | If you didn't watch it fail, you don't know it tests the right thing. |
 | "I'll skip codegen, I know the selectors" | Codegen prevents typos in selectors. Use it for complex flows. |
 | "I'll write the error tests later" | Error tests ARE the tests. Write them now. |
+| "E2E covers this, no unit test needed" | E2E is slow and tells you something broke. Unit tests tell you what. Write both. |

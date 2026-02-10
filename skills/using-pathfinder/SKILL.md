@@ -26,7 +26,8 @@ Thinking "I'll save time by skipping"? You won't. Invoke the skill.
 | Need a visual journey/flow | `pathfinder:charting` | After survey approved |
 | Defining test cases or checkpoints | `pathfinder:marking` | After map charted |
 | Writing E2E or integration tests | `pathfinder:scouting` | After checkpoints marked |
-| Implementing features | `pathfinder:building` | After ALL tests written |
+| Writing unit tests for functions/modules | `pathfinder:unit-testing` | Any code in `src/` |
+| Implementing features | `pathfinder:building` | After ALL tests written (unit + E2E) |
 | Coordinating scout/builder agents | `pathfinder:dispatching` | Multi-agent mode |
 | Creating PR or expedition report | `pathfinder:reporting` | After all tests pass |
 | Something is broken/failing | `pathfinder:systematic-debugging` | Any time |
@@ -48,8 +49,8 @@ When multiple skills apply, process skills ALWAYS come before implementation:
 ## Enforcement Gates
 
 - Cannot skip Survey phase for new features
-- Cannot write production code without a failing test
-- Cannot mark a checkpoint as cleared without evidence
+- Cannot write production code without failing tests (both unit AND E2E)
+- Cannot mark a checkpoint as cleared without evidence (both test layers must pass)
 - Cannot create a PR without all checkpoints passing
 - Cannot claim completion without verification
 
@@ -73,3 +74,4 @@ If you find yourself NOT invoking a skill, check these:
 | "I already know the requirements" | Assumptions cause rework | Invoke `pathfinder:surveying` |
 | "Tests will slow me down" | Tests catch the bugs you'd spend 10x fixing later | Invoke `pathfinder:test-driven-development` |
 | "I'll add tests after" | Tests-after are biased by implementation | Delete code, invoke `pathfinder:scouting` |
+| "E2E tests are enough, no unit tests needed" | E2E tells you something broke. Unit tests tell you what broke. | Invoke `pathfinder:unit-testing` |

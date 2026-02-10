@@ -17,17 +17,23 @@ description: >
 For each checkpoint:
 
 ```bash
-# 1. Run test — watch it FAIL
+# 1. Run unit test — watch it FAIL
+npx vitest run --testNamePattern "FEAT-U01"
+
+# 2. Run E2E test — watch it FAIL
 npx playwright test --grep "FEAT-01" --reporter=list
 
-# 2. Write MINIMAL code to pass
+# 3. Write MINIMAL code to pass
 
-# 3. Run test — watch it PASS
+# 4. Run unit test — watch it PASS
+npx vitest run --testNamePattern "FEAT-U01"
+
+# 5. Run E2E test — watch it PASS
 npx playwright test --grep "FEAT-01" --reporter=list
 
-# 4. Update marker: 🔄 → ✅
+# 6. Update marker: 🔄 → ✅
 
-# 5. Commit: "Builder: Clear FEAT-01"
+# 7. Commit: "Builder: Clear FEAT-01"
 ```
 
 ## Minimal Code Principle
@@ -67,15 +73,17 @@ npx playwright test --grep "FEAT-01" --headed
 ## Verification Before Claiming Cleared
 
 For EACH checkpoint:
-- [ ] Test was FAILING before implementation
-- [ ] Test is PASSING after implementation
-- [ ] No other tests broke (run full suite)
+- [ ] Unit test was FAILING before implementation
+- [ ] Unit test is PASSING after implementation
+- [ ] E2E test was FAILING before implementation
+- [ ] E2E test is PASSING after implementation
+- [ ] No other tests broke (run full suite — both layers)
 - [ ] No console errors or warnings
 - [ ] Screenshot evidence captured
 
 ```bash
-# Verify no regressions
-npx playwright test --reporter=list
+# Verify no regressions — BOTH layers
+npm run test:all
 ```
 
 ## If Tests Need Fixing

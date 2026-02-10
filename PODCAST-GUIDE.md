@@ -13,19 +13,20 @@
 3. [The Expedition Metaphor](#3-the-expedition-metaphor)
 4. [Architecture: The Five Layers](#4-architecture-the-five-layers)
 5. [How It Boots Up: The SessionStart Hook](#5-how-it-boots-up-the-sessionstart-hook)
-6. [The 12 Composable Skills](#6-the-12-composable-skills)
+6. [The 13 Composable Skills](#6-the-13-composable-skills)
 7. [The 7-Phase Workflow in Detail](#7-the-7-phase-workflow-in-detail)
 8. [Slash Commands: The Quick Entry Points](#8-slash-commands-the-quick-entry-points)
 9. [The Anti-Rationalization Engine](#9-the-anti-rationalization-engine)
 10. [Playwright Integration Under the Hood](#10-playwright-integration-under-the-hood)
-11. [The Checkpoint Fixture: Custom Test Instrumentation](#11-the-checkpoint-fixture-custom-test-instrumentation)
-12. [The Custom Reporter: From Tests to Structured Data](#12-the-custom-reporter-from-tests-to-structured-data)
-13. [The JSON Data Pipeline](#13-the-json-data-pipeline)
-14. [Multi-Agent Dispatch and Two-Stage Review](#14-multi-agent-dispatch-and-two-stage-review)
-15. [CI/CD Integration](#15-cicd-integration)
-16. [Step-by-Step Usage Guide](#16-step-by-step-usage-guide)
-17. [How to Extend Pathfinder: Writing New Skills](#17-how-to-extend-pathfinder-writing-new-skills)
-18. [Inspirations and Credits](#18-inspirations-and-credits)
+11. [Unit Testing with Vitest](#11-unit-testing-with-vitest)
+12. [The Checkpoint Fixture: Custom Test Instrumentation](#12-the-checkpoint-fixture-custom-test-instrumentation)
+13. [The Custom Reporter: From Tests to Structured Data](#13-the-custom-reporter-from-tests-to-structured-data)
+14. [The JSON Data Pipeline](#14-the-json-data-pipeline)
+15. [Multi-Agent Dispatch and Two-Stage Review](#15-multi-agent-dispatch-and-two-stage-review)
+16. [CI/CD Integration](#16-cicd-integration)
+17. [Step-by-Step Usage Guide](#17-step-by-step-usage-guide)
+18. [How to Extend Pathfinder: Writing New Skills](#18-how-to-extend-pathfinder-writing-new-skills)
+19. [Inspirations and Credits](#19-inspirations-and-credits)
 
 ---
 
@@ -187,7 +188,7 @@ This ensures the rules are always present, even if the agent's context was wiped
 
 ---
 
-## 6. The 12 Composable Skills
+## 6. The 13 Composable Skills
 
 Skills are the building blocks of Pathfinder. Each one is a standalone Markdown file in the `skills/` directory with YAML frontmatter, a clear goal, step-by-step instructions, CLI commands, and anti-rationalization tables.
 
@@ -216,9 +217,9 @@ The original Pathfinder had a single `AGENTS.md` file at 429 lines. That's too m
 
 **5. `marking` (Phase 3)** — Checkpoint extraction with categories (Happy Path, Error, Empty State, Edge Case, Validation, Loading, Action) and an edge case matrix. Outputs a structured list of checkpoints with IDs, categories, descriptions, and priorities. Commits the map BEFORE scouting begins.
 
-**6. `scouting` (Phase 4)** — Test writing using Playwright. The Iron Law: "NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST." Tests use the custom checkpoint fixture. Includes codegen-assisted scouting for complex UI flows (`npx playwright codegen`). Mandates RED verification — every test must be seen to fail before moving on. Territory restriction: `e2e/` and `USER-JOURNEYS.md` ONLY. Scouts cannot touch `src/`.
+**6. `scouting` (Phase 4)** — Test writing using Playwright AND Vitest. The Iron Law: "NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST." Scouts write E2E tests (Playwright checkpoint fixture) AND unit tests (Vitest, co-located in `src/**/*.test.ts`). Includes codegen-assisted scouting for complex UI flows (`npx playwright codegen`). Mandates RED verification for both layers — every test must be seen to fail before moving on. Territory restriction: `e2e/` for E2E tests, `src/**/*.test.ts` for unit tests. Scouts cannot touch implementation code.
 
-**7. `building` (Phase 5)** — Implementation using the minimal code principle. One checkpoint at a time. Run test → watch FAIL → write minimal code → watch PASS → update marker → commit. Includes Playwright debugging commands (`--debug`, `--headed`, `show-trace`). Territory restriction: `src/` ONLY. Builders cannot touch test assertions. If tests need fixing, the builder must explicitly "enter Scout mode."
+**7. `building` (Phase 5)** — Implementation using the minimal code principle. One checkpoint at a time. Run unit test → watch FAIL → run E2E test → watch FAIL → write minimal code → watch both PASS → update marker → commit. Includes Playwright debugging commands (`--debug`, `--headed`, `show-trace`) and Vitest watch mode for rapid unit test cycles. Territory restriction: `src/` implementation code ONLY. Builders cannot touch test assertions. If tests need fixing, the builder must explicitly "enter Scout mode."
 
 **8. `dispatching` (Phase 6)** — Multi-agent coordination with fresh context dispatch. Provides copy-paste templates for Scout and Builder agents, each containing everything the agent needs (territory, task, trail map, checkpoints, commands, expected results). Includes the two-stage review protocol and handoff protocol. Also covers single-agent mode where one agent handles both roles with explicit mode switching.
 
@@ -230,7 +231,9 @@ The original Pathfinder had a single `AGENTS.md` file at 429 lines. That's too m
 
 **11. `verification-before-completion`** — Evidence-based verification before claiming any task is done. Defines a required-evidence table: every claim ("test is written", "checkpoint cleared", "all tests pass", "no regressions", "trail map updated", "PR ready") maps to a specific Playwright CLI command that must be run and shown. Six anti-rationalizations counter "I'm confident it works," "I tested it manually," etc.
 
-**12. `systematic-debugging`** — Root-cause investigation in five steps: Reproduce → Isolate → Diagnose → Fix → Verify. Each step has specific Playwright CLI commands. The Fix step requires writing a test that reproduces the bug FIRST (maintaining TDD even during debugging). Includes a flaky test protocol: mark ⚠️, run 10x, fix root cause, run 10x again, update to ✅.
+**12. `unit-testing`** — Unit test enforcement using Vitest. Complements E2E scouting with fine-grained function/component tests. Defines when unit tests are required (pure functions, API handlers, state management, utilities, component rendering) vs when E2E is preferred (full user journeys, cross-page flows). Uses co-located test files (`src/utils/validate-email.test.ts` next to `validate-email.ts`). Unit checkpoints use a `U` suffix (`AUTH-U01`) to distinguish from E2E checkpoints (`AUTH-01`). Includes Vitest CLI commands, watch mode guidance, and anti-rationalizations countering "E2E covers everything" and "This function is too simple to unit test."
+
+**13. `systematic-debugging`** — Root-cause investigation in five steps: Reproduce → Isolate → Diagnose → Fix → Verify. Each step has specific Playwright CLI commands. The Fix step requires writing a test that reproduces the bug FIRST (maintaining TDD even during debugging). Includes a flaky test protocol: mark ⚠️, run 10x, fix root cause, run 10x again, update to ✅.
 
 ---
 
@@ -487,21 +490,159 @@ All commands are also available as npm scripts for convenience:
 
 ```json
 {
-  "test":          "playwright test",
-  "test:setup":    "playwright test --project=setup",
-  "test:headed":   "playwright test --headed",
-  "test:debug":    "playwright test --debug",
-  "test:report":   "playwright show-report",
-  "test:codegen":  "playwright codegen --load-storage=.auth/state.json",
-  "test:coverage": "tsx scripts/update-coverage.ts",
-  "test:trace":    "playwright show-trace",
+  "test":            "playwright test",
+  "test:unit":       "vitest run",
+  "test:unit:watch": "vitest",
+  "test:all":        "vitest run && playwright test",
+  "test:setup":      "playwright test --project=setup",
+  "test:headed":     "playwright test --headed",
+  "test:debug":      "playwright test --debug",
+  "test:report":     "playwright show-report",
+  "test:codegen":    "playwright codegen --load-storage=.auth/state.json",
+  "test:coverage":   "tsx scripts/update-coverage.ts",
+  "test:trace":      "playwright show-trace",
   "test:generate-map": "tsx scripts/generate-map.ts"
 }
 ```
 
 ---
 
-## 11. The Checkpoint Fixture: Custom Test Instrumentation
+## 11. Unit Testing with Vitest
+
+While Playwright handles E2E testing (verifying what the **user sees**), Vitest handles unit testing (verifying what the **code does**). Both layers are required in Pathfinder. Here's how unit testing fits into the system.
+
+### Why Two Testing Layers?
+
+| Layer | Tool | Tests | Speed | Tells You |
+|-------|------|-------|-------|-----------|
+| **Unit** | Vitest | Individual functions, modules, components | Fast (milliseconds) | **What** broke |
+| **E2E** | Playwright | Full user journeys in a real browser | Slow (seconds) | **That something** broke |
+
+An E2E test that fails tells you "the login page is broken." A unit test that fails tells you "the `validateEmail` function rejects valid emails when they contain a `+` character." You need both signals.
+
+### Vitest Configuration
+
+```typescript
+// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    exclude: ['e2e/**', 'node_modules/**'],
+    reporters: ['verbose', 'json'],
+    outputFile: 'test-results/unit-results.json',
+  },
+});
+```
+
+Key decisions:
+- **Tests live in `src/`** — Co-located next to the code they test, not in a separate directory
+- **E2E tests excluded** — Vitest only runs unit tests; Playwright handles E2E
+- **JSON output** — Results written to `test-results/` for pipeline consumption
+
+### Checkpoint Naming Convention
+
+Unit checkpoints use a `U` suffix to distinguish them from E2E checkpoints:
+
+| Type | Format | Example |
+|------|--------|---------|
+| E2E | `AUTH-01` | `AUTH-01: Login redirects to dashboard` |
+| Unit | `AUTH-U01` | `AUTH-U01: validateEmail rejects empty string` |
+
+Both types appear in the same trail map, giving complete visibility.
+
+### Co-Located Test Files
+
+```
+src/
+├── utils/
+│   ├── validate-email.ts          ← Implementation
+│   └── validate-email.test.ts     ← Unit test (right next to it)
+├── hooks/
+│   ├── use-auth.ts
+│   └── use-auth.test.ts
+├── api/
+│   ├── login.ts
+│   └── login.test.ts
+```
+
+If you see a `.ts` file without a `.test.ts` beside it, that's a red flag — the code is untested.
+
+### Unit Test Example
+
+```typescript
+// src/utils/validate-email.test.ts
+import { describe, it, expect } from 'vitest';
+import { validateEmail } from './validate-email';
+
+describe('Auth Journey — Unit', () => {
+  it('AUTH-U01: validateEmail rejects empty string', () => {
+    expect(validateEmail('')).toBe(false);
+  });
+
+  it('AUTH-U02: validateEmail rejects missing @', () => {
+    expect(validateEmail('userexample.com')).toBe(false);
+  });
+
+  it('AUTH-U03: validateEmail accepts valid email', () => {
+    expect(validateEmail('user@example.com')).toBe(true);
+  });
+});
+```
+
+### CLI Commands
+
+```bash
+# Run all unit tests
+npm run test:unit
+
+# Run specific test file
+npx vitest run src/utils/validate-email.test.ts
+
+# Run by checkpoint name
+npx vitest run --testNamePattern "AUTH-U01"
+
+# Watch mode (re-runs on file change)
+npm run test:unit:watch
+
+# Run BOTH unit and E2E
+npm run test:all
+```
+
+### Who Is Responsible?
+
+| Role | Unit Tests | E2E Tests |
+|------|-----------|-----------|
+| **Scout** | Writes failing unit tests (`src/**/*.test.ts`) | Writes failing E2E tests (`e2e/`) |
+| **Builder** | Makes unit tests pass | Makes E2E tests pass |
+
+The Scout writes BOTH types of tests before the Builder writes any implementation code. The Builder must pass BOTH layers before claiming a checkpoint is cleared.
+
+### The Extended Build Loop
+
+```bash
+# 1. Unit test — FAIL
+npx vitest run --testNamePattern "AUTH-U01"
+
+# 2. E2E test — FAIL
+npx playwright test --grep "AUTH-01"
+
+# 3. Write minimal code
+
+# 4. Unit test — PASS
+npx vitest run --testNamePattern "AUTH-U01"
+
+# 5. E2E test — PASS
+npx playwright test --grep "AUTH-01"
+
+# 6. Full suite — no regressions
+npm run test:all
+```
+
+---
+
+## 12. The Checkpoint Fixture: Custom Test Instrumentation
 
 The checkpoint fixture is the bridge between Playwright tests and the Pathfinder trail marker system. It's a custom Playwright fixture defined in `e2e/fixtures/pathfinder.ts`.
 
@@ -583,7 +724,7 @@ The JSON files written to `test-results/` are consumed by the PathfinderReporter
 
 ---
 
-## 12. The Custom Reporter: From Tests to Structured Data
+## 13. The Custom Reporter: From Tests to Structured Data
 
 The PathfinderReporter (`e2e/reporters/pathfinder-reporter.ts`) is a custom Playwright reporter that extracts checkpoint information from test results and produces structured JSON output.
 
@@ -686,7 +827,7 @@ The reporter produces `test-results/checkpoints.json`:
 
 ---
 
-## 13. The JSON Data Pipeline
+## 14. The JSON Data Pipeline
 
 This is one of Pathfinder's most important architectural decisions. The original system used regex to parse and update Markdown files — fragile, error-prone, and unmaintainable. The new system uses a structured JSON pipeline:
 
@@ -757,7 +898,7 @@ npx tsx scripts/update-coverage.ts --status WELL-01:pass,WELL-02:fail
 
 ---
 
-## 14. Multi-Agent Dispatch and Two-Stage Review
+## 15. Multi-Agent Dispatch and Two-Stage Review
 
 Pathfinder supports a multi-agent workflow where different agents handle different roles, coordinated by the dispatching skill.
 
@@ -828,7 +969,7 @@ When one agent handles both roles (the common case):
 
 ---
 
-## 15. CI/CD Integration
+## 16. CI/CD Integration
 
 Pathfinder includes a complete GitHub Actions workflow in `.github/workflows/pathfinder.yml`.
 
@@ -874,7 +1015,7 @@ Two artifacts are uploaded:
 
 ---
 
-## 16. Step-by-Step Usage Guide
+## 17. Step-by-Step Usage Guide
 
 ### Getting Started
 
@@ -942,16 +1083,28 @@ The agent generates the expedition report, updates coverage, and creates the PR.
 ### Useful Commands During Development
 
 ```bash
-# Run all tests
+# Run all E2E tests
 npm test
 
-# Run a single checkpoint
+# Run all unit tests
+npm run test:unit
+
+# Run BOTH unit + E2E (full verification)
+npm run test:all
+
+# Run a single E2E checkpoint
 npx playwright test --grep "AUTH-01"
 
-# Debug a failing test (step-through in browser)
+# Run a single unit checkpoint
+npx vitest run --testNamePattern "AUTH-U01"
+
+# Unit test watch mode (re-runs on file change)
+npm run test:unit:watch
+
+# Debug a failing E2E test (step-through in browser)
 npx playwright test --grep "AUTH-01" --debug
 
-# Watch the test run in a visible browser
+# Watch the E2E test run in a visible browser
 npm run test:headed
 
 # Record a new test flow
@@ -969,7 +1122,7 @@ npm run test:coverage
 # Regenerate the trail map
 npm run test:generate-map
 
-# Re-run only failed tests
+# Re-run only failed E2E tests
 npx playwright test --last-failed
 
 # Check for flaky tests (run 10x)
@@ -985,7 +1138,7 @@ npx tsx scripts/update-coverage.ts --status AUTH-01:pass,AUTH-02:fail,AUTH-03:sk
 
 ---
 
-## 17. How to Extend Pathfinder: Writing New Skills
+## 18. How to Extend Pathfinder: Writing New Skills
 
 Pathfinder is designed to grow. The `writing-skills` meta-skill teaches you how to create new skills using the same TDD methodology that Pathfinder enforces for code.
 
@@ -1046,7 +1199,7 @@ Update the skill routing table in `skills/using-pathfinder/SKILL.md`:
 
 ---
 
-## 18. Inspirations and Credits
+## 19. Inspirations and Credits
 
 ### obra/superpowers
 
@@ -1073,9 +1226,10 @@ Pathfinder/
 ├── package.json                       # npm scripts for all CLI commands
 ├── tsconfig.json                      # TypeScript strict configuration
 ├── playwright.config.ts               # 4 reporters, auth project, evidence collection
+├── vitest.config.ts                   # Unit test configuration (Vitest)
 ├── .gitignore                         # node_modules, .auth, test-results, etc.
 │
-├── skills/                            # 12 composable skill files
+├── skills/                            # 13 composable skill files
 │   ├── using-pathfinder/SKILL.md      # Meta-skill (auto-loaded via SessionStart)
 │   ├── writing-skills/SKILL.md        # Meta-skill for creating new skills
 │   ├── surveying/SKILL.md             # Phase 1: Requirements gathering
@@ -1086,6 +1240,7 @@ Pathfinder/
 │   ├── dispatching/SKILL.md           # Phase 6: Multi-agent coordination
 │   ├── reporting/SKILL.md             # Phase 7: Expedition report + PR
 │   ├── test-driven-development/SKILL.md      # Cross-cutting: TDD enforcement
+│   ├── unit-testing/SKILL.md          # Cross-cutting: Vitest unit test enforcement
 │   ├── verification-before-completion/SKILL.md # Cross-cutting: Evidence required
 │   └── systematic-debugging/SKILL.md  # Cross-cutting: Root-cause investigation
 │
