@@ -23,27 +23,24 @@ Thinking "I'll save time by skipping"? You won't. Invoke the skill.
 | Trigger | Skill | When |
 |---------|-------|------|
 | New feature, user story, requirement | `pathfinder:surveying` | Before ANY code or tests |
-| Need a visual journey/flow | `pathfinder:charting` | After survey approved |
-| Defining test cases or checkpoints | `pathfinder:marking` | After map charted |
-| Writing E2E or integration tests | `pathfinder:scouting` | After checkpoints marked |
+| Charting journey map, defining checkpoints | `pathfinder:planning` | After survey approved |
+| Writing E2E or integration tests | `pathfinder:scouting` | After plan approved |
 | Writing unit tests for functions/modules | `pathfinder:unit-testing` | Any code in `src/` |
 | Implementing features | `pathfinder:building` | After ALL tests written (unit + E2E) |
 | Coordinating scout/builder agents | `pathfinder:dispatching` | Multi-agent mode |
 | Creating PR or expedition report | `pathfinder:reporting` | After all tests pass |
 | Creating branches, committing, opening PRs | `pathfinder:git-workflow` | Start and end of expedition |
+| Reviewing code or PRs | `pathfinder:code-review` | Any review task |
+| Security concern or writing auth/input code | `pathfinder:security` | Any time |
 | Something is broken/failing | `pathfinder:systematic-debugging` | Any time |
-| Claiming task completion | `pathfinder:verification-before-completion` | Before ANY completion claim |
 
-## Process Skills Come First
-
-When multiple skills apply, process skills ALWAYS come before implementation:
+## Process Order
 
 1. `pathfinder:surveying` (understand WHAT)
-2. `pathfinder:charting` (visualize HOW)
-3. `pathfinder:marking` (define checkpoints)
-4. `pathfinder:scouting` (write tests)
-5. `pathfinder:building` (implement)
-6. `pathfinder:reporting` (ship)
+2. `pathfinder:planning` (chart map + define checkpoints)
+3. `pathfinder:scouting` (write failing tests — E2E + unit)
+4. `pathfinder:building` (implement to pass tests)
+5. `pathfinder:reporting` (verify evidence + create PR)
 
 "Build X" triggers surveying first. Always.
 
@@ -53,7 +50,7 @@ When multiple skills apply, process skills ALWAYS come before implementation:
 - Cannot write production code without failing tests (both unit AND E2E)
 - Cannot mark a checkpoint as cleared without evidence (both test layers must pass)
 - Cannot create a PR without all checkpoints passing
-- Cannot claim completion without verification
+- Cannot claim completion without running `npm run test:all`
 
 ## Trail Markers
 
@@ -67,13 +64,12 @@ When multiple skills apply, process skills ALWAYS come before implementation:
 
 ## Anti-Skip Guard
 
-If you find yourself NOT invoking a skill, check these:
-
 | Thought | Reality | Action |
 |---------|---------|--------|
 | "This is too trivial for the full workflow" | Trivial things break most often | At minimum invoke `pathfinder:scouting` |
 | "I already know the requirements" | Assumptions cause rework | Invoke `pathfinder:surveying` |
-| "Tests will slow me down" | Tests catch the bugs you'd spend 10x fixing later | Invoke `pathfinder:test-driven-development` |
+| "Tests will slow me down" | Tests catch bugs you'd spend 10x fixing later | Invoke `pathfinder:scouting` |
 | "I'll add tests after" | Tests-after are biased by implementation | Delete code, invoke `pathfinder:scouting` |
-| "E2E tests are enough, no unit tests needed" | E2E tells you something broke. Unit tests tell you what broke. | Invoke `pathfinder:unit-testing` |
-| "I'll commit to main, it's a small change" | Small changes on main break CI for everyone. | Invoke `pathfinder:git-workflow` |
+| "E2E tests are enough" | E2E tells you something broke. Unit tests tell you what. | Invoke `pathfinder:unit-testing` |
+| "I'll commit to main" | Small changes on main break CI for everyone. | Invoke `pathfinder:git-workflow` |
+| "Security doesn't apply here" | Every user input is an attack vector. | Invoke `pathfinder:security` |

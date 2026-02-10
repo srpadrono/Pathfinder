@@ -1,15 +1,15 @@
 ---
 name: building
 description: >
-  Phase 5: Implement minimal code to pass each test, one at a time.
+  Phase 4: Implement minimal code to pass each test, one at a time.
   Follow the marked trail using Playwright CLI for verification.
 ---
 
-# Building — Phase 5
+# Building — Phase 4
 
 **Goal:** Implement minimal code to pass each test, one at a time.
 
-**Prerequisite:** All checkpoint tests exist and FAIL (Phase 4 complete).
+**Prerequisite:** All checkpoint tests exist and FAIL (Phase 3 complete).
 **Territory:** `src/` and implementation code ONLY. Do NOT modify test assertions.
 
 ## The Build Loop

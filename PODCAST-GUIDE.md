@@ -13,8 +13,8 @@
 3. [The Expedition Metaphor](#3-the-expedition-metaphor)
 4. [Architecture: The Five Layers](#4-architecture-the-five-layers)
 5. [How It Boots Up: The SessionStart Hook](#5-how-it-boots-up-the-sessionstart-hook)
-6. [The 14 Composable Skills](#6-the-14-composable-skills)
-7. [The 7-Phase Workflow in Detail](#7-the-7-phase-workflow-in-detail)
+6. [The 10 Composable Skills](#6-the-10-composable-skills)
+7. [The 5-Phase Workflow in Detail](#7-the-5-phase-workflow-in-detail)
 8. [Slash Commands: The Quick Entry Points](#8-slash-commands-the-quick-entry-points)
 9. [The Anti-Rationalization Engine](#9-the-anti-rationalization-engine)
 10. [Playwright Integration Under the Hood](#10-playwright-integration-under-the-hood)
@@ -189,60 +189,64 @@ This ensures the rules are always present, even if the agent's context was wiped
 
 ---
 
-## 6. The 14 Composable Skills
+## 6. The 10 Composable Skills
 
 Skills are the building blocks of Pathfinder. Each one is a standalone Markdown file in the `skills/` directory with YAML frontmatter, a clear goal, step-by-step instructions, CLI commands, and anti-rationalization tables.
 
-### Why Composable?
+### Why 10, Not 14?
 
-The original Pathfinder had a single `AGENTS.md` file at 429 lines. That's too much for an agent to hold in context at once. The composable approach (inspired by obra/superpowers) means:
+The system was originally built with 14 skills, but an honest audit revealed significant overlap and unnecessary complexity. Five skills were consolidated or removed:
 
-- Only the relevant skill loads when needed
-- Each skill fits comfortably in agent context
-- Skills can be updated independently
-- New skills can be added without touching existing ones
+- **`charting` + `marking`** merged into `planning` — they always ran together
+- **`test-driven-development`** absorbed into `scouting` and `building` — its content was already duplicated in both
+- **`verification-before-completion`** absorbed into `reporting` — same checklists, same commands
+- **`writing-skills`** moved to `docs/` — reference documentation, not an active workflow skill
+
+Two new skills were added to fill real gaps:
+- **`code-review`** — agents had no guidance on reviewing others' code
+- **`security`** — no enforcement of OWASP basics, input validation, or secrets management
+
+The result: fewer skills, sharper focus, less duplication, better coverage.
 
 ### The Skill Roster
 
-#### Meta-Skills (loaded automatically or on-demand)
+#### Meta-Skill
 
-**1. `using-pathfinder`** — The meta-skill, auto-injected at session start. Contains The Rule, the skill routing table, enforcement gates, trail markers, and the anti-skip guard. This is the "brain" that tells the agent which other skill to load and when.
+**1. `using-pathfinder`** — Auto-injected at session start via SessionStart hook. Contains The Rule, the 10-skill routing table, enforcement gates, trail markers, and the anti-skip guard. This is the "brain" that routes to every other skill.
 
-**2. `writing-skills`** — A meta-skill for creating new Pathfinder skills. Applies TDD to documentation itself: observe an agent failing (RED), write a skill to prevent that failure (GREEN), then close loopholes (REFACTOR).
+#### Phase Skills (follow the 5-phase workflow)
 
-#### Phase Skills (follow the 7-phase workflow)
+**2. `surveying` (Phase 1)** — Requirements gathering through Socratic dialogue. Reads project context, asks questions one at a time (multiple choice preferred), identifies hazards (errors, empty states, edge cases, auth), proposes 2-3 approaches with trade-offs. YAGNI check: "Can any requirements be removed?"
 
-**3. `surveying` (Phase 1)** — Requirements gathering through Socratic dialogue. The agent reads project context, then asks questions one at a time (preferring multiple choice). It identifies hazards: error states, empty states, loading states, edge cases, race conditions, auth issues. After surveying, proposes 2-3 approaches with trade-offs. Includes a YAGNI check: "Can any of these requirements be removed?"
+**3. `planning` (Phase 2)** — Charts a Mermaid journey map AND extracts all checkpoints in one pass. Combines the old charting and marking skills. Defines node format, checkpoint naming (`AUTH-01`), categories (Happy Path, Error, Empty State, Edge Case), edge case matrix. Presents incrementally with approval checks. Commits before scouting.
 
-**4. `charting` (Phase 2)** — Visual journey creation using Mermaid diagrams. Defines the node format (`[Description MARKER ID]`), checkpoint naming conventions (`AUTH-01`, `DASH-02`), and presentation strategy (happy path first, then error paths, then edge cases). Each section gets a "Does this look right so far?" check.
+**4. `scouting` (Phase 3)** — Writes failing tests for ALL checkpoints using both Playwright (E2E) and Vitest (unit). The Iron Law: "NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST." Includes codegen-assisted scouting, RED verification for both layers, red flags list (6 signs TDD was abandoned), and testing anti-patterns table. Territory: `e2e/` + `src/**/*.test.ts`.
 
-**5. `marking` (Phase 3)** — Checkpoint extraction with categories (Happy Path, Error, Empty State, Edge Case, Validation, Loading, Action) and an edge case matrix. Outputs a structured list of checkpoints with IDs, categories, descriptions, and priorities. Commits the map BEFORE scouting begins.
+**5. `building` (Phase 4)** — Implements minimal code to pass each test, one at a time. Unit test FAIL → E2E test FAIL → write code → unit PASS → E2E PASS → commit. Includes debugging commands, verification checklist for both layers, and explicit Scout/Builder mode switching protocol.
 
-**6. `scouting` (Phase 4)** — Test writing using Playwright AND Vitest. The Iron Law: "NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST." Scouts write E2E tests (Playwright checkpoint fixture) AND unit tests (Vitest, co-located in `src/**/*.test.ts`). Includes codegen-assisted scouting for complex UI flows (`npx playwright codegen`). Mandates RED verification for both layers — every test must be seen to fail before moving on. Territory restriction: `e2e/` for E2E tests, `src/**/*.test.ts` for unit tests. Scouts cannot touch implementation code.
+**6. `reporting` (Phase 6)** — Verifies all evidence, creates PR, closes the expedition. Absorbs the old verification-before-completion skill: required-evidence-per-claim table, pre-review checklist, PR creation commands (`gh pr create`), post-PR review workflow, issue severity levels.
 
-**7. `building` (Phase 5)** — Implementation using the minimal code principle. One checkpoint at a time. Run unit test → watch FAIL → run E2E test → watch FAIL → write minimal code → watch both PASS → update marker → commit. Includes Playwright debugging commands (`--debug`, `--headed`, `show-trace`) and Vitest watch mode for rapid unit test cycles. Territory restriction: `src/` implementation code ONLY. Builders cannot touch test assertions. If tests need fixing, the builder must explicitly "enter Scout mode."
+#### Optional Phase Skill
 
-**8. `dispatching` (Phase 6)** — Multi-agent coordination with fresh context dispatch. Provides copy-paste templates for Scout and Builder agents, each containing everything the agent needs (territory, task, trail map, checkpoints, commands, expected results). Includes the two-stage review protocol and handoff protocol. Also covers single-agent mode where one agent handles both roles with explicit mode switching.
-
-**9. `reporting` (Phase 7)** — Expedition report creation. Pre-report verification using Playwright CLI commands, a pre-review checklist (all tests pass, trail map updated, screenshots captured, no console errors, code matches spec, YAGNI applied, coverage synced), PR structure (trail map, checkpoint table, edge cases, evidence, expedition log), and issue severity levels (Critical blocks merge, Important fix before merge, Minor note for later).
+**7. `dispatching` (Phase 5, optional)** — Multi-agent coordination with fresh context dispatch. Only needed when Scout and Builder are separate agents. Provides dispatch templates, two-stage review (trail compliance + code quality), handoff protocol, and single-agent mode guidance.
 
 #### Cross-Cutting Skills (apply at any phase)
 
-**10. `test-driven-development`** — The core TDD enforcement skill. Contains the Iron Law, the RED-GREEN-REFACTOR cycle with concrete Playwright commands, an 8-row anti-rationalization guide (the most comprehensive in the system), red flags list (6 indicators that TDD was abandoned), and a testing anti-patterns table.
+**8. `unit-testing`** — Vitest enforcement for functions, modules, and components. Defines when unit tests are required vs when E2E is preferred. Co-located test files, checkpoint naming with `U` suffix (`AUTH-U01`), watch mode for rapid RED-GREEN cycles.
 
-**11. `verification-before-completion`** — Evidence-based verification before claiming any task is done. Defines a required-evidence table: every claim ("test is written", "checkpoint cleared", "all tests pass", "no regressions", "trail map updated", "PR ready") maps to a specific Playwright CLI command that must be run and shown. Six anti-rationalizations counter "I'm confident it works," "I tested it manually," etc.
+**9. `git-workflow`** — Branch naming (`expedition/`, `scout/`, `fix/`), commit conventions (`Scout: Mark trail for AUTH-01`), step-by-step PR creation, multi-agent branch strategy.
 
-**12. `unit-testing`** — Unit test enforcement using Vitest. Complements E2E scouting with fine-grained function/component tests. Defines when unit tests are required (pure functions, API handlers, state management, utilities, component rendering) vs when E2E is preferred (full user journeys, cross-page flows). Uses co-located test files (`src/utils/validate-email.test.ts` next to `validate-email.ts`). Unit checkpoints use a `U` suffix (`AUTH-U01`) to distinguish from E2E checkpoints (`AUTH-01`). Includes Vitest CLI commands, watch mode guidance, and anti-rationalizations countering "E2E covers everything" and "This function is too simple to unit test."
+**10. `code-review`** — Structured review process: understand the expedition, run tests yourself, trail compliance review, code quality review, security spot-check. Feedback format with severity levels. Anti-patterns: rubber-stamping, only reviewing latest commit, nitpicking style over logic.
 
-**13. `git-workflow`** — Branch creation, commit conventions, and PR workflow. Defines branch naming (`expedition/auth-login-flow`, `scout/`, `builder/`, `fix/`, `hotfix/`), commit message format (`Scout: Mark trail for AUTH-01 through AUTH-05`, `Builder: Clear AUTH-01`), step-by-step PR creation with `gh pr create`, multi-agent branch strategy (single branch recommended vs separate branches), and pre-commit verification commands. Anti-rationalizations counter "I'll just commit to main" and "commit messages don't matter."
+**11. `security`** — Security checklist for every phase: input validation, auth/authz, data protection, output encoding, dependency auditing. Example security checkpoint tests (XSS, SQL injection, auth bypass). CLI commands for auditing. Integrated into the planning and reporting phases.
 
-**14. `systematic-debugging`** — Root-cause investigation in five steps: Reproduce → Isolate → Diagnose → Fix → Verify. Each step has specific Playwright CLI commands. The Fix step requires writing a test that reproduces the bug FIRST (maintaining TDD even during debugging). Includes a flaky test protocol: mark ⚠️, run 10x, fix root cause, run 10x again, update to ✅.
+**12. `systematic-debugging`** — Root-cause investigation: Reproduce → Isolate → Diagnose → Fix → Verify. Playwright debugging commands. Fix step requires a test that reproduces the bug FIRST. Flaky test protocol: mark ⚠️, run 10x, fix, run 10x again.
 
 ---
 
-## 7. The 7-Phase Workflow in Detail
+## 7. The 5-Phase Workflow in Detail
 
-This is the complete lifecycle of a feature in Pathfinder:
+This is the complete lifecycle of a feature in Pathfinder. Streamlined from the original 7 phases by merging Chart+Mark into Plan, and absorbing Dispatch into the workflow as optional.
 
 ### Phase 1: Survey (`/survey`)
 
@@ -256,92 +260,62 @@ This is the complete lifecycle of a feature in Pathfinder:
 
 **Output:** Approved requirements and chosen approach.
 
-### Phase 2: Chart
+### Phase 2: Plan
 
 **When:** Survey is approved.
 **What happens:**
-1. Agent creates a Mermaid diagram in `USER-JOURNEYS.md`
-2. Diagrams use `[Description ❌ FEAT-01]` format for checkpoint nodes
-3. Happy path is charted first, then error paths, then edge cases
-4. Each section is presented incrementally with "Does this look right?" checks
+1. Agent creates a Mermaid diagram in `USER-JOURNEYS.md` with all checkpoint nodes
+2. Extracts checkpoints into a structured list (ID, category, description, priority)
+3. Creates edge case matrix
+4. Presents incrementally — happy path first, then errors, then edge cases
+5. YAGNI check: can any checkpoints be removed?
+6. Commits map and checkpoints BEFORE any tests are written
 
-**Output:** Mermaid trail map with all checkpoints marked ❌ (Uncharted).
+**Output:** Committed trail map and checkpoint list with all markers ❌ (Uncharted).
 
-### Phase 3: Mark
+### Phase 3: Scout (`/scout`)
 
-**When:** Map is charted and approved.
+**When:** Plan is approved with checkpoints.
 **What happens:**
-1. Agent extracts ALL checkpoints into a structured list
-2. Each checkpoint gets: ID, category, description, priority
-3. Edge case matrix maps scenarios to expected behaviors
-4. YAGNI check: can any checkpoints be removed?
-5. Map and checkpoints are committed BEFORE any tests are written
+1. Agent writes failing E2E tests (Playwright) AND unit tests (Vitest) for ALL checkpoints
+2. E2E tests use the custom checkpoint fixture (`checkpoint.mark()`, `checkpoint.clear()`)
+3. Unit tests use co-located files (`src/**/*.test.ts`) with `U` suffix IDs (`AUTH-U01`)
+4. For complex flows, uses `npx playwright codegen` to record interactions
+5. Adds tests codegen can't capture: error states, empty states, edge cases
+6. Verifies RED for both layers — every test must be seen to fail
+7. Updates markers: ❌ → 🔄
+8. Commits: "Scout: Mark trail for FEAT-01 through FEAT-05 (E2E + unit)"
 
-**Output:** Committed checkpoint list and trail map.
+**Territory:** `e2e/` for E2E tests, `src/**/*.test.ts` for unit tests. Cannot touch implementation code.
 
-### Phase 4: Scout (`/scout`)
+**Output:** All tests exist and fail. Trail map shows all 🔄.
 
-**When:** Checkpoints are marked.
-**What happens:**
-1. Agent writes failing Playwright tests for ALL checkpoints
-2. Uses the custom checkpoint fixture (`checkpoint.mark()`, `checkpoint.clear()`)
-3. For complex flows, uses `npx playwright codegen` to record interactions, then refactors into checkpoint format
-4. Adds tests codegen can't capture: error states (via `page.route` mocks), empty states, edge cases, validation
-5. Runs every test to verify RED (fails because feature is missing, not because test is broken)
-6. Updates trail markers: ❌ → 🔄
-7. Commits: "Scout: Mark trail for FEAT-01 through FEAT-05"
-
-**Territory:** `e2e/` directory ONLY. Cannot touch `src/`.
-
-**Output:** All checkpoint tests exist and fail. Trail map shows all 🔄.
-
-### Phase 5: Build (`/build`)
+### Phase 4: Build (`/build`)
 
 **When:** All tests exist and fail.
 **What happens (for EACH checkpoint, one at a time):**
-1. Run `npx playwright test --grep "FEAT-01"` — watch it FAIL
-2. Write the simplest code to make it pass
-3. Run `npx playwright test --grep "FEAT-01"` — watch it PASS
-4. Run full suite to check for regressions
+1. Run unit test → watch it FAIL
+2. Run E2E test → watch it FAIL
+3. Write the simplest code to make both pass
+4. Run full suite to check for regressions (`npm run test:all`)
 5. Update marker: 🔄 → ✅
 6. Commit: "Builder: Clear FEAT-01"
 
 If tests need fixing, the builder explicitly announces "Entering Scout mode" before touching test code.
 
-**Territory:** `src/` directory ONLY. Cannot modify test assertions.
+**Territory:** `src/` implementation code ONLY. Cannot modify test assertions.
 
 **Output:** All checkpoints pass. Trail map shows all ✅.
 
-### Phase 6: Dispatch
-
-**When:** Multi-agent mode is active.
-**What happens:**
-1. Coordinator prepares fresh context dispatch for Scout agent (territory, task, map, checkpoints, commands)
-2. Scout completes Phase 4, hands off to Builder
-3. Builder completes Phase 5
-4. Two-stage review runs:
-   - **Stage 1: Trail Compliance** — Does implementation match checkpoint? YAGNI applied? Test before code (check git log)? Evidence matches?
-   - **Stage 2: Code Quality** — Minimal code? No console errors? No hardcoded values? Error handling? Conventions?
-5. Review loops until both stages pass
-
-**Output:** Reviewed, compliant code with evidence.
-
-### Phase 7: Report (`/report`)
+### Phase 5: Report (`/report`)
 
 **When:** All checkpoints are ✅.
 **What happens:**
-1. Run full suite: `npx playwright test --reporter=list`
+1. Run full suite: `npm run test:all`
 2. Generate HTML report: `npx playwright test --reporter=html`
-3. View report: `npx playwright show-report`
-4. Update coverage: `npm run test:coverage`
-5. Generate trail map: `npm run test:generate-map`
-6. Collect evidence from `test-results/` and `playwright-report/`
-7. Create PR using expedition report template:
-   - Trail Map (final Mermaid diagram, all ✅)
-   - Checkpoint Table (ID, description, status, evidence link)
-   - Edge Cases Covered (matrix from Phase 3)
-   - Evidence (screenshot links from `playwright-report/`)
-   - Expedition Log (what was built, decisions, issues)
+3. Update coverage: `npm run test:coverage`
+4. Generate trail map: `npm run test:generate-map`
+5. Create PR with evidence using `gh pr create` and the expedition report template
 
 **Output:** Pull request with complete evidence trail.
 
@@ -1305,20 +1279,18 @@ Pathfinder/
 ├── vitest.config.ts                   # Unit test configuration (Vitest)
 ├── .gitignore                         # node_modules, .auth, test-results, etc.
 │
-├── skills/                            # 14 composable skill files
+├── skills/                            # 10 composable skill files (+ 2 cross-cutting)
 │   ├── using-pathfinder/SKILL.md      # Meta-skill (auto-loaded via SessionStart)
-│   ├── writing-skills/SKILL.md        # Meta-skill for creating new skills
 │   ├── surveying/SKILL.md             # Phase 1: Requirements gathering
-│   ├── charting/SKILL.md              # Phase 2: Mermaid trail maps
-│   ├── marking/SKILL.md               # Phase 3: Checkpoint extraction
-│   ├── scouting/SKILL.md              # Phase 4: Write failing tests
-│   ├── building/SKILL.md              # Phase 5: Implement to pass tests
-│   ├── dispatching/SKILL.md           # Phase 6: Multi-agent coordination
-│   ├── reporting/SKILL.md             # Phase 7: Expedition report + PR
-│   ├── test-driven-development/SKILL.md      # Cross-cutting: TDD enforcement
-│   ├── unit-testing/SKILL.md          # Cross-cutting: Vitest unit test enforcement
+│   ├── planning/SKILL.md              # Phase 2: Chart map + define checkpoints
+│   ├── scouting/SKILL.md              # Phase 3: Write failing tests (E2E + unit)
+│   ├── building/SKILL.md              # Phase 4: Implement to pass tests
+│   ├── dispatching/SKILL.md           # Phase 5: Multi-agent coordination (optional)
+│   ├── reporting/SKILL.md             # Phase 6: Evidence, PR, close expedition
+│   ├── unit-testing/SKILL.md          # Cross-cutting: Vitest enforcement
 │   ├── git-workflow/SKILL.md          # Cross-cutting: Branches, commits, PRs
-│   ├── verification-before-completion/SKILL.md # Cross-cutting: Evidence required
+│   ├── code-review/SKILL.md           # Cross-cutting: Structured PR review
+│   ├── security/SKILL.md              # Cross-cutting: OWASP, input validation
 │   └── systematic-debugging/SKILL.md  # Cross-cutting: Root-cause investigation
 │
 ├── hooks/
@@ -1344,8 +1316,7 @@ Pathfinder/
 │
 ├── templates/                         # Starter templates for new projects
 │   ├── user-journeys.md
-│   ├── test-file.ts
-│   └── pr-template.md
+│   └── test-file.ts
 │
 ├── .github/
 │   ├── workflows/pathfinder.yml       # CI pipeline with coverage comments
@@ -1356,7 +1327,8 @@ Pathfinder/
     ├── tdd-workflow.md
     ├── journey-format.md
     ├── component-driven.md
-    └── ci-integration.md
+    ├── ci-integration.md
+    └── writing-skills.md              # Guide for creating new skills
 ```
 
 ---

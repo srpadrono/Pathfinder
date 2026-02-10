@@ -1,16 +1,16 @@
 ---
 name: scouting
 description: >
-  Phase 4: Write failing tests for ALL checkpoints before any implementation.
-  Scout the trail using Playwright CLI.
+  Phase 3: Write failing tests for ALL checkpoints before any implementation.
+  Scout the trail using Playwright and Vitest.
 ---
 
-# Scouting — Phase 4
+# Scouting — Phase 3
 
 **Goal:** Write failing tests for ALL checkpoints before any implementation.
 
-**Prerequisite:** Checkpoints marked (Phase 3 complete).
-**Territory:** `e2e/` and `USER-JOURNEYS.md` for E2E tests. `src/**/*.test.ts` for unit tests. Do NOT modify implementation code in `src/`.
+**Prerequisite:** Plan approved with checkpoints (Phase 2 complete).
+**Territory:** `e2e/` for E2E tests. `src/**/*.test.ts` for unit tests. Do NOT touch implementation code.
 
 ## The Iron Law
 
@@ -107,3 +107,25 @@ Confirm for BOTH layers:
 | "I'll skip codegen, I know the selectors" | Codegen prevents typos in selectors. Use it for complex flows. |
 | "I'll write the error tests later" | Error tests ARE the tests. Write them now. |
 | "E2E covers this, no unit test needed" | E2E is slow and tells you something broke. Unit tests tell you what. Write both. |
+| "This is too simple to test" | Simple code breaks most often. A 1-line regex can have 10 edge cases. Write the test. |
+| "I'll add tests after" | Tests-after verify YOUR implementation. Tests-first verify THE REQUIREMENT. Delete the code. |
+
+## Red Flags — TDD Abandoned
+
+If ANY of these occur, STOP and restart the Scout phase:
+
+- You wrote production code before a test
+- A test passed on first run (without implementation)
+- You modified a test to make it pass
+- You skipped a checkpoint because "it's obvious"
+- You're writing tests and code in the same commit
+
+## Testing Anti-Patterns
+
+| Anti-Pattern | Instead |
+|-------------|---------|
+| Test passes immediately | Ensure it fails first — test the NEW requirement |
+| Vague test name ("test1", "it works") | Use checkpoint ID + description |
+| Testing mocks not code | Test real behavior |
+| Multiple behaviors per test | One checkpoint per test |
+| Manual throw instead of expect | Use Playwright `expect()` or Vitest `expect()` |

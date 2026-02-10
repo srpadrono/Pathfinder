@@ -1,11 +1,11 @@
 ---
 name: dispatching
 description: >
-  Phase 6: Coordinate Scout and Builder agents efficiently.
+  Phase 5: Coordinate Scout and Builder agents efficiently.
   Fresh context dispatch with two-stage review.
 ---
 
-# Dispatching — Phase 6
+# Dispatching — Phase 5 (Optional)
 
 **Goal:** Coordinate Scout and Builder agents efficiently.
 

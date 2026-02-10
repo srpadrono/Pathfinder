@@ -1,15 +1,33 @@
 ---
 name: reporting
 description: >
-  Phase 7: Create PR with evidence, trail map, and review checklist.
-  Generate the expedition report. See git-workflow for branch/PR conventions.
+  Phase 6: Verify evidence, create PR, and close the expedition.
+  No self-certifying. Evidence over claims.
 ---
 
-# Reporting — Phase 7
+# Reporting — Phase 6
 
-**Goal:** Create PR with evidence, map, and review checklist.
+**Goal:** Verify all claims with evidence, create PR, close the expedition.
 
-**Prerequisite:** All checkpoints ✅ (Phase 5 complete). Branch created per `pathfinder:git-workflow`.
+**Prerequisite:** All checkpoints ✅ (Phase 4 complete). Branch created per `pathfinder:git-workflow`.
+
+## Evidence Over Claims
+
+NEVER claim a checkpoint is cleared without evidence.
+NEVER claim all tests pass without running them.
+NEVER mark 🔄 → ✅ without a passing test run.
+
+### Required Evidence Per Claim
+
+| Claim | Required Evidence |
+|-------|------------------|
+| "Test is written" | Show the test code + show it FAILS with expected message |
+| "Checkpoint cleared" | Show `npx playwright test --grep "FEAT-XX"` output with PASS |
+| "Unit tests pass" | Show `npx vitest run` output with 0 failures |
+| "All tests pass" | Show `npm run test:all` full output with 0 failures |
+| "No regressions" | Show full suite run, not just the new test |
+| "Trail map updated" | Show the diff of USER-JOURNEYS.md with updated markers |
+| "PR ready" | Show pre-review checklist with all items checked |
 
 ## Pre-Report Verification
 
@@ -26,9 +44,6 @@ npx playwright show-report
 # Update coverage and trail map
 npm run test:coverage
 npm run test:generate-map
-
-# Verify checkpoints.json is up to date
-cat test-results/checkpoints.json
 ```
 
 ## Pre-Review Checklist
@@ -63,8 +78,6 @@ gh pr create \
   --head expedition/<journey-name> \
   --title "Expedition: <Journey Name> (<checkpoint-range>)" \
   --body-file .github/PULL_REQUEST_TEMPLATE.md
-
-# 4. Or without gh CLI — use the URL git prints after push
 ```
 
 ## PR Structure
@@ -96,3 +109,12 @@ Use the expedition report template (`.github/PULL_REQUEST_TEMPLATE.md`):
 | **Minor** | Note for later | Magic numbers, naming nitpicks |
 
 Critical issues block progress. No exceptions.
+
+## Anti-Rationalization
+
+| Rationalization | Counter |
+|----------------|---------|
+| "I'm confident it works" | Confidence is not evidence. Run the test. |
+| "I tested it manually" | Manual is not automated. Run `npm run test:all`. |
+| "The CI will catch it" | CI is a safety net, not a substitute. Verify locally first. |
+| "It's just a small change" | Small changes cause big regressions. Run the suite. |
