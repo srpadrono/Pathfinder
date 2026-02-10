@@ -8,17 +8,17 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/srhenrybot-hub/pathfinder/actions/workflows/pathfinder.yml">
-    <img src="https://github.com/srhenrybot-hub/pathfinder/actions/workflows/pathfinder.yml/badge.svg" alt="CI Status">
+  <a href="https://github.com/srpadrono/Pathfinder/actions/workflows/pathfinder.yml">
+    <img src="https://github.com/srpadrono/Pathfinder/actions/workflows/pathfinder.yml/badge.svg" alt="CI Status">
   </a>
-  <a href="https://github.com/srhenrybot-hub/pathfinder/blob/main/LICENSE">
+  <a href="https://github.com/srpadrono/Pathfinder/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
-  <a href="https://github.com/srhenrybot-hub/pathfinder/releases">
-    <img src="https://img.shields.io/github/v/release/srhenrybot-hub/pathfinder?include_prereleases" alt="Release">
+  <a href="https://github.com/srpadrono/Pathfinder/releases">
+    <img src="https://img.shields.io/github/v/release/srpadrono/Pathfinder?include_prereleases" alt="Release">
   </a>
-  <a href="https://github.com/srhenrybot-hub/pathfinder/stargazers">
-    <img src="https://img.shields.io/github/stars/srhenrybot-hub/pathfinder?style=social" alt="Stars">
+  <a href="https://github.com/srpadrono/Pathfinder/stargazers">
+    <img src="https://img.shields.io/github/stars/srpadrono/Pathfinder?style=social" alt="Stars">
   </a>
   <br>
   <a href="https://www.typescriptlang.org/">
@@ -27,7 +27,7 @@
   <a href="https://playwright.dev/">
     <img src="https://img.shields.io/badge/Playwright-Powered-45ba4b?logo=playwright&logoColor=white" alt="Playwright">
   </a>
-  <a href="https://github.com/srhenrybot-hub/pathfinder/pulls">
+  <a href="https://github.com/srpadrono/Pathfinder/pulls">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
   </a>
 </p>
@@ -89,7 +89,7 @@ Traditional TDD often devolves into "write tests after implementation" — missi
 
 ```bash
 # Clone the repository
-git clone https://github.com/srhenrybot-hub/pathfinder.git
+git clone https://github.com/srpadrono/Pathfinder.git
 cd pathfinder
 
 # Install dependencies
@@ -229,8 +229,8 @@ We love contributions! Pathfinder is built by the community, for the community.
 
 ### Ways to Contribute
 
-- 🐛 **Report Bugs** — [Open an issue](https://github.com/srhenrybot-hub/pathfinder/issues/new?template=bug_report.md)
-- 💡 **Request Features** — [Start a discussion](https://github.com/srhenrybot-hub/pathfinder/discussions)
+- 🐛 **Report Bugs** — [Open an issue](https://github.com/srpadrono/Pathfinder/issues/new?template=bug_report.md)
+- 💡 **Request Features** — [Start a discussion](https://github.com/srpadrono/Pathfinder/discussions)
 - 📝 **Improve Docs** — Fix typos, add examples, clarify explanations
 - 🔧 **Submit PRs** — Bug fixes, features, and improvements welcome
 
@@ -259,12 +259,12 @@ npm test
 - [ ] Auto-generation of trail maps from user stories
 - [ ] Multi-language support (Python, Go, Rust)
 
-See the [open issues](https://github.com/srhenrybot-hub/pathfinder/issues) for a full list of proposed features.
+See the [open issues](https://github.com/srpadrono/Pathfinder/issues) for a full list of proposed features.
 
 ## 💬 Community
 
-- 💡 [GitHub Discussions](https://github.com/srhenrybot-hub/pathfinder/discussions) — Questions, ideas, and showcases
-- 🐛 [Issue Tracker](https://github.com/srhenrybot-hub/pathfinder/issues) — Bug reports and feature requests
+- 💡 [GitHub Discussions](https://github.com/srpadrono/Pathfinder/discussions) — Questions, ideas, and showcases
+- 🐛 [Issue Tracker](https://github.com/srpadrono/Pathfinder/issues) — Bug reports and feature requests
 
 ## 📄 License
 
@@ -280,7 +280,7 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 ---
 
 <p align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/srhenrybot-hub">the Pathfinder team</a></sub>
+  <sub>Built with ❤️ by <a href="https://github.com/srpadrono">the Pathfinder team</a></sub>
 </p>
 
 <p align="center">
