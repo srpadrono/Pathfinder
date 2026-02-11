@@ -12,6 +12,17 @@ description: >
 **Prerequisite:** Plan approved with checkpoints (Phase 2 complete).
 **Territory:** `e2e/` for E2E tests. `src/**/*.test.ts` for unit tests. Do NOT touch implementation code.
 
+## Gate Check (Mandatory)
+
+Before doing ANYTHING in this phase:
+
+```bash
+cat .pathfinder/plan.json
+```
+
+If this file doesn't exist or `status` is not `"approved"` → **STOP. Run the Planning phase first.**
+Read the checkpoint list from this file. These are the ONLY checkpoints you write tests for.
+
 ## The Iron Law
 
 ```
@@ -96,7 +107,25 @@ Confirm for BOTH layers:
 
 1. Update diagram markers: ❌ → 🔄
 2. Run ALL tests to confirm they FAIL: `npm run test:all`
-3. Commit: `"Scout: Mark trail for FEAT-01 through FEAT-05 (E2E + unit)"`
+3. Create gate file:
+
+```bash
+cat > .pathfinder/scout.json << 'EOF'
+{
+  "phase": "scout",
+  "status": "complete",
+  "timestamp": "<ISO-8601>",
+  "checkpoints": ["FEAT-01", "FEAT-02", "FEAT-03"],
+  "e2eTestFiles": ["e2e/feature.spec.ts"],
+  "unitTestFiles": ["src/utils/feature.test.ts"],
+  "allTestsFail": true
+}
+EOF
+```
+
+4. Commit: `"Scout: Mark trail for FEAT-01 through FEAT-05 (E2E + unit)"`
+
+**The Building phase will refuse to proceed without `.pathfinder/scout.json`.**
 
 ## Anti-Rationalization
 

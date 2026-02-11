@@ -14,15 +14,28 @@ description: >
 Each dispatched agent starts fresh. No context pollution from previous tasks.
 Every dispatch includes EVERYTHING the agent needs.
 
+### Hard Rules for Sub-Agent Dispatch
+
+1. **Paste the FULL skill text** — not a summary, not "follow Pathfinder." Copy-paste the entire
+   relevant SKILL.md content into the task. Sub-agents don't have access to your skill files.
+2. **Max 3 checkpoints per builder dispatch** — batching more causes shortcuts. If you have 10
+   checkpoints, dispatch 4 builder tasks of 2-3 each.
+3. **Builder tasks MUST include the verify loop** — the task description must explicitly say:
+   "For each checkpoint: run test → verify FAIL → implement → run test → verify PASS → commit."
+4. **Scout tasks MUST include both test layers** — "Write E2E tests AND unit tests" not just one.
+5. **Every dispatch must reference the gate file** — "Read `.pathfinder/plan.json` for checkpoint definitions."
+
 ## Scout Dispatch Template
 
 ```
 You are a SCOUT for the Pathfinder expedition workflow.
 
-YOUR TERRITORY: e2e/ and USER-JOURNEYS.md ONLY.
-FORBIDDEN: Do NOT modify src/ or any implementation code.
+YOUR TERRITORY: e2e/ for E2E tests, src/**/*.test.ts for unit tests, and USER-JOURNEYS.md.
+FORBIDDEN: Do NOT modify src/ implementation code (only test files).
 
 TASK: Write failing tests for checkpoints FEAT-01 through FEAT-05.
+
+GATE FILE: Read .pathfinder/plan.json for checkpoint definitions.
 
 TRAIL MAP:
 [paste relevant section of USER-JOURNEYS.md]
@@ -32,44 +45,89 @@ CHECKPOINT DETAILS:
 - FEAT-02: [description + acceptance criteria]
 - FEAT-03: [description + acceptance criteria]
 
-TEST FILE: e2e/feature.spec.ts
-TEST COMMAND: npx playwright test e2e/feature.spec.ts --reporter=list
-EXPECTED RESULT: All tests FAIL (feature not implemented yet)
+=== BOTH TEST LAYERS REQUIRED ===
+
+For EACH checkpoint, write:
+1. An E2E test in e2e/feature.spec.ts (tests user-visible behavior)
+2. A unit test in the appropriate src/**/*.test.ts (tests internal logic)
+
+Unit checkpoint naming: FEAT-U01, FEAT-U02, etc.
+
+E2E TEST FILE: e2e/feature.spec.ts
+UNIT TEST FILES: [list expected locations, e.g. src/utils/feature.test.ts]
+
+TEST COMMANDS:
+  npx playwright test e2e/feature.spec.ts --reporter=list
+  npx vitest run src/**/feature*.test.ts --reporter=verbose
+
+EXPECTED RESULT: ALL tests FAIL (feature not implemented yet)
+
+=== VERIFY RED ===
+
+After writing all tests, run both commands above. Paste the output showing failures.
+Tests must FAIL because the feature is MISSING, not because of typos or import errors.
 
 WHEN DONE:
-1. Commit: "Scout: Mark trail for FEAT-01 through FEAT-05"
+1. Commit: "Scout: Mark trail for FEAT-01 through FEAT-05 (E2E + unit)"
 2. Update USER-JOURNEYS.md markers: ❌ → 🔄
-3. Report: List all checkpoints with their test descriptions
+3. Create .pathfinder/scout.json with checkpoint list and test file paths
+4. Report: List all checkpoints with E2E + unit test descriptions
 ```
 
 ## Builder Dispatch Template
+
+**Max 3 checkpoints per dispatch. No exceptions.**
 
 ```
 You are a BUILDER for the Pathfinder expedition workflow.
 
 YOUR TERRITORY: src/ and implementation code ONLY.
-FORBIDDEN: Do NOT modify test assertions in e2e/.
+FORBIDDEN: Do NOT modify test assertions in e2e/ or unit tests.
 
-TASK: Clear trail for checkpoints FEAT-01 through FEAT-05.
+TASK: Clear trail for checkpoints FEAT-01 through FEAT-03.
+
+GATE FILE: Read .pathfinder/plan.json for checkpoint definitions.
 
 TRAIL MAP:
 [paste relevant section of USER-JOURNEYS.md]
 
-TESTS: e2e/feature.spec.ts
+E2E TESTS: e2e/feature.spec.ts
+UNIT TESTS: [list the unit test files]
 
-FOR EACH CHECKPOINT:
-1. Run: npx playwright test --grep "FEAT-XX" --reporter=list
-2. Verify it FAILS (expected)
-3. Write minimal code to pass
-4. Run: npx playwright test --grep "FEAT-XX" --reporter=list
-5. Verify it PASSES
-6. Commit: "Builder: Clear FEAT-XX"
-7. Update marker: 🔄 → ✅
+=== CRITICAL: THE BUILD LOOP (one checkpoint at a time) ===
+
+For FEAT-01:
+1. Run unit test: npx vitest run --testNamePattern "FEAT-U01"
+   → MUST see FAIL. Paste the failure output.
+2. Run E2E test: npx playwright test --grep "FEAT-01" --reporter=list
+   → MUST see FAIL. Paste the failure output.
+3. Write MINIMAL code to pass both tests.
+4. Run unit test: npx vitest run --testNamePattern "FEAT-U01"
+   → MUST see PASS. Paste the pass output.
+5. Run E2E test: npx playwright test --grep "FEAT-01" --reporter=list
+   → MUST see PASS. Paste the pass output.
+6. Run full suite: npm run test:all → Verify 0 regressions.
+7. Commit: "Builder: Clear FEAT-01"
+8. Update marker in USER-JOURNEYS.md: 🔄 → ✅
+
+Then repeat for FEAT-02 and FEAT-03.
+
+=== EVIDENCE REQUIRED ===
+
+For each checkpoint, include an evidence block in your report:
+
+<!-- EVIDENCE:FEAT-01 -->
+- Unit test FAIL output: [paste]
+- Unit test PASS output: [paste]
+- E2E test FAIL output: [paste]
+- E2E test PASS output: [paste]
+- Full suite: [paste summary line showing 0 failures]
+<!-- /EVIDENCE:FEAT-01 -->
 
 WHEN DONE:
-1. Run full suite: npx playwright test --reporter=list
-2. Verify 0 failures
-3. Report: List all checkpoints with pass/fail and duration
+1. Run full suite: npm run test:all
+2. Verify 0 failures across BOTH layers
+3. Report: List all checkpoints with evidence blocks
 ```
 
 ## Two-Stage Expedition Review

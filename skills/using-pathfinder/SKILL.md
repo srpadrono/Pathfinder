@@ -52,6 +52,32 @@ Thinking "I'll save time by skipping"? You won't. Invoke the skill.
 - Cannot create a PR without all checkpoints passing
 - Cannot claim completion without running `npm run test:all`
 
+### Gate Files (Machine-Enforceable)
+
+Each phase produces a gate file that the next phase MUST verify exists before proceeding.
+Gate files live in `.pathfinder/` at the project root.
+
+| Phase | Produces | Next Phase Checks |
+|-------|----------|-------------------|
+| Survey | `.pathfinder/survey.json` | Planning reads it or STOPS |
+| Planning | `.pathfinder/plan.json` + `USER-JOURNEYS.md` | Scouting reads it or STOPS |
+| Scouting | `.pathfinder/scout.json` | Building reads it or STOPS |
+| Building | `.pathfinder/build.json` | Reporting reads it or STOPS |
+
+**Gate file format:**
+```json
+{
+  "phase": "survey",
+  "status": "approved",
+  "timestamp": "2026-02-11T14:00:00Z",
+  "checkpoints": ["FEAT-01", "FEAT-02"],
+  "approvedBy": "user"
+}
+```
+
+**Hard rule:** If the gate file for the previous phase does not exist or has `"status": "pending"`,
+the current phase MUST refuse to proceed. No exceptions. No "I'll create it retroactively."
+
 ## Trail Markers
 
 | Marker | Name | Meaning |

@@ -11,6 +11,20 @@ description: >
 
 **Prerequisite:** All checkpoints ✅ (Phase 4 complete). Branch created per `pathfinder:git-workflow`.
 
+## Gate Check (Mandatory)
+
+Before doing ANYTHING in this phase, verify ALL gate files exist:
+
+```bash
+cat .pathfinder/survey.json  # status: approved
+cat .pathfinder/plan.json    # status: approved
+cat .pathfinder/scout.json   # status: complete
+cat .pathfinder/build.json   # status: complete
+```
+
+If ANY gate file is missing → **STOP. A phase was skipped.** Go back to the earliest missing phase.
+Do not create gate files retroactively. Do not proceed without the full chain.
+
 ## Evidence Over Claims
 
 NEVER claim a checkpoint is cleared without evidence.
@@ -31,8 +45,34 @@ NEVER mark 🔄 → ✅ without a passing test run.
 
 ## Pre-Report Verification
 
+### 1. Verify Gate Files Exist
+
 ```bash
-# Run BOTH test layers
+# ALL gate files must exist and show "approved"/"complete"
+cat .pathfinder/survey.json   # status: approved
+cat .pathfinder/plan.json     # status: approved, lists checkpoints
+cat .pathfinder/scout.json    # status: complete, lists test files
+cat .pathfinder/build.json    # status: complete, all checkpoints cleared
+```
+
+If ANY gate file is missing → STOP. Go back to the missing phase.
+
+### 2. Verify Evidence Blocks
+
+For every checkpoint in `.pathfinder/plan.json`, grep for its evidence block:
+
+```bash
+# Every checkpoint MUST have an evidence block somewhere in the repo or build log
+# Evidence blocks follow this pattern:
+grep -r "EVIDENCE:FEAT-" . --include="*.md" | grep -c "Status.*Cleared"
+```
+
+If any checkpoint lacks an evidence block → STOP. The Builder skipped verification.
+
+### 3. Run Full Test Suite
+
+```bash
+# Run BOTH test layers — this is the final proof
 npm run test:all
 
 # Generate HTML report with evidence
@@ -40,11 +80,25 @@ npx playwright test --reporter=html
 
 # View the report
 npx playwright show-report
-
-# Update coverage and trail map
-npm run test:coverage
-npm run test:generate-map
 ```
+
+**You MUST paste the full output** of `npm run test:all` showing pass/fail counts.
+A summary like "all tests pass" is NOT acceptable. Paste the actual output.
+
+### 4. Run Verification Script
+
+```bash
+# Automated check of all gates, evidence, markers, and security
+bash scripts/verify-expedition.sh
+```
+
+This script checks:
+- All 4 gate files exist with correct status
+- Evidence blocks exist for every checkpoint
+- Trail map markers all show ✅
+- No secret files in the diff
+
+**If the script fails → fix the issues before proceeding. No exceptions.**
 
 ## Pre-Review Checklist
 

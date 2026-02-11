@@ -11,6 +11,17 @@ description: >
 
 **Prerequisite:** Survey approved (Phase 1 complete).
 
+## Gate Check (Mandatory)
+
+Before doing ANYTHING in this phase:
+
+```bash
+cat .pathfinder/survey.json
+```
+
+If this file doesn't exist or `status` is not `"approved"` → **STOP. Run the Survey phase first.**
+Do not proceed. Do not create the file retroactively. Go back to Phase 1.
+
 ## Create the Trail Map
 
 Create or update `USER-JOURNEYS.md` with a Mermaid diagram:
@@ -76,14 +87,30 @@ For each checkpoint in the diagram, define:
 Before finalizing: "Can any of these checkpoints be removed?"
 Every checkpoint is a test that must be written and maintained. Strip what isn't essential.
 
-## Commit Before Scouting
+## Gate File + Commit Before Scouting
 
-Save map and checkpoints BEFORE writing any tests:
+Save map, checkpoints, AND gate file BEFORE writing any tests:
 
 ```bash
-git add USER-JOURNEYS.md
+mkdir -p .pathfinder
+cat > .pathfinder/plan.json << 'EOF'
+{
+  "phase": "plan",
+  "status": "approved",
+  "timestamp": "<ISO-8601>",
+  "journey": "<journey-name>",
+  "checkpoints": [
+    {"id": "FEAT-01", "category": "Happy Path", "description": "<desc>", "priority": "must"},
+    {"id": "FEAT-02", "category": "Error", "description": "<desc>", "priority": "must"}
+  ],
+  "approvedBy": "user"
+}
+EOF
+git add USER-JOURNEYS.md .pathfinder/plan.json
 git commit -m "Plan: Chart map for FEAT-01 through FEAT-05"
 ```
+
+**The Scouting phase will refuse to proceed without `.pathfinder/plan.json`.**
 
 ## Anti-Rationalization
 

@@ -12,6 +12,18 @@ description: >
 **Prerequisite:** All checkpoint tests exist and FAIL (Phase 3 complete).
 **Territory:** `src/` and implementation code ONLY. Do NOT modify test assertions.
 
+## Gate Check (Mandatory)
+
+Before doing ANYTHING in this phase:
+
+```bash
+cat .pathfinder/scout.json
+```
+
+If this file doesn't exist or `status` is not `"complete"` → **STOP. Run the Scouting phase first.**
+If `allTestsFail` is not `true` → **STOP. Tests should fail before building.**
+Read the checkpoint list and test file paths from this file.
+
 ## The Build Loop
 
 For each checkpoint:
@@ -80,11 +92,52 @@ For EACH checkpoint:
 - [ ] No other tests broke (run full suite — both layers)
 - [ ] No console errors or warnings
 - [ ] Screenshot evidence captured
+- [ ] Evidence block written (see below)
 
 ```bash
 # Verify no regressions — BOTH layers
 npm run test:all
 ```
+
+## Structured Evidence Blocks
+
+For each checkpoint, write an evidence block. These are machine-grepable and
+the Reporting phase will verify they exist for every checkpoint.
+
+```markdown
+<!-- EVIDENCE:FEAT-01 -->
+**Status:** ✅ Cleared
+**Unit FAIL:** `FAIL src/utils/feature.test.ts > FEAT-U01 (expected X to be Y)`
+**Unit PASS:** `PASS src/utils/feature.test.ts > FEAT-U01 (2ms)`
+**E2E FAIL:** `FAIL e2e/feature.spec.ts > FEAT-01: Main flow works (timeout)`
+**E2E PASS:** `PASS e2e/feature.spec.ts > FEAT-01: Main flow works (1.2s)`
+**Full suite:** `Tests: 150 passed, 0 failed`
+<!-- /EVIDENCE:FEAT-01 -->
+```
+
+**Rule:** If you cannot produce an evidence block, the checkpoint is NOT cleared.
+"I'm confident it works" is not evidence. Test output is evidence.
+
+## After All Checkpoints Cleared
+
+Create the build gate file:
+
+```bash
+cat > .pathfinder/build.json << 'EOF'
+{
+  "phase": "build",
+  "status": "complete",
+  "timestamp": "<ISO-8601>",
+  "checkpointsCleared": ["FEAT-01", "FEAT-02", "FEAT-03"],
+  "fullSuitePass": true,
+  "testOutput": "<paste summary line: X passed, 0 failed>"
+}
+EOF
+git add .pathfinder/build.json
+git commit -m "Builder: All checkpoints cleared"
+```
+
+**The Reporting phase will refuse to proceed without `.pathfinder/build.json`.**
 
 ## If Tests Need Fixing
 
