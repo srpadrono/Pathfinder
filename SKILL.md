@@ -26,11 +26,22 @@ Scouts survey and write tests, Builders implement until all tests pass.
 
 ## Quick Start
 
+0. **Create a feature branch FIRST**: `git checkout -b feat/expedition-name`
 1. Read `AGENTS.md` for the full workflow
 2. Use `/survey` to start a new feature
 3. Use `/scout` to write tests
 4. Use `/build` to implement
-5. Use `/report` to create PR
+5. Use `/report` to run verification + create PR
+6. **Merge via PR only** — never push directly to main
+
+## Enforcement
+
+Git hooks in `.githooks/` physically block violations:
+- **pre-push**: Blocks direct push to main/master
+- **pre-commit**: Enforces Pathfinder phase ordering (scout before build)
+- **GitHub branch protection**: Server-side backup (set up by repo owner)
+
+Install hooks: `git config core.hooksPath .githooks`
 
 ## Skills
 
