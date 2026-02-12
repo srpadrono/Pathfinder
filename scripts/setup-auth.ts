@@ -8,7 +8,7 @@
  *   TEST_EMAIL, TEST_PASSWORD, BASE_URL (default: http://localhost:3000)
  */
 
-import { chromium } from 'playwright';
+import { chromium, Page } from 'playwright';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -27,7 +27,7 @@ if (!TEST_EMAIL || !TEST_PASSWORD) {
   process.exit(1);
 }
 
-async function handleOAuthConsent(page: any): Promise<boolean> {
+async function handleOAuthConsent(page: Page): Promise<boolean> {
   if (page.url().includes('auth0.com')) {
     const acceptBtn = page.getByRole('button', { name: 'Accept' });
     if (await acceptBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
@@ -44,7 +44,7 @@ export async function setupAuth(): Promise<string> {
   // Ensure .auth directory exists
   fs.mkdirSync(path.dirname(AUTH_STATE_PATH), { recursive: true });
   
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: process.env.CI !== undefined || process.env.HEADLESS === 'true' });
   const context = await browser.newContext();
   const page = await context.newPage();
   
@@ -60,12 +60,12 @@ export async function setupAuth(): Promise<string> {
     await page.locator('button[type="submit"]').first().click();
     
     // Fill password
-    await page.waitForTimeout(1500);
+    await page.locator('input[type="password"]').waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('input[type="password"]').fill(TEST_PASSWORD);
     await page.locator('button[type="submit"]').first().click();
     
     // Handle OAuth consent if present
-    await page.waitForTimeout(3000);
+    await page.waitForURL(url => url.hostname === 'localhost' || url.href.includes('auth0.com'), { timeout: 10000 }).catch(() => {});
     await handleOAuthConsent(page);
     
     // Wait for redirect to app

@@ -35,7 +35,7 @@ Built on [Playwright CLI](https://playwright.dev/docs/test-cli) and inspired by 
 
 ## Features
 
-- **7-Phase Workflow** — Survey → Chart → Mark → Scout → Build → Dispatch → Report
+- **5-Phase Workflow** — Survey → Plan → Scout → Build → Report
 - **Composable Skills** — 12 focused skills loaded on-demand from `skills/`
 - **SessionStart Hook** — Auto-injects workflow at session start
 - **Slash Commands** — `/survey`, `/scout`, `/build`, `/report`
@@ -114,7 +114,7 @@ npm run test:generate-map
 ├─────────────────────────────────────────────────────┤
 │                  METHODOLOGY LAYER                   │
 │  skills/ (composable), commands/ (slash)             │
-│  Survey → Chart → Mark → Scout → Build → Report     │
+│  Survey → Plan → Scout → Build → Report              │
 ├─────────────────────────────────────────────────────┤
 │                  INTEGRATION LAYER                   │
 │  e2e/fixtures/pathfinder.ts (checkpoint fixture)     │
@@ -168,18 +168,16 @@ pathfinder/
 │   └── reporters/pathfinder-reporter.ts  # Trail map reporter
 ├── scripts/
 │   ├── update-coverage.ts          #   JSON-based coverage sync
-│   ├── generate-map.ts             #   Generate USER-JOURNEYS.md
-│   ├── run-tests.ts                #   Legacy test runner (deprecated)
-│   └── setup-auth.ts               #   Legacy auth setup (deprecated)
+│   └── generate-map.ts             #   Generate USER-JOURNEYS.md
 ├── templates/                      # Templates for new projects
 │   ├── user-journeys.md            #   Trail map template
 │   ├── test-file.ts                #   Test file template
-│   └── pr-template.md              #   PR template
+│   ├── state.json                  #   Expedition state template
+│   └── task.json                   #   Task/checkpoint template
 ├── .github/
 │   ├── workflows/pathfinder.yml    #   CI/CD workflow
 │   └── PULL_REQUEST_TEMPLATE.md    #   PR template
 ├── docs/                           # Reference documentation
-├── references/                     # Methodology reference docs
 └── assets/                         # Branding (banner, logo)
 ```
 

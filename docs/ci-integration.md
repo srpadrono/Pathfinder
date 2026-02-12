@@ -2,12 +2,12 @@
 
 Run Pathfinder tests in GitHub Actions.
 
-## Basic Workflow
+## Workflow
+
+The project includes `.github/workflows/pathfinder.yml`. Key steps:
 
 ```yaml
-# .github/workflows/pathfinder.yml
 name: Pathfinder
-
 on:
   pull_request:
     branches: [main]
@@ -19,33 +19,50 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - run: npm ci
-      
       - run: npx playwright install --with-deps chromium
-      
-      - name: Run tests
+
+      - name: Run E2E tests
+        run: npx playwright test
         env:
+          CI: true
+          BASE_URL: http://localhost:3000
           TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          BASE_URL: http://localhost:3000
-        run: |
-          npm run dev &
-          sleep 10
-          npx tsx e2e/test-all.ts
-      
+
+      - name: Run unit tests
+        run: npx vitest run
+
+      - name: Update coverage
+        if: always()
+        run: npx tsx scripts/update-coverage.ts
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: screenshots
-          path: /tmp/test-screenshots/
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
           retention-days: 7
 ```
+
+## How It Works
+
+- **Dev server**: Playwright's `webServer` config in `playwright.config.ts` starts the server automatically — no manual `npm run dev & sleep 10`
+- **Temp paths**: Use `test-results/` (relative, cross-platform) not `/tmp/`
+- **Coverage data**: Read from `test-results/checkpoints.json` (produced by PathfinderReporter)
 
 ## Required Secrets
 
@@ -54,33 +71,17 @@ jobs:
 | `TEST_EMAIL` | Test account email |
 | `TEST_PASSWORD` | Test account password |
 
-## Test Runner
+## CI-Specific Config
 
-`e2e/test-all.ts`:
-```typescript
-import { TestRunner } from '../scripts/run-tests';
-import { authTests } from './test-auth';
-import { dashboardTests } from './test-dashboard';
-
-const ALL = [...authTests, ...dashboardTests];
-
-new TestRunner().run(ALL).then(results => {
-  require('fs').writeFileSync('/tmp/test-results.json', JSON.stringify(results));
-  const failed = results.filter(r => r.status === 'fail').length;
-  process.exit(failed > 0 ? 1 : 0);
-});
-```
-
-## Headless Mode
+`playwright.config.ts` detects CI automatically:
 
 ```typescript
-// run-tests.ts
-const browser = await chromium.launch({ 
-  headless: process.env.CI === 'true'
-});
+forbidOnly: !!process.env.CI,    // Block .only() in CI
+retries: process.env.CI ? 2 : 0, // Retry flakes
+workers: process.env.CI ? 1 : undefined,
 ```
 
-## Coverage Comment
+## PR Coverage Comment
 
 ```yaml
 - uses: actions/github-script@v7
@@ -88,30 +89,28 @@ const browser = await chromium.launch({
   with:
     script: |
       const fs = require('fs');
-      const coverage = fs.readFileSync('docs/test-coverage/USER-JOURNEYS.md', 'utf8');
-      const match = coverage.match(/Coverage:\s*(\d+)%/);
+      const data = JSON.parse(fs.readFileSync('test-results/checkpoints.json', 'utf8'));
+      const { passed, total, coverage } = data.summary;
       github.rest.issues.createComment({
         ...context.repo,
         issue_number: context.issue.number,
-        body: `## 🗺️ Coverage: ${match?.[1] || '?'}%`
+        body: `## 🗺️ Pathfinder Coverage: ${coverage}%\n\n✅ Cleared: ${passed} | 📊 Total: ${total}`
       });
 ```
 
-## Scheduled Runs
+## Scheduled & Matrix Testing
 
 ```yaml
+# Daily smoke test
 on:
   schedule:
-    - cron: '0 6 * * *'  # Daily 6 AM UTC
-```
+    - cron: '0 6 * * *'
 
-## Matrix Testing
-
-```yaml
+# Multi-browser
 strategy:
   matrix:
     browser: [chromium, firefox, webkit]
 steps:
   - run: npx playwright install --with-deps ${{ matrix.browser }}
-  - run: BROWSER=${{ matrix.browser }} npx tsx e2e/test-all.ts
+  - run: npx playwright test --project=${{ matrix.browser }}
 ```

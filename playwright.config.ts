@@ -17,7 +17,7 @@ export default defineConfig({
   ],
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
-    screenshot: 'on',
+    screenshot: 'only-on-failure',
     trace: 'on-first-retry',
     video: 'on-first-retry',
   },

@@ -5,6 +5,6 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     exclude: ['e2e/**', 'node_modules/**'],
     reporters: ['verbose', 'json'],
-    outputFile: 'test-results/unit-results.json',
+    outputFile: { json: 'test-results/unit-results.json' },
   },
 });

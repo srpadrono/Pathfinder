@@ -7,14 +7,15 @@ TASK_ID="${1:?Usage: pathfinder-check-deps.sh <TASK-ID>}"
 TASK_FILE=".pathfinder/tasks/${TASK_ID}.json"
 
 if [ ! -f "$TASK_FILE" ]; then
-  echo "✘ Task file not found: $TASK_FILE"
+  echo "✘ Task file not found: $TASK_FILE (does task '$TASK_ID' exist?)"
   exit 1
 fi
 
 python3 -c "
 import json, sys
 
-task = json.load(open('$TASK_FILE'))
+task_file = sys.argv[1]
+task = json.load(open(task_file))
 deps = task.get('dependencies', [])
 
 if not deps:
@@ -39,4 +40,4 @@ if blocked:
     sys.exit(1)
 
 print(f'✓ {task[\"id\"]} is unblocked — all dependencies satisfied')
-"
+" "$TASK_FILE"

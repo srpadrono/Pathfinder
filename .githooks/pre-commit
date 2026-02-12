@@ -5,15 +5,20 @@
 # Skip if not a pathfinder expedition
 [ -f .pathfinder/state.json ] || exit 0
 
+if ! command -v python3 &>/dev/null; then
+  echo "✘ python3 is required but not found in PATH"
+  exit 1
+fi
+
 STATE_FILE=".pathfinder/state.json"
-PHASE=$(python3 -c "import json; print(json.load(open('$STATE_FILE'))['currentPhase'])")
+PHASE=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['currentPhase'])" "$STATE_FILE")
 
 # Get staged files
 STAGED=$(git diff --cached --name-only)
 
 # Rule 1: No source code changes during survey/plan/scout phases
 if echo "$PHASE" | grep -qE "^(survey|plan|scout)$"; then
-  SRC_CHANGES=$(echo "$STAGED" | grep -E "^src/" | grep -v "\.test\." || true)
+  SRC_CHANGES=$(echo "$STAGED" | grep -E "^src/" | grep -vE "\.(test|spec)\." || true)
   if [ -n "$SRC_CHANGES" ]; then
     echo "✘ Pathfinder: Cannot modify source code during $PHASE phase."
     echo "  Blocked files: $SRC_CHANGES"
@@ -22,17 +27,17 @@ if echo "$PHASE" | grep -qE "^(survey|plan|scout)$"; then
   fi
 fi
 
-# Rule 2: Build gate requires scout gate
+# Rule 2: Build gate requires scout gate (check staged files)
 if echo "$STAGED" | grep -q ".pathfinder/build.json"; then
-  if [ ! -f .pathfinder/scout.json ]; then
+  if ! echo "$STAGED" | grep -q ".pathfinder/scout.json" && [ ! -f .pathfinder/scout.json ]; then
     echo "✘ Pathfinder: Cannot create build gate without scout gate."
     exit 1
   fi
 fi
 
-# Rule 3: Report gate requires build gate
+# Rule 3: Report gate requires build gate (check staged files)
 if echo "$STAGED" | grep -q ".pathfinder/report.json"; then
-  if [ ! -f .pathfinder/build.json ]; then
+  if ! echo "$STAGED" | grep -q ".pathfinder/build.json" && [ ! -f .pathfinder/build.json ]; then
     echo "✘ Pathfinder: Cannot create report gate without build gate."
     exit 1
   fi

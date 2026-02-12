@@ -3,10 +3,16 @@
 # Computes a quality score (0-100) and generates report.json.
 set -euo pipefail
 
+if ! command -v python3 &>/dev/null; then
+  echo "✘ python3 is required but not found in PATH"
+  exit 1
+fi
+
 SCORE=0
 MAX_SCORE=100
 ERRORS=0
-TESTS_PASSED=0
+TEST_OUTPUT=$(mktemp)
+trap 'rm -f "$TEST_OUTPUT"' EXIT
 
 echo "🔍 Pathfinder Expedition Verification (v0.4.0)"
 echo "================================================"
@@ -17,8 +23,8 @@ if [ ! -f .pathfinder/state.json ]; then
   exit 1
 fi
 
-BRANCH=$(python3 -c "import json; print(json.load(open('.pathfinder/state.json'))['branch'])")
-EXPEDITION=$(python3 -c "import json; print(json.load(open('.pathfinder/state.json'))['expedition'])")
+BRANCH=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['branch'])" .pathfinder/state.json)
+EXPEDITION=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['expedition'])" .pathfinder/state.json)
 echo "Expedition: $EXPEDITION | Branch: $BRANCH"
 echo ""
 
@@ -30,7 +36,7 @@ for gate in survey plan scout build; do
     echo "  ✘ Missing: $file"
     ERRORS=$((ERRORS + 1))
   else
-    status=$(python3 -c "import json; print(json.load(open('$file')).get('status','?'))")
+    status=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('status','?'))" "$file")
     if [ "$status" = "approved" ] || [ "$status" = "complete" ]; then
       echo "  ✓ $file ($status)"
     else
@@ -54,13 +60,13 @@ VERIFIED_COUNT=0
 for task_file in .pathfinder/tasks/*.json; do
   [ -f "$task_file" ] || continue
   TASK_COUNT=$((TASK_COUNT + 1))
-  id=$(python3 -c "import json; print(json.load(open('$task_file'))['id'])")
-  status=$(python3 -c "import json; print(json.load(open('$task_file'))['status'])")
+  id=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['id'])" "$task_file")
+  status=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['status'])" "$task_file")
   has_evidence=$(python3 -c "
-import json
-t = json.load(open('$task_file'))
+import json,sys
+t = json.load(open(sys.argv[1]))
 print('yes' if t.get('evidence',{}).get('green') else 'no')
-")
+" "$task_file")
   if [ "$has_evidence" = "yes" ]; then
     EVIDENCE_COUNT=$((EVIDENCE_COUNT + 1))
     echo "  ✓ $id ($status) — evidence present"
@@ -89,14 +95,14 @@ echo "📋 Test Suite"
 CHECKPOINT_SCORE=0
 REGRESSION_SCORE=0
 TESTS_DETAIL=""
-if npm run test:all > /tmp/pathfinder-test-output.txt 2>&1; then
+if npm run test:all > "$TEST_OUTPUT" 2>&1; then
   echo "  ✓ All tests pass"
   CHECKPOINT_SCORE=25
   REGRESSION_SCORE=20
-  TESTS_DETAIL=$(tail -5 /tmp/pathfinder-test-output.txt)
+  TESTS_DETAIL=$(tail -5 "$TEST_OUTPUT")
 else
   echo "  ✘ Tests failed"
-  TESTS_DETAIL=$(tail -10 /tmp/pathfinder-test-output.txt)
+  TESTS_DETAIL=$(tail -10 "$TEST_OUTPUT")
 fi
 SCORE=$(( SCORE + CHECKPOINT_SCORE + REGRESSION_SCORE ))
 echo "$TESTS_DETAIL" | sed 's/^/  /'

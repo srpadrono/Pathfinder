@@ -2,7 +2,7 @@
 
 **A podcast-ready deep dive into Pathfinder — the TDD methodology-as-code system for AI coding agents**
 
-*Version 0.2.0 | Built on Playwright + Superpowers patterns*
+*Version 0.4.0 | Built on Playwright + Superpowers patterns*
 
 ---
 
@@ -13,7 +13,7 @@
 3. [The Expedition Metaphor](#3-the-expedition-metaphor)
 4. [Architecture: The Five Layers](#4-architecture-the-five-layers)
 5. [How It Boots Up: The SessionStart Hook](#5-how-it-boots-up-the-sessionstart-hook)
-6. [The 10 Composable Skills](#6-the-10-composable-skills)
+6. [The 12 Composable Skills](#6-the-12-composable-skills)
 7. [The 5-Phase Workflow in Detail](#7-the-5-phase-workflow-in-detail)
 8. [Slash Commands: The Quick Entry Points](#8-slash-commands-the-quick-entry-points)
 9. [The Anti-Rationalization Engine](#9-the-anti-rationalization-engine)
@@ -189,30 +189,19 @@ This ensures the rules are always present, even if the agent's context was wiped
 
 ---
 
-## 6. The 10 Composable Skills
+## 6. The 12 Composable Skills
 
 Skills are the building blocks of Pathfinder. Each one is a standalone Markdown file in the `skills/` directory with YAML frontmatter, a clear goal, step-by-step instructions, CLI commands, and anti-rationalization tables.
 
-### Why 10, Not 14?
+### Why 12?
 
-The system was originally built with 14 skills, but an honest audit revealed significant overlap and unnecessary complexity. Five skills were consolidated or removed:
-
-- **`charting` + `marking`** merged into `planning` — they always ran together
-- **`test-driven-development`** absorbed into `scouting` and `building` — its content was already duplicated in both
-- **`verification-before-completion`** absorbed into `reporting` — same checklists, same commands
-- **`writing-skills`** moved to `docs/` — reference documentation, not an active workflow skill
-
-Two new skills were added to fill real gaps:
-- **`code-review`** — agents had no guidance on reviewing others' code
-- **`security`** — no enforcement of OWASP basics, input validation, or secrets management
-
-The result: fewer skills, sharper focus, less duplication, better coverage.
+The system has 12 composable skills, consolidated from the original design. Overlapping skills were merged (charting + marking → planning, TDD enforcement absorbed into scouting/building, verification absorbed into reporting, writing-skills moved to docs/), and two new skills were added to fill real gaps (code-review and security). The result: fewer skills, sharper focus, less duplication, better coverage.
 
 ### The Skill Roster
 
 #### Meta-Skill
 
-**1. `using-pathfinder`** — Auto-injected at session start via SessionStart hook. Contains The Rule, the 10-skill routing table, enforcement gates, trail markers, and the anti-skip guard. This is the "brain" that routes to every other skill.
+**1. `using-pathfinder`** — Auto-injected at session start via SessionStart hook. Contains The Rule, the 12-skill routing table, enforcement gates, trail markers, and the anti-skip guard. This is the "brain" that routes to every other skill.
 
 #### Phase Skills (follow the 5-phase workflow)
 
