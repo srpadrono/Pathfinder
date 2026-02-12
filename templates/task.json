@@ -1,0 +1,18 @@
+{
+  "id": "<PREFIX>-<NUMBER>",
+  "description": "<checkpoint description>",
+  "category": "Happy Path",
+  "priority": "must",
+  "status": "planned",
+  "dependencies": [],
+  "tests": {
+    "e2e": [],
+    "unit": []
+  },
+  "evidence": {
+    "red": null,
+    "green": null,
+    "verified": null
+  },
+  "builderNotes": ""
+}

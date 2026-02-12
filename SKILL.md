@@ -14,7 +14,7 @@ tags:
 author: srpadrono
 repository: https://github.com/srpadrono/Pathfinder
 license: MIT
-version: 0.3.0
+version: 0.4.0
 ---
 
 # Pathfinder
@@ -38,10 +38,20 @@ Scouts survey and write tests, Builders implement until all tests pass.
 
 Git hooks in `.githooks/` physically block violations:
 - **pre-push**: Blocks direct push to main/master
-- **pre-commit**: Enforces Pathfinder phase ordering (scout before build)
+- **pre-commit**: Reads `state.json`, enforces phase ordering (no src/ changes during scout, scout before build)
+- **post-commit**: Auto-updates `state.json` checkpoint counts from task files
 - **GitHub branch protection**: Server-side backup (set up by repo owner)
 
 Install hooks: `git config core.hooksPath .githooks`
+
+## Task-Level Tracking (v0.4.0)
+
+Checkpoints are individual JSON files in `.pathfinder/tasks/`:
+- **state.json** — Current phase + expedition metadata (single source of truth)
+- **tasks/FEAT-XX.json** — Per-checkpoint status, dependencies, and evidence
+- **Status lifecycle:** `planned` → `red` → `green` → `verified`
+- **Dependency enforcement:** Builder refuses blocked checkpoints
+- **Quality score:** 0-100 computed by `verify-expedition.sh`
 
 ## Skills
 

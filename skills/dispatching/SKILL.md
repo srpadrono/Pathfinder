@@ -117,6 +117,31 @@ For FEAT-01:
 
 Then repeat for FEAT-02 and FEAT-03.
 
+=== DEPENDENCY CHECK (v0.4.0 — before each checkpoint) ===
+
+Before working on any checkpoint, run:
+  bash scripts/pathfinder-check-deps.sh <CHECKPOINT-ID>
+
+If it says "Blocked" → skip this checkpoint and move to the next unblocked one.
+Report which checkpoints were blocked and why.
+
+=== TASK FILE UPDATES (v0.4.0 — after each checkpoint) ===
+
+After clearing a checkpoint, update its task file:
+  python3 -c "
+  import json
+  t = json.load(open('.pathfinder/tasks/<ID>.json'))
+  t['status'] = 'green'
+  t['evidence']['green'] = {
+    'e2e': '<paste e2e pass output>',
+    'unit': '<paste unit pass output>',
+    'fullSuite': '<paste full suite summary>',
+    'timestamp': '<ISO timestamp>'
+  }
+  json.dump(t, open('.pathfinder/tasks/<ID>.json','w'), indent=2)
+  "
+  git add .pathfinder/tasks/<ID>.json
+
 === EVIDENCE REQUIRED ===
 
 For each checkpoint, include an evidence block in your report:

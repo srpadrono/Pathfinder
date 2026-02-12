@@ -1,103 +1,177 @@
 #!/usr/bin/env bash
-# Pathfinder Pre-PR Verification Script
-# Run this before creating a PR to verify all gates and evidence.
+# Pathfinder v0.4.0 Expedition Verification
+# Computes a quality score (0-100) and generates report.json.
 set -euo pipefail
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
+SCORE=0
+MAX_SCORE=100
 ERRORS=0
+TESTS_PASSED=0
 
-echo "🔍 Pathfinder Expedition Verification"
-echo "======================================"
+echo "🔍 Pathfinder Expedition Verification (v0.4.0)"
+echo "================================================"
+
+# --- Check state.json exists ---
+if [ ! -f .pathfinder/state.json ]; then
+  echo "✘ No .pathfinder/state.json — not a Pathfinder expedition"
+  exit 1
+fi
+
+BRANCH=$(python3 -c "import json; print(json.load(open('.pathfinder/state.json'))['branch'])")
+EXPEDITION=$(python3 -c "import json; print(json.load(open('.pathfinder/state.json'))['expedition'])")
+echo "Expedition: $EXPEDITION | Branch: $BRANCH"
 echo ""
 
-# 1. Check gate files
-echo "📋 Phase 1: Gate Files"
+# --- 1. Gate files (prerequisite, no points) ---
+echo "📋 Gate Files"
 for gate in survey plan scout build; do
   file=".pathfinder/${gate}.json"
   if [ ! -f "$file" ]; then
-    echo -e "  ${RED}✘ Missing: $file${NC}"
+    echo "  ✘ Missing: $file"
     ERRORS=$((ERRORS + 1))
   else
-    status=$(python3 -c "import json; print(json.load(open('$file')).get('status','missing'))" 2>/dev/null || echo "parse-error")
+    status=$(python3 -c "import json; print(json.load(open('$file')).get('status','?'))")
     if [ "$status" = "approved" ] || [ "$status" = "complete" ]; then
-      echo -e "  ${GREEN}✓ $file (status: $status)${NC}"
+      echo "  ✓ $file ($status)"
     else
-      echo -e "  ${RED}✘ $file has status: $status (expected approved/complete)${NC}"
+      echo "  ✘ $file: status=$status (expected approved/complete)"
       ERRORS=$((ERRORS + 1))
     fi
   fi
 done
 echo ""
 
-# 2. Check evidence blocks
-echo "📋 Phase 2: Evidence Blocks"
-if [ -f ".pathfinder/plan.json" ]; then
-  checkpoints=$(python3 -c "
-import json
-plan = json.load(open('.pathfinder/plan.json'))
-cps = plan.get('checkpoints', [])
-for cp in cps:
-    if isinstance(cp, dict):
-        print(cp.get('id', ''))
-    else:
-        print(cp)
-" 2>/dev/null)
-
-  for cp in $checkpoints; do
-    if [ -z "$cp" ]; then continue; fi
-    # Search for evidence block in any .md file or build log
-    found=$(grep -r "EVIDENCE:${cp}" . --include="*.md" 2>/dev/null | head -1 || true)
-    if [ -n "$found" ]; then
-      echo -e "  ${GREEN}✓ Evidence found for $cp${NC}"
-    else
-      echo -e "  ${YELLOW}⚠ No evidence block for $cp${NC}"
-      ERRORS=$((ERRORS + 1))
-    fi
-  done
-else
-  echo -e "  ${RED}✘ Cannot check evidence — .pathfinder/plan.json missing${NC}"
-  ERRORS=$((ERRORS + 1))
-fi
-echo ""
-
-# 3. Check USER-JOURNEYS.md markers
-echo "📋 Phase 3: Trail Map Markers"
-if [ -f "USER-JOURNEYS.md" ]; then
-  remaining=$(grep -c "❌\|🔄" USER-JOURNEYS.md 2>/dev/null || echo "0")
-  cleared=$(grep -c "✅" USER-JOURNEYS.md 2>/dev/null || echo "0")
-  echo "  Cleared: $cleared | Remaining: $remaining"
-  if [ "$remaining" -gt 0 ]; then
-    echo -e "  ${YELLOW}⚠ $remaining checkpoints not marked as cleared${NC}"
-  else
-    echo -e "  ${GREEN}✓ All markers show ✅${NC}"
-  fi
-else
-  echo -e "  ${YELLOW}⚠ USER-JOURNEYS.md not found${NC}"
-fi
-echo ""
-
-# 4. Check for secrets
-echo "📋 Phase 4: Security Check"
-secrets_found=$(git diff --name-only main..HEAD 2>/dev/null | grep -E "\.env$|\.env\.local$|\.env\.production$|secrets|credentials" || true)
-if [ -n "$secrets_found" ]; then
-  echo -e "  ${RED}✘ Potential secrets in diff:${NC}"
-  echo "$secrets_found" | while read -r f; do echo "    - $f"; done
-  ERRORS=$((ERRORS + 1))
-else
-  echo -e "  ${GREEN}✓ No secret files in diff${NC}"
-fi
-echo ""
-
-# 5. Summary
-echo "======================================"
 if [ "$ERRORS" -gt 0 ]; then
-  echo -e "${RED}✘ $ERRORS issue(s) found. Fix before creating PR.${NC}"
+  echo "✘ Gate files incomplete. Cannot compute quality score."
   exit 1
-else
-  echo -e "${GREEN}✓ All checks passed. Ready for PR.${NC}"
-  exit 0
 fi
+
+# --- 2. Task files: evidence check (20 pts) + verified check (10 pts) ---
+echo "📋 Task Evidence"
+TASK_COUNT=0
+EVIDENCE_COUNT=0
+VERIFIED_COUNT=0
+for task_file in .pathfinder/tasks/*.json; do
+  [ -f "$task_file" ] || continue
+  TASK_COUNT=$((TASK_COUNT + 1))
+  id=$(python3 -c "import json; print(json.load(open('$task_file'))['id'])")
+  status=$(python3 -c "import json; print(json.load(open('$task_file'))['status'])")
+  has_evidence=$(python3 -c "
+import json
+t = json.load(open('$task_file'))
+print('yes' if t.get('evidence',{}).get('green') else 'no')
+")
+  if [ "$has_evidence" = "yes" ]; then
+    EVIDENCE_COUNT=$((EVIDENCE_COUNT + 1))
+    echo "  ✓ $id ($status) — evidence present"
+  else
+    echo "  ⚠ $id ($status) — NO evidence"
+  fi
+  if [ "$status" = "verified" ]; then
+    VERIFIED_COUNT=$((VERIFIED_COUNT + 1))
+  fi
+done
+
+if [ "$TASK_COUNT" -gt 0 ]; then
+  EVIDENCE_SCORE=$(( 20 * EVIDENCE_COUNT / TASK_COUNT ))
+  VERIFIED_SCORE=$(( 10 * VERIFIED_COUNT / TASK_COUNT ))
+else
+  EVIDENCE_SCORE=0
+  VERIFIED_SCORE=0
+fi
+SCORE=$(( SCORE + EVIDENCE_SCORE + VERIFIED_SCORE ))
+echo "  Evidence: $EVIDENCE_COUNT/$TASK_COUNT ($EVIDENCE_SCORE/20 pts)"
+echo "  Verified: $VERIFIED_COUNT/$TASK_COUNT ($VERIFIED_SCORE/10 pts)"
+echo ""
+
+# --- 3. Run tests (25 pts for checkpoint tests, 20 pts for no regressions) ---
+echo "📋 Test Suite"
+CHECKPOINT_SCORE=0
+REGRESSION_SCORE=0
+TESTS_DETAIL=""
+if npm run test:all > /tmp/pathfinder-test-output.txt 2>&1; then
+  echo "  ✓ All tests pass"
+  CHECKPOINT_SCORE=25
+  REGRESSION_SCORE=20
+  TESTS_DETAIL=$(tail -5 /tmp/pathfinder-test-output.txt)
+else
+  echo "  ✘ Tests failed"
+  TESTS_DETAIL=$(tail -10 /tmp/pathfinder-test-output.txt)
+fi
+SCORE=$(( SCORE + CHECKPOINT_SCORE + REGRESSION_SCORE ))
+echo "$TESTS_DETAIL" | sed 's/^/  /'
+echo ""
+
+# --- 4. Branch hygiene (15 pts) ---
+echo "📋 Branch Hygiene"
+BRANCH_SCORE=0
+if [ "$BRANCH" != "main" ] && [ "$BRANCH" != "master" ]; then
+  echo "  ✓ On feature branch: $BRANCH"
+  BRANCH_SCORE=15
+else
+  echo "  ✘ On $BRANCH — must use feature branch"
+fi
+SCORE=$(( SCORE + BRANCH_SCORE ))
+echo ""
+
+# --- 5. PR created (10 pts) ---
+echo "📋 Pull Request"
+PR_SCORE=0
+PR_URL=$(gh pr list --head "$BRANCH" --json url --jq '.[0].url' 2>/dev/null || echo "")
+if [ -n "$PR_URL" ]; then
+  echo "  ✓ PR exists: $PR_URL"
+  PR_SCORE=10
+else
+  echo "  ⚠ No PR found for branch $BRANCH"
+fi
+SCORE=$(( SCORE + PR_SCORE ))
+echo ""
+
+# --- 6. Security check ---
+echo "📋 Security"
+secrets=$(git diff --name-only main..HEAD 2>/dev/null | grep -E '\.env$|\.env\.local|secrets|credentials' || true)
+if [ -n "$secrets" ]; then
+  echo "  ✘ Potential secrets in diff: $secrets"
+else
+  echo "  ✓ No secret files in diff"
+fi
+echo ""
+
+# --- Summary ---
+echo "================================================"
+echo "Quality Score: $SCORE / $MAX_SCORE"
+if [ "$SCORE" -ge 90 ]; then
+  echo "🟢 Excellent — merge-ready"
+elif [ "$SCORE" -ge 70 ]; then
+  echo "🟡 Acceptable — review carefully"
+else
+  echo "🔴 Below threshold — fix issues before merge"
+fi
+
+# --- Write report.json ---
+PR_URL_JSON="${PR_URL:-null}"
+if [ "$PR_URL_JSON" != "null" ]; then
+  PR_URL_JSON="\"$PR_URL_JSON\""
+fi
+
+cat > .pathfinder/report.json << EOF
+{
+  "phase": "report",
+  "status": "complete",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "qualityScore": $SCORE,
+  "breakdown": {
+    "allTestsPass": {"score": $CHECKPOINT_SCORE, "max": 25},
+    "evidenceComplete": {"score": $EVIDENCE_SCORE, "max": 20},
+    "noRegressions": {"score": $REGRESSION_SCORE, "max": 20},
+    "branchHygiene": {"score": $BRANCH_SCORE, "max": 15},
+    "prCreated": {"score": $PR_SCORE, "max": 10},
+    "allVerified": {"score": $VERIFIED_SCORE, "max": 10}
+  },
+  "pr": {"url": $PR_URL_JSON}
+}
+EOF
+echo ""
+echo "Report saved to .pathfinder/report.json"
+
+exit $(( SCORE < 70 ? 1 : 0 ))

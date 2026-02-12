@@ -112,6 +112,69 @@ git commit -m "Plan: Chart map for FEAT-01 through FEAT-05"
 
 **The Scouting phase will refuse to proceed without `.pathfinder/plan.json`.**
 
+## Task File Creation (v0.4.0)
+
+After extracting checkpoints, create individual task files for each:
+
+```bash
+mkdir -p .pathfinder/tasks
+
+# For each checkpoint, create a task file:
+cat > .pathfinder/tasks/FEAT-01.json << 'EOF'
+{
+  "id": "FEAT-01",
+  "description": "<checkpoint description>",
+  "category": "Happy Path",
+  "priority": "must",
+  "status": "planned",
+  "dependencies": [],
+  "tests": {"e2e": [], "unit": []},
+  "evidence": {"red": null, "green": null, "verified": null},
+  "builderNotes": ""
+}
+EOF
+```
+
+**Dependency assignment:** Happy path checkpoints typically have no dependencies.
+Error/edge cases depend on the happy path checkpoint they branch from
+(mirroring the Mermaid diagram edges).
+
+Example: `FEAT-03` (error handling) depends on `FEAT-01` (happy path):
+```json
+{"id": "FEAT-03", "dependencies": ["FEAT-01"], "status": "planned"}
+```
+
+### Initialize state.json
+
+At the start of the expedition (or when creating the plan), initialize `state.json`:
+
+```bash
+cat > .pathfinder/state.json << 'EOF'
+{
+  "version": "0.4.0",
+  "expedition": "<expedition-name>",
+  "branch": "feat/<expedition-name>",
+  "currentPhase": "plan",
+  "phases": {
+    "survey":  {"status": "approved", "timestamp": "<ISO-8601>"},
+    "plan":    {"status": "in-progress", "timestamp": "<ISO-8601>"},
+    "scout":   {"status": "pending", "timestamp": null},
+    "build":   {"status": "pending", "timestamp": null},
+    "report":  {"status": "pending", "timestamp": null}
+  },
+  "checkpoints": {"total": 0, "planned": 0, "red": 0, "green": 0, "verified": 0}
+}
+EOF
+```
+
+Then run `bash scripts/pathfinder-update-state.sh` to sync checkpoint counts.
+
+Commit task files and state.json with the plan gate:
+```bash
+git add .pathfinder/tasks/ .pathfinder/state.json .pathfinder/plan.json USER-JOURNEYS.md
+git commit -m "Plan: Chart map for FEAT-01 through FEAT-XX"
+```
+
 ## Anti-Rationalization
 
 | Rationalization | Counter |
