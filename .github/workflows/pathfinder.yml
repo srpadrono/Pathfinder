@@ -20,6 +20,15 @@ jobs:
 
       - run: npm ci
 
+      - name: Validate checkpoint report schema
+        run: npm run validate:checkpoints
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shell script static checks
+        run: shellcheck scripts/*.sh .githooks/*
+
       - run: npx playwright install --with-deps chromium
 
       - name: Run unit tests

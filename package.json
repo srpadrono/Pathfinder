@@ -16,7 +16,8 @@
     "test:coverage": "tsx scripts/update-coverage.ts",
     "test:trace": "playwright show-trace",
     "test:generate-map": "tsx scripts/generate-map.ts",
-    "lint": "eslint scripts/ e2e/ src/",
+    "doctor": "tsx scripts/doctor.ts",
+    "validate:checkpoints": "tsx scripts/validate-checkpoints.ts"
     "format": "prettier --write ."
   },
   "devDependencies": {

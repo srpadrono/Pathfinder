@@ -79,6 +79,9 @@ The `AGENTS.md` file provides universal instructions. The `skills/` directory co
 ### 4. Run Tests
 
 ```bash
+# Validate checkpoint report schema
+npm run validate:checkpoints
+
 # Run all tests
 npx playwright test
 
