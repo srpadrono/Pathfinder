@@ -248,11 +248,11 @@ A practical execution plan to turn Pathfinder into a world-class repository: hig
 10. PF-601
 
 These ten create the fastest path to trust, reliability, and maintainability.
-- ✅ PF-203 initial implementation (verification preflight test harness added)
-- ✅ PF-401 implemented (ADR-0001 chooses reporter output as source of truth)
-- ✅ PF-402 implemented (fixture marker file emission removed)
-- ✅ PF-403 initial implementation (`validate:checkpoints` schema check added)
+- ✅ PF-201 implemented
+- ✅ PF-202 implemented
+- ✅ PF-301 implemented
+- ✅ PF-302 implemented
 - ✅ PF-502 initial implementation (shellcheck added to CI)
 - ✅ PF-503 implemented (security workflow for npm audit + baseline secret scan)
-- 🔄 PF-602 partially implemented (deterministic demo app server added)
+- ✅ PF-602 implemented (deterministic demo app + default demo auth env path)
 - ✅ PF-603 implemented (CODEOWNERS + ADR template + release checklist)

@@ -16,7 +16,7 @@
     "test:coverage": "tsx scripts/update-coverage.ts",
     "test:trace": "playwright show-trace",
     "test:generate-map": "tsx scripts/generate-map.ts",
-    "doctor": "tsx scripts/doctor.ts",
+    "validate": "npm run validate:docs && npm run validate:pathfinder && npm run validate:checkpoints && npm run lint && npm run test:unit",
     "validate:checkpoints": "tsx scripts/validate-checkpoints.ts"
     "format": "prettier --write ."
   },

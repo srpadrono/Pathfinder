@@ -61,7 +61,8 @@ npx playwright install --with-deps chromium
 
 ```bash
 cp .env.example .env.local
-# Edit .env.local with your test credentials
+# For built-in demo server, defaults are already valid
+# Edit .env.local only if testing against a real app/auth provider
 ```
 
 ### 3. Use with AI Agent
