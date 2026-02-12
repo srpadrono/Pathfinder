@@ -25,7 +25,7 @@ git diff main...HEAD --stat
 cat USER-JOURNEYS.md
 
 # What do the tests verify?
-npx playwright test --reporter=list --dry-run 2>/dev/null || npx playwright test --list
+npx playwright test --list
 ```
 
 ### 2. Run the Tests Yourself
@@ -47,6 +47,17 @@ If they don't pass on your machine, the PR is not ready.
 | No extra features beyond checkpoints? | `git diff main...HEAD` — look for code not covered by any test |
 | Markers correctly updated? | All targeted checkpoints show ✅ in trail map |
 | Evidence matches behavior? | Open `playwright-report/` and verify screenshots |
+
+### Task File Review (v0.4.0)
+
+| Check | How to Verify |
+|-------|--------------|
+| Task files exist? | `ls .pathfinder/tasks/*.json` — one per checkpoint |
+| Task statuses correct? | Each task file shows `"status": "verified"` or `"green"` |
+| State file consistent? | `cat .pathfinder/state.json` — phase and counts match reality |
+| Evidence filled? | Each task file has `evidence.green` with test output |
+
+Cross-reference: See `pathfinder:dispatching` for the two-stage review process (Trail Compliance → Code Quality).
 
 ### 4. Code Quality Review
 

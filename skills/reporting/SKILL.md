@@ -111,21 +111,6 @@ This produces `.pathfinder/report.json` with a 0-100 quality score:
 
 If score is below 70, the script exits with code 1. Fix the issues and re-run.
 
-### 5. Run Legacy Verification Script
-
-```bash
-# Automated check of all gates, evidence, markers, and security
-bash scripts/verify-expedition.sh
-```
-
-This script checks:
-- All 4 gate files exist with correct status
-- Evidence blocks exist for every checkpoint
-- Trail map markers all show ✅
-- No secret files in the diff
-
-**If the script fails → fix the issues before proceeding. No exceptions.**
-
 ## Pre-Review Checklist
 
 Before requesting review, verify ALL:
@@ -150,12 +135,12 @@ git add USER-JOURNEYS.md checkpoints.json
 git commit -m "Report: Expedition complete for <journey>"
 
 # 2. Push expedition branch
-git push origin expedition/<journey-name>
+git push origin feat/<journey-name>
 
 # 3. Create PR with GitHub CLI
 gh pr create \
   --base main \
-  --head expedition/<journey-name> \
+  --head feat/<journey-name> \
   --title "Expedition: <Journey Name> (<checkpoint-range>)" \
   --body-file .github/PULL_REQUEST_TEMPLATE.md
 ```

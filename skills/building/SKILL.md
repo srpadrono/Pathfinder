@@ -48,7 +48,7 @@ t['evidence']['green'] = {
     'e2e': '<paste PASS output>',
     'unit': '<paste PASS output>',
     'fullSuite': '<paste full suite summary>',
-    'timestamp': '$(date -u +%Y-%m-%dT%H:%M:%SZ)'
+    'timestamp': __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 }
 t['builderNotes'] = '<implementation notes>'
 json.dump(t, open('.pathfinder/tasks/FEAT-01.json', 'w'), indent=2)

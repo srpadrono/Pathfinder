@@ -56,7 +56,11 @@ Checkpoints are individual JSON files in `.pathfinder/tasks/`:
 ## Skills
 
 Individual skills in `skills/` provide focused instructions per phase.
-SessionStart hook auto-loads `skills/using-pathfinder/SKILL.md`.
+SessionStart hook auto-loads `skills/using-pathfinder/SKILL.md` (configured in `hooks/hooks.json`).
+
+## Scripts
+
+- `scripts/verify-expedition.sh` — Run at Report phase to compute quality score and generate `.pathfinder/report.json`
 
 ## Powered By
 

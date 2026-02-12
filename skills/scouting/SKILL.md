@@ -119,7 +119,7 @@ t['tests'] = {
 t['evidence']['red'] = {
     'e2e': '<paste FAIL output>',
     'unit': '<paste FAIL output>',
-    'timestamp': '$(date -u +%Y-%m-%dT%H:%M:%SZ)'
+    'timestamp': __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 }
 json.dump(t, open('.pathfinder/tasks/FEAT-01.json', 'w'), indent=2)
 "
@@ -131,7 +131,7 @@ python3 -c "
 import json
 s = json.load(open('.pathfinder/state.json'))
 s['currentPhase'] = 'scout'
-s['phases']['scout'] = {'status': 'in-progress', 'timestamp': '$(date -u +%Y-%m-%dT%H:%M:%SZ)'}
+s['phases']['scout'] = {'status': 'in-progress', 'timestamp': __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')}
 json.dump(s, open('.pathfinder/state.json', 'w'), indent=2)
 "
 bash scripts/pathfinder-update-state.sh

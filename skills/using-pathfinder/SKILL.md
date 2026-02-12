@@ -70,7 +70,6 @@ Gate files live in `.pathfinder/` at the project root.
   "phase": "survey",
   "status": "approved",
   "timestamp": "2026-02-11T14:00:00Z",
-  "checkpoints": ["FEAT-01", "FEAT-02"],
   "approvedBy": "user"
 }
 ```
