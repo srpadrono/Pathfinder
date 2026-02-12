@@ -1268,7 +1268,7 @@ Pathfinder/
 ├── vitest.config.ts                   # Unit test configuration (Vitest)
 ├── .gitignore                         # node_modules, .auth, test-results, etc.
 │
-├── skills/                            # 10 composable skill files (+ 2 cross-cutting)
+├── skills/                            # 12 composable skill files
 │   ├── using-pathfinder/SKILL.md      # Meta-skill (auto-loaded via SessionStart)
 │   ├── surveying/SKILL.md             # Phase 1: Requirements gathering
 │   ├── planning/SKILL.md              # Phase 2: Chart map + define checkpoints

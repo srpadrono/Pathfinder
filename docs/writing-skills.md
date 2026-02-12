@@ -1,10 +1,3 @@
----
-name: writing-skills
-description: >
-  Meta-skill for creating new Pathfinder skills using TDD methodology.
-  Skills are TDD-tested documentation.
----
-
 # Writing Pathfinder Skills
 
 ## Skills Are TDD-Tested Documentation
