@@ -258,6 +258,13 @@ Install: `git config core.hooksPath .githooks`
 
 - See the execution backlog: [`docs/world-class-roadmap.md`](docs/world-class-roadmap.md)
 
+
+## Governance
+
+- CODEOWNERS: [`.github/CODEOWNERS`](.github/CODEOWNERS)
+- ADR template: [`docs/adr/template.md`](docs/adr/template.md)
+- Release checklist: [`docs/release-checklist.md`](docs/release-checklist.md)
+
 ## Inspiration
 
 - [obra/superpowers](https://github.com/obra/superpowers) — Composable skills architecture, SessionStart hooks, anti-rationalization tables, TDD enforcement, verification-before-completion

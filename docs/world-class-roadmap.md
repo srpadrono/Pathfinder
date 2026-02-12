@@ -248,3 +248,11 @@ A practical execution plan to turn Pathfinder into a world-class repository: hig
 10. PF-601
 
 These ten create the fastest path to trust, reliability, and maintainability.
+- 🔄 PF-203 pending (script fixture test harness not yet added)
+- ✅ PF-401 implemented (ADR-0001 chooses reporter output as source of truth)
+- ✅ PF-402 implemented (fixture marker file emission removed)
+- 🔄 PF-403 pending (schema validation for reporter output still to add)
+- 🔄 PF-502 pending (shellcheck integration still to add)
+- ✅ PF-503 implemented (security workflow for npm audit + baseline secret scan)
+- 🔄 PF-602 partially implemented (deterministic demo app server added)
+- ✅ PF-603 implemented (CODEOWNERS + ADR template + release checklist)

@@ -1,0 +1,12 @@
+# Global owners
+* @srpadrono
+
+# CI / automation
+/.github/workflows/ @srpadrono
+/scripts/ @srpadrono
+
+# Core workflow contracts
+/AGENTS.md @srpadrono
+/README.md @srpadrono
+/skills/ @srpadrono
+/docs/architecture/ @srpadrono

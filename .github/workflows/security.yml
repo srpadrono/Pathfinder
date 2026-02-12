@@ -1,0 +1,32 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: npm audit (high)
+        run: npm audit --audit-level=high
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Secret scan (simple baseline)
+        run: |
+          set -euo pipefail
+          if rg -n --hidden --glob '!node_modules' --glob '!.git' '(API_KEY|SECRET_KEY|BEGIN RSA PRIVATE KEY|AWS_SECRET_ACCESS_KEY)' .; then
+            echo "Potential secret-like pattern found"
+            exit 1
+          fi
+          echo "No obvious secret patterns found"
