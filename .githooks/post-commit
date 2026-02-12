@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Pathfinder v0.4.0 post-commit hook
+# Auto-updates state.json checkpoint counts after every commit.
+[ -f .pathfinder/state.json ] || exit 0
+bash scripts/pathfinder-update-state.sh 2>/dev/null || true

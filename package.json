@@ -1,6 +1,6 @@
 {
   "name": "pathfinder",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "description": "TDD workflow using expedition metaphor for AI coding agents",
   "type": "module",
   "scripts": {

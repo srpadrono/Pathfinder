@@ -1,3 +1,5 @@
+> **Note:** This is an extended example. For the minimal template, see `templates/user-journeys.md`.
+
 # 🗺️ Trail Map — User Journeys
 
 *Last updated: YYYY-MM-DD*
@@ -7,8 +9,8 @@
 | Journey | Coverage | Checkpoints | Last Scouted |
 |---------|----------|-------------|--------------|
 | Auth | 0% | 0/5 | - |
-| Dashboard | 0% | 0/8 | - |
-| Wells | 0% | 0/6 | - |
+| Items | 0% | 0/8 | - |
+| Settings | 0% | 0/6 | - |
 
 **Total Coverage:** 0% (0/19 checkpoints cleared)
 
@@ -43,7 +45,7 @@ graph TD
 
 ---
 
-## 📊 Dashboard Journey
+## 📋 Items Journey
 
 ### Trail Map
 
@@ -78,32 +80,32 @@ graph TD
 
 ---
 
-## 🛢️ Wells Journey
+## ⚙️ Settings Journey
 
 ### Trail Map
 
 ```mermaid
 graph TD
-    A[Wells List] --> B{Wells Exist?}
-    B -->|No| C[Empty State ❌ WELL-01]
-    B -->|Yes| D[Show Wells ❌ WELL-02]
-    D --> E[Click Well ❌ WELL-03]
-    E --> F[Well Detail]
-    F --> G[Activity Chart ❌ WELL-04]
-    F --> H[Edit Well ❌ WELL-05]
-    H --> I[Save Changes ❌ WELL-06]
+    A[Settings Page] --> B{Has Profile?}
+    B -->|No| C[Default State ❌ SET-01]
+    B -->|Yes| D[Show Profile ❌ SET-02]
+    D --> E[Edit Profile ❌ SET-03]
+    E --> F[Profile Form]
+    F --> G[Validation ❌ SET-04]
+    F --> H[Save Changes ❌ SET-05]
+    H --> I[Success Message ❌ SET-06]
 ```
 
 ### Checkpoints
 
 | ID | Checkpoint | Category | Status | Last Run |
 |----|------------|----------|--------|----------|
-| WELL-01 | Empty state shows message | Edge Case | ❌ | - |
-| WELL-02 | Wells list loads | Happy Path | ❌ | - |
-| WELL-03 | Click navigates to detail | Happy Path | ❌ | - |
-| WELL-04 | Activity chart renders | Happy Path | ❌ | - |
-| WELL-05 | Edit form opens | Happy Path | ❌ | - |
-| WELL-06 | Save persists changes | Happy Path | ❌ | - |
+| SET-01 | Default state shows placeholder | Edge Case | ❌ | - |
+| SET-02 | Profile data loads | Happy Path | ❌ | - |
+| SET-03 | Edit form opens | Happy Path | ❌ | - |
+| SET-04 | Invalid input shows error | Error | ❌ | - |
+| SET-05 | Save persists changes | Happy Path | ❌ | - |
+| SET-06 | Success message appears | Happy Path | ❌ | - |
 
 ---
 

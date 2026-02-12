@@ -85,20 +85,31 @@ npx playwright show-report
 **You MUST paste the full output** of `npm run test:all` showing pass/fail counts.
 A summary like "all tests pass" is NOT acceptable. Paste the actual output.
 
-### 4. Run Verification Script
+### 4. Verification & Quality Score (v0.4.0)
+
+Before creating the PR, run the v0.4.0 verification script which computes a quality score:
 
 ```bash
-# Automated check of all gates, evidence, markers, and security
 bash scripts/verify-expedition.sh
 ```
 
-This script checks:
-- All 4 gate files exist with correct status
-- Evidence blocks exist for every checkpoint
-- Trail map markers all show ✅
-- No secret files in the diff
+This produces `.pathfinder/report.json` with a 0-100 quality score:
 
-**If the script fails → fix the issues before proceeding. No exceptions.**
+| Criterion | Points | How to check |
+|-----------|--------|-------------|
+| All checkpoint tests pass | 25 | `npm run test:all` with 0 failures |
+| Evidence complete | 20 | Every task file has `evidence.green` filled |
+| No regressions | 20 | Full suite passes |
+| Branch hygiene | 15 | Not on main/master |
+| PR created | 10 | `gh pr list --head <branch>` returns a PR |
+| All verified | 10 | Every task has `status: "verified"` |
+
+**Thresholds:**
+- **90-100 🟢** — Excellent, merge-ready
+- **70-89 🟡** — Acceptable, review carefully
+- **Below 70 🔴** — Do not merge, fix issues first
+
+If score is below 70, the script exits with code 1. Fix the issues and re-run.
 
 ## Pre-Review Checklist
 
@@ -124,12 +135,12 @@ git add USER-JOURNEYS.md checkpoints.json
 git commit -m "Report: Expedition complete for <journey>"
 
 # 2. Push expedition branch
-git push origin expedition/<journey-name>
+git push origin feat/<journey-name>
 
 # 3. Create PR with GitHub CLI
 gh pr create \
   --base main \
-  --head expedition/<journey-name> \
+  --head feat/<journey-name> \
   --title "Expedition: <Journey Name> (<checkpoint-range>)" \
   --body-file .github/PULL_REQUEST_TEMPLATE.md
 ```

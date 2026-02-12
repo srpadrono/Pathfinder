@@ -103,6 +103,40 @@ Confirm for BOTH layers:
 - Failure message is the expected one
 - Fails because feature is MISSING, not because test is broken
 
+## Update Task Files (v0.4.0)
+
+After writing tests for each checkpoint, update its task file from `planned` → `red`:
+
+```bash
+python3 -c "
+import json
+t = json.load(open('.pathfinder/tasks/FEAT-01.json'))
+t['status'] = 'red'
+t['tests'] = {
+    'e2e': ['e2e/feature.spec.ts'],
+    'unit': ['src/utils/feature.test.ts']
+}
+t['evidence']['red'] = {
+    'e2e': '<paste FAIL output>',
+    'unit': '<paste FAIL output>',
+    'timestamp': __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+}
+json.dump(t, open('.pathfinder/tasks/FEAT-01.json', 'w'), indent=2)
+"
+```
+
+Update `state.json` phase:
+```bash
+python3 -c "
+import json
+s = json.load(open('.pathfinder/state.json'))
+s['currentPhase'] = 'scout'
+s['phases']['scout'] = {'status': 'in-progress', 'timestamp': __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')}
+json.dump(s, open('.pathfinder/state.json', 'w'), indent=2)
+"
+bash scripts/pathfinder-update-state.sh
+```
+
 ## After Scouting
 
 1. Update diagram markers: ❌ → 🔄

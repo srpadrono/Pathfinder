@@ -15,4 +15,4 @@ Generate expedition report:
 4. Update coverage: `npm run test:coverage`
 5. Generate trail map: `npm run test:generate-map`
 6. Collect evidence from `test-results/` and `playwright-report/`
-7. Create PR using templates/pr-template.md
+7. Create PR using .github/PULL_REQUEST_TEMPLATE.md

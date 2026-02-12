@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Pathfinder v0.3.0+ pre-push hook
+# Blocks direct push to main/master. Forces feature branches.
+
+# Check current branch
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+  echo "✘ Pathfinder: Direct push to $BRANCH is blocked."
+  echo "  Create a feature branch: git checkout -b feat/<expedition-name>"
+  echo "  Then push: git push origin feat/<expedition-name>"
+  exit 1
+fi
+
+# Also block pushes targeting remote main/master refs
+while read local_ref local_sha remote_ref remote_sha; do
+  if echo "$remote_ref" | grep -qE "refs/heads/(main|master)$"; then
+    echo "✘ Pathfinder: Push targeting remote ${remote_ref} is blocked."
+    echo "  Use a pull request to merge into main/master."
+    exit 1
+  fi
+done
+
+exit 0

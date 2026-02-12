@@ -18,19 +18,18 @@ Every expedition gets its own branch. No working directly on `main`.
 ### Branch Naming Convention
 
 ```
-<role>/<journey>-<short-description>
+feat/<journey>-<short-description>
 ```
 
-| Role | Prefix | Example |
+| Type | Prefix | Example |
 |------|--------|---------|
-| Scout | `scout/` | `scout/auth-login-flow` |
-| Builder | `builder/` | `builder/auth-login-flow` |
-| Full expedition (single agent) | `expedition/` | `expedition/auth-login-flow` |
+| Expedition (any role) | `feat/` | `feat/auth-login-flow` |
 | Bug fix | `fix/` | `fix/auth-token-expiry` |
 | Hotfix (critical) | `hotfix/` | `hotfix/auth-session-crash` |
 
 Rules:
 - Lowercase, hyphen-separated
+- All expedition work uses `feat/` prefix — no role-based prefixes
 - Journey prefix matches checkpoint IDs (`auth` → `AUTH-01`, `AUTH-02`)
 - Short and descriptive — no ticket numbers in the branch name unless the team requires it
 
@@ -44,10 +43,10 @@ git checkout main
 git pull origin main
 
 # 2. Create expedition branch
-git checkout -b expedition/auth-login-flow
+git checkout -b feat/auth-login-flow
 
 # 3. Push branch to remote immediately (establishes tracking)
-git push -u origin expedition/auth-login-flow
+git push -u origin feat/auth-login-flow
 ```
 
 Why before scouting? Because the Scout's first commit (tests + trail map) should already be on the expedition branch. Never commit test scaffolding to `main`.
@@ -118,12 +117,12 @@ git add USER-JOURNEYS.md checkpoints.json
 git commit -m "Report: Expedition complete for auth journey"
 
 # 4. Push all commits
-git push origin expedition/auth-login-flow
+git push origin feat/auth-login-flow
 
 # 5. Create PR using GitHub CLI
 gh pr create \
   --base main \
-  --head expedition/auth-login-flow \
+  --head feat/auth-login-flow \
   --title "Expedition: Auth Login Flow (AUTH-01 through AUTH-05)" \
   --body-file .github/PULL_REQUEST_TEMPLATE.md
 ```
@@ -134,7 +133,7 @@ If `gh` is not available:
 
 ```bash
 # Push and use the link Git provides
-git push -u origin expedition/auth-login-flow
+git push -u origin feat/auth-login-flow
 # Git will print a URL to create the PR — use it
 ```
 
@@ -182,26 +181,26 @@ When using Scout and Builder as separate agents:
 
 ```bash
 # Scout creates branch and writes tests
-git checkout -b expedition/auth-login-flow
+git checkout -b feat/auth-login-flow
 # Scout commits: "Scout: Mark trail for AUTH-01 through AUTH-05"
-git push -u origin expedition/auth-login-flow
+git push -u origin feat/auth-login-flow
 
 # Builder pulls the same branch and implements
-git checkout expedition/auth-login-flow
-git pull origin expedition/auth-login-flow
+git checkout feat/auth-login-flow
+git pull origin feat/auth-login-flow
 # Builder commits per checkpoint: "Builder: Clear AUTH-01"
-git push origin expedition/auth-login-flow
+git push origin feat/auth-login-flow
 ```
 
 ### Option B: Separate Branches (Complex expeditions)
 
 ```bash
 # Scout works on scout branch
-git checkout -b scout/auth-login-flow
-# Scout commits tests, pushes, creates PR into expedition branch
+git checkout -b feat/auth-login-flow-scout
+# Scout commits tests, pushes, creates PR into main branch
 
 # Builder works on builder branch off scout's work
-git checkout -b builder/auth-login-flow scout/auth-login-flow
+git checkout -b feat/auth-login-flow-build feat/auth-login-flow-scout
 # Builder commits implementation, pushes, creates PR into main
 ```
 

@@ -114,7 +114,7 @@ npm audit
 git log --all --diff-filter=A -- '*.env' '*.key' '*.pem' '*credentials*'
 
 # Search for common dangerous patterns
-grep -r "dangerouslySetInnerHTML\|eval(\|innerHTML\s*=" src/ || echo "None found"
+grep -rE "dangerouslySetInnerHTML|eval\(|innerHTML\s*=" src/ || echo "None found"
 
 # Search for hardcoded secrets
 grep -rn "password\s*=\s*['\"].*['\"]" src/ --include='*.ts' --include='*.tsx' || echo "None found"

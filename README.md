@@ -35,7 +35,7 @@ Built on [Playwright CLI](https://playwright.dev/docs/test-cli) and inspired by 
 
 ## Features
 
-- **7-Phase Workflow** — Survey → Chart → Mark → Scout → Build → Dispatch → Report
+- **5-Phase Workflow** — Survey → Plan → Scout → Build → Report
 - **Composable Skills** — 12 focused skills loaded on-demand from `skills/`
 - **SessionStart Hook** — Auto-injects workflow at session start
 - **Slash Commands** — `/survey`, `/scout`, `/build`, `/report`
@@ -114,7 +114,7 @@ npm run test:generate-map
 ├─────────────────────────────────────────────────────┤
 │                  METHODOLOGY LAYER                   │
 │  skills/ (composable), commands/ (slash)             │
-│  Survey → Chart → Mark → Scout → Build → Report     │
+│  Survey → Plan → Scout → Build → Report              │
 ├─────────────────────────────────────────────────────┤
 │                  INTEGRATION LAYER                   │
 │  e2e/fixtures/pathfinder.ts (checkpoint fixture)     │
@@ -168,18 +168,16 @@ pathfinder/
 │   └── reporters/pathfinder-reporter.ts  # Trail map reporter
 ├── scripts/
 │   ├── update-coverage.ts          #   JSON-based coverage sync
-│   ├── generate-map.ts             #   Generate USER-JOURNEYS.md
-│   ├── run-tests.ts                #   Legacy test runner (deprecated)
-│   └── setup-auth.ts               #   Legacy auth setup (deprecated)
+│   └── generate-map.ts             #   Generate USER-JOURNEYS.md
 ├── templates/                      # Templates for new projects
 │   ├── user-journeys.md            #   Trail map template
 │   ├── test-file.ts                #   Test file template
-│   └── pr-template.md              #   PR template
+│   ├── state.json                  #   Expedition state template
+│   └── task.json                   #   Task/checkpoint template
 ├── .github/
 │   ├── workflows/pathfinder.yml    #   CI/CD workflow
 │   └── PULL_REQUEST_TEMPLATE.md    #   PR template
 ├── docs/                           # Reference documentation
-├── references/                     # Methodology reference docs
 └── assets/                         # Branding (banner, logo)
 ```
 
@@ -192,6 +190,68 @@ pathfinder/
 | ✅ | Cleared | Test passing |
 | ⚠️ | Unstable | Flaky test needs attention |
 | ⏭️ | Skipped | Out of scope for this expedition |
+
+## Task-Level Tracking (v0.4.0)
+
+Pathfinder v0.4.0 introduces **structural enforcement** — making phase violations physically impossible rather than relying on voluntary discipline.
+
+### Task Files
+
+Each checkpoint gets its own JSON file in `.pathfinder/tasks/`:
+
+```
+.pathfinder/
+├── state.json              # Current phase + expedition metadata
+├── tasks/
+│   ├── FEAT-01.json        # Individual checkpoint with status & evidence
+│   ├── FEAT-02.json
+│   └── ...
+└── report.json             # Quality score from verification
+```
+
+**Status lifecycle:** `planned` → `red` → `green` → `verified`
+
+### Dependency Enforcement
+
+Checkpoints declare dependencies. The builder cannot work on a blocked checkpoint:
+
+```bash
+bash scripts/pathfinder-check-deps.sh FEAT-03
+# ✘ Blocked: FEAT-03 depends on FEAT-01 (status: red)
+```
+
+### Verification & Quality Score
+
+`verify-expedition.sh` computes a 0-100 quality score:
+
+| Criterion | Points |
+|-----------|--------|
+| All checkpoint tests pass | 25 |
+| Evidence complete | 20 |
+| No regressions | 20 |
+| Branch hygiene | 15 |
+| PR created | 10 |
+| All verified | 10 |
+
+**Thresholds:** 90+ merge-ready, 70-89 review carefully, <70 fix issues.
+
+### New Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/pathfinder-check-deps.sh` | Check if a checkpoint's dependencies are satisfied |
+| `scripts/pathfinder-update-state.sh` | Sync state.json checkpoint counts from task files |
+| `scripts/verify-expedition.sh` | Full verification with quality score |
+
+### Git Hooks
+
+| Hook | Purpose |
+|------|---------|
+| `.githooks/pre-commit` | Reads state.json, blocks src/ changes in wrong phase |
+| `.githooks/post-commit` | Auto-updates state.json after every commit |
+| `.githooks/pre-push` | Blocks direct push to main/master |
+
+Install: `git config core.hooksPath .githooks`
 
 ## Inspiration
 

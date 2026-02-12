@@ -55,7 +55,7 @@ export class TestRunner {
       process.exit(1);
     }
     
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch({ headless: process.env.CI !== undefined || process.env.HEADLESS === 'true' });
     const context = await browser.newContext({ storageState: AUTH_STATE_PATH });
     const page = await context.newPage();
     
@@ -121,7 +121,7 @@ export class TestRunner {
     console.log('TEST RESULTS');
     console.log('━'.repeat(60));
     console.log(`\n✅ Passed: ${passed}  ❌ Failed: ${failed}  📊 Total: ${total}`);
-    console.log(`📈 Pass Rate: ${((passed / total) * 100).toFixed(1)}%`);
+    console.log(`📈 Pass Rate: ${total > 0 ? ((passed / total) * 100).toFixed(1) : '0.0'}%`);
     console.log(`📸 Screenshots: ${this.screenshotDir}`);
     
     if (failed > 0) {

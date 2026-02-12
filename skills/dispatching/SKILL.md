@@ -16,6 +16,9 @@ Every dispatch includes EVERYTHING the agent needs.
 
 ### Hard Rules for Sub-Agent Dispatch
 
+0. **Create a feature branch BEFORE any dispatch** — `git checkout -b feat/expedition-name`.
+   ALL work happens on the branch. NEVER commit expedition work to main directly.
+   The pre-push hook will block you if you forget.
 1. **Paste the FULL skill text** — not a summary, not "follow Pathfinder." Copy-paste the entire
    relevant SKILL.md content into the task. Sub-agents don't have access to your skill files.
 2. **Max 3 checkpoints per builder dispatch** — batching more causes shortcuts. If you have 10
@@ -24,6 +27,8 @@ Every dispatch includes EVERYTHING the agent needs.
    "For each checkpoint: run test → verify FAIL → implement → run test → verify PASS → commit."
 4. **Scout tasks MUST include both test layers** — "Write E2E tests AND unit tests" not just one.
 5. **Every dispatch must reference the gate file** — "Read `.pathfinder/plan.json` for checkpoint definitions."
+6. **Report phase is NOT optional** — after Build, you MUST run `verify-expedition.sh`, create
+   `.pathfinder/report.json`, and create a PR via `gh pr create`. No exceptions.
 
 ## Scout Dispatch Template
 
@@ -111,6 +116,31 @@ For FEAT-01:
 8. Update marker in USER-JOURNEYS.md: 🔄 → ✅
 
 Then repeat for FEAT-02 and FEAT-03.
+
+=== DEPENDENCY CHECK (v0.4.0 — before each checkpoint) ===
+
+Before working on any checkpoint, run:
+  bash scripts/pathfinder-check-deps.sh <CHECKPOINT-ID>
+
+If it says "Blocked" → skip this checkpoint and move to the next unblocked one.
+Report which checkpoints were blocked and why.
+
+=== TASK FILE UPDATES (v0.4.0 — after each checkpoint) ===
+
+After clearing a checkpoint, update its task file:
+  python3 -c "
+  import json
+  t = json.load(open('.pathfinder/tasks/<ID>.json'))
+  t['status'] = 'green'
+  t['evidence']['green'] = {
+    'e2e': '<paste e2e pass output>',
+    'unit': '<paste unit pass output>',
+    'fullSuite': '<paste full suite summary>',
+    'timestamp': '<ISO timestamp>'
+  }
+  json.dump(t, open('.pathfinder/tasks/<ID>.json','w'), indent=2)
+  "
+  git add .pathfinder/tasks/<ID>.json
 
 === EVIDENCE REQUIRED ===
 

@@ -22,6 +22,9 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
+      - name: Run unit tests
+        run: npx vitest run
+
       - name: Run Pathfinder tests
         env:
           CI: 'true'
@@ -29,6 +32,8 @@ jobs:
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           BASE_URL: http://localhost:3000
         run: npx playwright test
+        # NOTE: E2E tests require the app server running. Consider adding a
+        # webServer config in playwright.config.ts or starting the server here.
 
       - name: Update coverage
         if: always()

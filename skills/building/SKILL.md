@@ -24,6 +24,40 @@ If this file doesn't exist or `status` is not `"complete"` → **STOP. Run the S
 If `allTestsFail` is not `true` → **STOP. Tests should fail before building.**
 Read the checkpoint list and test file paths from this file.
 
+## Dependency Check (v0.4.0)
+
+Before working on any checkpoint, run the dependency checker:
+
+```bash
+bash scripts/pathfinder-check-deps.sh FEAT-01
+```
+
+If it says "Blocked" → **skip this checkpoint** and move to the next unblocked one.
+Report which checkpoints were blocked and why. Work on unblocked checkpoints first.
+
+## Update Task Files (v0.4.0)
+
+After clearing each checkpoint, update its task file from `red` → `green`:
+
+```bash
+python3 -c "
+import json
+t = json.load(open('.pathfinder/tasks/FEAT-01.json'))
+t['status'] = 'green'
+t['evidence']['green'] = {
+    'e2e': '<paste PASS output>',
+    'unit': '<paste PASS output>',
+    'fullSuite': '<paste full suite summary>',
+    'timestamp': __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+}
+t['builderNotes'] = '<implementation notes>'
+json.dump(t, open('.pathfinder/tasks/FEAT-01.json', 'w'), indent=2)
+"
+git add .pathfinder/tasks/FEAT-01.json
+```
+
+The post-commit hook will auto-update `state.json` checkpoint counts.
+
 ## The Build Loop
 
 For each checkpoint:
