@@ -253,6 +253,11 @@ bash scripts/pathfinder-check-deps.sh FEAT-03
 
 Install: `git config core.hooksPath .githooks`
 
+
+## Improvement Roadmap
+
+- See the execution backlog: [`docs/world-class-roadmap.md`](docs/world-class-roadmap.md)
+
 ## Inspiration
 
 - [obra/superpowers](https://github.com/obra/superpowers) — Composable skills architecture, SessionStart hooks, anti-rationalization tables, TDD enforcement, verification-before-completion
