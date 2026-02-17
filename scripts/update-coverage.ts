@@ -12,6 +12,7 @@
  */
 
 import * as fs from 'fs';
+import { validateCheckpointsPayload } from '../src/checkpoint-schema';
 
 interface CheckpointState {
   id: string;
@@ -104,6 +105,12 @@ async function main() {
     }
 
     const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    const validationErrors = validateCheckpointsPayload(data);
+    if (validationErrors.length > 0) {
+      console.error('❌ Invalid checkpoint report schema:');
+      for (const err of validationErrors) console.error(`   - ${err}`);
+      process.exit(1);
+    }
     const checkpoints = data.checkpoints || {};
 
     for (const [id, checkpoint] of Object.entries(checkpoints) as [string, any][]) {
