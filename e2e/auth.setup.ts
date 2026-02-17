@@ -7,8 +7,11 @@ setup('authenticate', async ({ page }) => {
   // Ensure .auth directory exists
   fs.mkdirSync('.auth', { recursive: true });
 
-  const email = process.env.TEST_EMAIL;
-  const password = process.env.TEST_PASSWORD;
+  const isDemo = (process.env.BASE_URL || 'http://localhost:3000').includes('localhost') ||
+    (process.env.BASE_URL || 'http://localhost:3000').includes('127.0.0.1');
+
+  const email = process.env.TEST_EMAIL || (isDemo ? 'demo@example.com' : undefined);
+  const password = process.env.TEST_PASSWORD || (isDemo ? 'demo-password' : undefined);
 
   if (!email || !password) {
     throw new Error('Missing TEST_EMAIL or TEST_PASSWORD in .env.local');
