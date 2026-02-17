@@ -15,6 +15,12 @@ export default defineConfig({
     ['json', { outputFile: 'test-results/results.json' }],
     ['./e2e/reporters/pathfinder-reporter.ts'],
   ],
+  webServer: {
+    command: 'node scripts/demo-server.mjs',
+    url: 'http://127.0.0.1:3000/health',
+    reuseExistingServer: !process.env.CI,
+    timeout: 30_000,
+  },
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     screenshot: 'only-on-failure',

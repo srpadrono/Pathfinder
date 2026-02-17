@@ -35,7 +35,7 @@ Built on [Playwright CLI](https://playwright.dev/docs/test-cli) and inspired by 
 
 ## Features
 
-- **5-Phase Workflow** — Survey → Plan → Scout → Build → Report
+- **5-Phase Workflow** — Survey → Plan → Scout → Build → Report (canonical)
 - **Composable Skills** — 12 focused skills loaded on-demand from `skills/`
 - **SessionStart Hook** — Auto-injects workflow at session start
 - **Slash Commands** — `/survey`, `/scout`, `/build`, `/report`
@@ -61,7 +61,8 @@ npx playwright install --with-deps chromium
 
 ```bash
 cp .env.example .env.local
-# Edit .env.local with your test credentials
+# For built-in demo server, defaults are already valid
+# Edit .env.local only if testing against a real app/auth provider
 ```
 
 ### 3. Use with AI Agent
@@ -79,7 +80,10 @@ The `AGENTS.md` file provides universal instructions. The `skills/` directory co
 ### 4. Run Tests
 
 ```bash
-# Run all tests
+# Diagnose environment
+npm run doctor
+
+# Run all tests (auto-starts demo server)
 npx playwright test
 
 # Run specific checkpoint
@@ -96,6 +100,12 @@ npx playwright show-report
 
 # View failure trace
 npx playwright show-trace test-results/<test>/trace.zip
+
+# Validate docs + pathfinder files + lint + unit
+npm run validate
+
+# Validate checkpoint report schema
+npm run validate:checkpoints
 
 # Update coverage
 npm run test:coverage
@@ -145,16 +155,16 @@ pathfinder/
 ├── skills/                         # Composable skills (Superpowers-inspired)
 │   ├── using-pathfinder/SKILL.md   #   Meta-skill: routing + enforcement
 │   ├── surveying/SKILL.md          #   Phase 1: Requirements gathering
-│   ├── charting/SKILL.md           #   Phase 2: Trail map creation
-│   ├── marking/SKILL.md            #   Phase 3: Checkpoint extraction
-│   ├── scouting/SKILL.md           #   Phase 4: Writing failing tests
-│   ├── building/SKILL.md           #   Phase 5: Implementation
-│   ├── dispatching/SKILL.md        #   Phase 6: Multi-agent coordination
-│   ├── reporting/SKILL.md          #   Phase 7: PR with evidence
-│   ├── test-driven-development/    #   Core TDD enforcement
-│   ├── verification-before-completion/  # Evidence verification
-│   ├── systematic-debugging/       #   Root-cause debugging
-│   └── writing-skills/SKILL.md     #   Meta: how to write new skills
+│   ├── planning/SKILL.md           #   Phase 2: Journey map + checkpoints
+│   ├── scouting/SKILL.md           #   Phase 3: Failing tests (RED)
+│   ├── unit-testing/SKILL.md       #   Unit tests for src/ code
+│   ├── building/SKILL.md           #   Phase 4: Implementation (GREEN)
+│   ├── reporting/SKILL.md          #   Phase 5: Evidence + PR
+│   ├── dispatching/SKILL.md        #   Multi-agent coordination
+│   ├── git-workflow/SKILL.md       #   Branching/commit/PR workflow
+│   ├── code-review/SKILL.md        #   Structured review checklist
+│   ├── security/SKILL.md           #   Security checks
+│   └── systematic-debugging/SKILL.md # Root-cause debugging
 ├── hooks/hooks.json                # SessionStart hook config
 ├── commands/                       # Slash commands
 │   ├── survey.md                   #   /survey
@@ -180,6 +190,18 @@ pathfinder/
 ├── docs/                           # Reference documentation
 └── assets/                         # Branding (banner, logo)
 ```
+
+## Canonical Workflow
+
+- Source of truth: [`docs/architecture/canonical-workflow.md`](docs/architecture/canonical-workflow.md)
+
+## Deterministic Demo
+
+Pathfinder now includes a built-in demo server used by Playwright via `webServer`.
+
+- Server entrypoint: `scripts/demo-server.mjs`
+- Health endpoint: `http://127.0.0.1:3000/health`
+- Manual run: `npm run test:demo-server`
 
 ## Trail Markers
 
@@ -252,6 +274,18 @@ bash scripts/pathfinder-check-deps.sh FEAT-03
 | `.githooks/pre-push` | Blocks direct push to main/master |
 
 Install: `git config core.hooksPath .githooks`
+
+
+## Improvement Roadmap
+
+- See the execution backlog: [`docs/world-class-roadmap.md`](docs/world-class-roadmap.md)
+
+
+## Governance
+
+- CODEOWNERS: [`.github/CODEOWNERS`](.github/CODEOWNERS)
+- ADR template: [`docs/adr/template.md`](docs/adr/template.md)
+- Release checklist: [`docs/release-checklist.md`](docs/release-checklist.md)
 
 ## Inspiration
 

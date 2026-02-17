@@ -20,6 +20,21 @@ jobs:
 
       - run: npm ci
 
+      - name: Validate workflow docs
+        run: npm run validate:docs
+
+      - name: Validate Pathfinder state files
+        run: npm run validate:pathfinder
+
+      - name: Validate checkpoint report schema
+        run: npm run validate:checkpoints
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shell script static checks
+        run: shellcheck scripts/*.sh .githooks/*
+
       - run: npx playwright install --with-deps chromium
 
       - name: Run unit tests
@@ -32,8 +47,6 @@ jobs:
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           BASE_URL: http://localhost:3000
         run: npx playwright test
-        # NOTE: E2E tests require the app server running. Consider adding a
-        # webServer config in playwright.config.ts or starting the server here.
 
       - name: Update coverage
         if: always()

@@ -14,18 +14,64 @@ ERRORS=0
 TEST_OUTPUT=$(mktemp)
 trap 'rm -f "$TEST_OUTPUT"' EXIT
 
+resolve_default_branch() {
+  local branch
+  branch=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)
+  if [ -n "$branch" ]; then
+    echo "$branch"
+    return
+  fi
+
+  for candidate in main master trunk develop; do
+    if git show-ref --verify --quiet "refs/heads/$candidate" || git show-ref --verify --quiet "refs/remotes/origin/$candidate"; then
+      echo "$candidate"
+      return
+    fi
+  done
+
+  echo ""
+}
+
+read_state_field() {
+  local field="$1"
+  local fallback="$2"
+  python3 - << PY
+import json
+from pathlib import Path
+state=Path('.pathfinder/state.json')
+if not state.exists():
+    print(${fallback@Q})
+else:
+    data=json.loads(state.read_text())
+    print(data.get(${field@Q}, ${fallback@Q}))
+PY
+}
+
 echo "🔍 Pathfinder Expedition Verification (v0.4.0)"
 echo "================================================"
 
 # --- Check state.json exists ---
 if [ ! -f .pathfinder/state.json ]; then
-  echo "✘ No .pathfinder/state.json — not a Pathfinder expedition"
-  exit 1
+  echo "⚠ Missing .pathfinder/state.json"
+  echo "  This repo is not currently initialized as a Pathfinder expedition."
+  echo "  To initialize, create:"
+  echo "    - .pathfinder/state.json"
+  echo "    - .pathfinder/{survey,plan,scout,build}.json"
+  echo "    - .pathfinder/tasks/*.json"
+  echo "  Then re-run: bash scripts/verify-expedition.sh"
+  exit 2
 fi
 
-BRANCH=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['branch'])" .pathfinder/state.json)
-EXPEDITION=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['expedition'])" .pathfinder/state.json)
+BRANCH=$(read_state_field 'branch' "$(git branch --show-current)")
+EXPEDITION=$(read_state_field 'expedition' 'unknown')
+BASE_BRANCH=$(resolve_default_branch)
+
 echo "Expedition: $EXPEDITION | Branch: $BRANCH"
+if [ -n "$BASE_BRANCH" ]; then
+  echo "Base branch: $BASE_BRANCH"
+else
+  echo "Base branch: (undetected)"
+fi
 echo ""
 
 # --- 1. Gate files (prerequisite, no points) ---
@@ -135,7 +181,11 @@ echo ""
 
 # --- 6. Security check ---
 echo "📋 Security"
-secrets=$(git diff --name-only main..HEAD 2>/dev/null | grep -E '\.env$|\.env\.local|secrets|credentials' || true)
+if [ -n "$BASE_BRANCH" ]; then
+  secrets=$(git diff --name-only "$BASE_BRANCH"..HEAD 2>/dev/null | grep -E '\.env$|\.env\.local|secrets|credentials' || true)
+else
+  secrets=$(git diff --name-only HEAD~1..HEAD 2>/dev/null | grep -E '\.env$|\.env\.local|secrets|credentials' || true)
+fi
 if [ -n "$secrets" ]; then
   echo "  ✘ Potential secrets in diff: $secrets"
 else
@@ -160,7 +210,8 @@ if [ "$PR_URL_JSON" != "null" ]; then
   PR_URL_JSON="\"$PR_URL_JSON\""
 fi
 
-cat > .pathfinder/report.json << EOF
+mkdir -p .pathfinder
+cat > .pathfinder/report.json << EOF_JSON
 {
   "phase": "report",
   "status": "complete",
@@ -176,7 +227,7 @@ cat > .pathfinder/report.json << EOF
   },
   "pr": {"url": $PR_URL_JSON}
 }
-EOF
+EOF_JSON
 echo ""
 echo "Report saved to .pathfinder/report.json"
 

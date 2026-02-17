@@ -38,14 +38,15 @@ you MUST invoke it. This is not optional.
 | Skill | Purpose | Phase |
 |-------|---------|-------|
 | `pathfinder:surveying` | Socratic requirements gathering | 1. Survey |
-| `pathfinder:charting` | Mermaid trail map creation | 2. Chart |
-| `pathfinder:marking` | Checkpoint extraction + edge cases | 3. Mark |
-| `pathfinder:scouting` | Writing failing tests (RED) | 4. Scout |
-| `pathfinder:building` | Implementing to pass tests (GREEN) | 5. Build |
-| `pathfinder:dispatching` | Multi-agent coordination | 6. Dispatch |
-| `pathfinder:reporting` | PR with evidence | 7. Report |
-| `pathfinder:test-driven-development` | Core TDD enforcement | Cross-cutting |
-| `pathfinder:verification-before-completion` | Evidence-based verification | Cross-cutting |
+| `pathfinder:planning` | Journey map + checkpoint extraction | 2. Plan |
+| `pathfinder:scouting` | Writing failing tests (RED) | 3. Scout |
+| `pathfinder:unit-testing` | Unit tests for `src/` code | 3. Scout |
+| `pathfinder:building` | Implementing to pass tests (GREEN) | 4. Build |
+| `pathfinder:reporting` | PR with evidence | 5. Report |
+| `pathfinder:dispatching` | Multi-agent coordination | Cross-cutting |
+| `pathfinder:git-workflow` | Branching/commit/PR workflow | Cross-cutting |
+| `pathfinder:code-review` | Structured code review | Cross-cutting |
+| `pathfinder:security` | Security review and hardening checks | Cross-cutting |
 | `pathfinder:systematic-debugging` | Root-cause debugging | Cross-cutting |
 
 ### Slash Commands
@@ -64,12 +65,11 @@ you MUST invoke it. This is not optional.
 ### Start a New Journey
 
 1. **Survey** — Socratic questions, one at a time
-2. **Chart** — Mermaid diagram with ❌, present in sections
-3. **Mark** — Checkpoint list + edge case matrix
-4. **Scout** — Write ALL tests, verify they FAIL, update to 🔄
-5. **Build** — Minimal code, one test at a time, update to ✅
-6. **Dispatch** — Fresh context, two-stage review
-7. **Report** — PR with evidence, severity-based issues
+2. **Plan** — Create journey map + checkpoints + task files
+3. **Scout** — Write ALL tests first, verify they FAIL, update to 🔄
+4. **Build** — Minimal code, one test at a time, update to ✅
+5. **Report** — Verify evidence, run full checks, create PR
+6. **Dispatch (optional)** — Fresh context, two-stage review for large changes
 
 ### Playwright CLI Commands
 
