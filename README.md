@@ -69,6 +69,38 @@ cp .env.example .env.local
 
 The `AGENTS.md` file provides universal instructions. The `skills/` directory contains composable skills that are loaded on-demand.
 
+**Install for your AI platform:**
+
+#### Claude Code (via Plugin)
+
+Claude Code discovers `.claude-plugin/` automatically. Just clone Pathfinder into your project.
+
+#### OpenCode
+
+Tell OpenCode:
+```
+Fetch and follow instructions from https://raw.githubusercontent.com/srpadrono/Pathfinder/main/.opencode/INSTALL.md
+```
+
+Or manually: see `.opencode/INSTALL.md`.
+
+#### Codex
+
+Tell Codex:
+```
+Fetch and follow instructions from https://raw.githubusercontent.com/srpadrono/Pathfinder/main/.codex/INSTALL.md
+```
+
+Or manually: see `.codex/INSTALL.md`.
+
+#### OpenClaw
+
+Install via skill marketplace using the root `SKILL.md` metadata.
+
+#### Other AI Assistants
+
+Read `AGENTS.md` and load `skills/using-pathfinder/SKILL.md` for the meta-skill.
+
 **Start a new feature:**
 ```
 /survey    → Gather requirements
@@ -119,12 +151,16 @@ npm run test:generate-map
 ```
 ┌─────────────────────────────────────────────────────┐
 │                  ENFORCEMENT LAYER                   │
-│  hooks/hooks.json → skills/using-pathfinder/         │
+│  .claude-plugin/hooks/ → skills/using-pathfinder/    │
 │  Anti-rationalization, "The Rule", verification      │
 ├─────────────────────────────────────────────────────┤
 │                  METHODOLOGY LAYER                   │
-│  skills/ (composable), commands/ (slash)             │
+│  skills/ (composable), .claude-plugin/commands/      │
 │  Survey → Plan → Scout → Build → Report              │
+├─────────────────────────────────────────────────────┤
+│                  PLATFORM ADAPTERS                   │
+│  .claude-plugin/ (Claude Code/OpenClaw)              │
+│  .opencode/ (OpenCode), .codex/ (Codex)              │
 ├─────────────────────────────────────────────────────┤
 │                  INTEGRATION LAYER                   │
 │  e2e/fixtures/pathfinder.ts (checkpoint fixture)     │
@@ -149,11 +185,11 @@ pathfinder/
 ├── tsconfig.json                   # TypeScript configuration
 ├── playwright.config.ts            # Playwright config with projects
 ├── .gitignore                      # Ignore credentials, node_modules, results
-├── AGENTS.md                       # Universal agent instructions (concise)
+├── AGENTS.md                       # Universal agent instructions (all platforms)
 ├── SKILL.md                        # OpenClaw/skill marketplace metadata
 ├── PROPOSAL.md                     # Improvement proposal and roadmap
-├── skills/                         # Composable skills (Superpowers-inspired)
-│   ├── using-pathfinder/SKILL.md   #   Meta-skill: routing + enforcement
+├── skills/                         # Composable skills (platform-agnostic)
+│   ├── using-pathfinder/SKILL.md   #   Meta-skill: routing + enforcement + tool mapping
 │   ├── surveying/SKILL.md          #   Phase 1: Requirements gathering
 │   ├── planning/SKILL.md           #   Phase 2: Journey map + checkpoints
 │   ├── scouting/SKILL.md           #   Phase 3: Failing tests (RED)
@@ -165,12 +201,18 @@ pathfinder/
 │   ├── code-review/SKILL.md        #   Structured review checklist
 │   ├── security/SKILL.md           #   Security checks
 │   └── systematic-debugging/SKILL.md # Root-cause debugging
-├── hooks/hooks.json                # SessionStart hook config
-├── commands/                       # Slash commands
-│   ├── survey.md                   #   /survey
-│   ├── scout.md                    #   /scout
-│   ├── build.md                    #   /build
-│   └── report.md                   #   /report
+├── .claude-plugin/                 # Claude Code / OpenClaw adapter
+│   ├── hooks/hooks.json            #   SessionStart hook config
+│   └── commands/                   #   Slash commands
+│       ├── survey.md               #     /survey
+│       ├── scout.md                #     /scout
+│       ├── build.md                #     /build
+│       └── report.md               #     /report
+├── .opencode/                      # OpenCode adapter
+│   ├── INSTALL.md                  #   Installation instructions
+│   └── plugins/pathfinder.js       #   Bootstrap plugin
+├── .codex/                         # Codex adapter
+│   └── INSTALL.md                  #   Installation instructions
 ├── e2e/                            # Playwright test files
 │   ├── auth.setup.ts               #   Auth state setup
 │   ├── example.spec.ts             #   Example test with checkpoints
