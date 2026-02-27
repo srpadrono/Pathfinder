@@ -56,7 +56,12 @@ Checkpoints are individual JSON files in `.pathfinder/tasks/`:
 ## Skills
 
 Individual skills in `skills/` provide focused instructions per phase.
-SessionStart hook auto-loads `skills/using-pathfinder/SKILL.md` (configured in `hooks/hooks.json`).
+Cross-platform tool mapping is in `skills/using-pathfinder/SKILL.md`.
+
+**Platform adapters:**
+- Claude Code / OpenClaw: `.claude-plugin/hooks/hooks.json` auto-loads at session start
+- OpenCode: `.opencode/plugins/pathfinder.js` injects bootstrap context
+- Codex: `.codex/INSTALL.md` for native skill discovery
 
 ## Scripts
 

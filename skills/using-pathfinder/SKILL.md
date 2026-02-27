@@ -98,3 +98,18 @@ the current phase MUST refuse to proceed. No exceptions. No "I'll create it retr
 | "E2E tests are enough" | E2E tells you something broke. Unit tests tell you what. | Invoke `pathfinder:unit-testing` |
 | "I'll commit to main" | Small changes on main break CI for everyone. | Invoke `pathfinder:git-workflow` |
 | "Security doesn't apply here" | Every user input is an attack vector. | Invoke `pathfinder:security` |
+
+## Tool Mapping
+
+Skills reference tools by their canonical names. Map to your platform:
+
+| Canonical Tool       | Claude Code / OpenClaw | OpenCode          | Codex             |
+|----------------------|------------------------|-------------------|-------------------|
+| Load a skill         | `Skill` tool           | `skill` tool      | Read `skills/` file |
+| Track tasks          | `TodoWrite`            | `todowrite`       | Inline tracking   |
+| Launch subagent      | `Task` tool            | `task` tool       | N/A               |
+| Read file            | `Read`                 | `read`            | `read_file`       |
+| Edit file            | `Edit`                 | `edit`            | `edit_file`       |
+| Run command          | `Bash`                 | `bash`            | `shell`           |
+
+When a skill references a tool by name, use your platform's equivalent from this table.

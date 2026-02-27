@@ -2,7 +2,23 @@
 
 **Universal agent instructions for Test-Driven Development using the Pathfinder methodology.**
 
-Works with any AI coding assistant: OpenClaw, Claude Code, Codex, Cursor, or direct LLM context.
+Works with any AI coding assistant: Claude Code, OpenClaw, OpenCode, Codex, Cursor, or direct LLM context.
+
+---
+
+## Platform Support
+
+Pathfinder works with any AI coding assistant. Platform-specific adapters provide automatic bootstrap:
+
+| Platform | Adapter | Install |
+|----------|---------|---------|
+| Claude Code | `.claude-plugin/` (hooks + commands) | Automatic via SessionStart hook |
+| OpenClaw | Root `SKILL.md` + `.claude-plugin/` | Install via skill marketplace |
+| OpenCode | `.opencode/` (plugin + install) | See `.opencode/INSTALL.md` |
+| Codex | `.codex/` (install) | See `.codex/INSTALL.md` |
+| Other | Read `AGENTS.md` + `skills/` directly | Manual — load `skills/using-pathfinder/SKILL.md` first |
+
+Cross-platform tool mapping is in `skills/using-pathfinder/SKILL.md`.
 
 ---
 
@@ -128,8 +144,11 @@ you MUST invoke it. This is not optional.
 | File | Purpose |
 |------|---------|
 | `skills/` | Composable skill definitions |
-| `hooks/hooks.json` | SessionStart hook configuration |
-| `commands/` | Slash command definitions |
+| `.claude-plugin/hooks/hooks.json` | SessionStart hook configuration (Claude Code) |
+| `.claude-plugin/commands/` | Slash command definitions (Claude Code) |
+| `.opencode/` | OpenCode adapter (plugin + install) |
+| `.codex/` | Codex adapter (install) |
+| `SKILL.md` | OpenClaw marketplace metadata |
 | `e2e/` | Playwright test files |
 | `e2e/fixtures/pathfinder.ts` | Checkpoint tracking fixture |
 | `e2e/reporters/pathfinder-reporter.ts` | Trail map update reporter |
