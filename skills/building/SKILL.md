@@ -1,6 +1,6 @@
 ---
 name: building
-description: "Use after scouting to implement minimal code passing each test (GREEN phase of TDD) — wraps subagent-driven-development with dependency enforcement."
+description: "Implements minimal code to pass failing tests in dependency order (GREEN phase of TDD). Use after scouting when all checkpoints have failing tests. Do not use before scouting is complete or for writing new tests."
 ---
 
 # Building
@@ -160,6 +160,11 @@ After each subagent completes, review with `superpowers:requesting-code-review`.
 | Skipping the full suite check | Regressions compound — catch them early |
 | Claiming "tests pass" without running them | Capture actual test output as evidence |
 | Working on multiple checkpoints simultaneously | One at a time, commit each |
+
+## Error Handling
+* If `scripts/pathfinder-check-deps.sh` reports blocked dependencies, skip the checkpoint and move to the next unblocked one.
+* If a test fails after implementation, do NOT modify the test. Debug the implementation using `superpowers:systematic-debugging`.
+* If the full suite regresses, revert the last change and investigate before proceeding.
 
 ## Output
 

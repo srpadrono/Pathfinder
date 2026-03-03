@@ -1,6 +1,6 @@
 ---
 name: requesting-code-review
-description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+description: "Requests a two-stage code review (quick scan then deep dive) with actionable feedback. Use when implementation is complete and ready for peer review. Do not use for incomplete work or when tests are failing."
 ---
 
 # Requesting Code Review

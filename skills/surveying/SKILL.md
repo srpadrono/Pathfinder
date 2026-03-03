@@ -1,6 +1,6 @@
 ---
 name: surveying
-description: "Use when starting a new feature or receiving /survey command — explores requirements through collaborative dialogue, then creates expedition state and survey gate."
+description: "Explores requirements through collaborative dialogue and creates expedition state with survey gate. Use when starting a new feature or receiving /survey command. Do not use for bug fixes, one-liner changes, or when an expedition is already in progress."
 ---
 
 # Surveying
@@ -50,6 +50,8 @@ After surveying, propose 2-3 approaches with trade-offs:
 - Get sign-off before continuing
 
 ### Step 4: Detect Test Runners
+
+Execute: `python3 scripts/detect-test-runners.py .` to auto-detect frameworks.
 
 Before creating state, detect the project's test frameworks:
 
@@ -134,6 +136,11 @@ git commit -m "Survey: Approve design for <expedition-name>"
 Announce: "Survey complete. Ready for planning — invoke `pathfinder:planning` or say `/scout` to continue."
 
 Automatically invoke `pathfinder:planning` to break the approved design into tasks.
+
+## Error Handling
+* If test runner detection fails, run `python3 scripts/detect-test-runners.py .` and ask the user to confirm frameworks.
+* If the user hasn't approved the design after 3 iterations, summarize remaining disagreements and ask for explicit direction.
+* If an expedition already exists (`.pathfinder/state.json` present), ask whether to resume or start fresh.
 
 ## Output
 

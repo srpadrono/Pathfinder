@@ -1,6 +1,6 @@
 ---
 name: scouting
-description: "Use after planning to write failing tests for all checkpoints (RED phase of TDD) — wraps test-driven-development with evidence capture."
+description: "Writes failing tests for all planned checkpoints (RED phase of TDD) and captures failure evidence. Use after planning when task files exist. Do not use for writing implementation code or before planning is complete."
 ---
 
 # Scouting
@@ -73,6 +73,10 @@ git add e2e/ src/**/*.test.* .pathfinder/tasks/FEAT-01.json
 git commit -m "Scout: Mark trail for FEAT-01"
 ```
 
+### Step 4b: Validate All Red
+
+Execute: `python3 scripts/verify-all-red.py .pathfinder/tasks` to confirm all tasks are RED with evidence.
+
 ### Step 5: Create Scout Gate
 
 After ALL checkpoints have tests:
@@ -125,6 +129,11 @@ Announce: "Scouting complete. N checkpoints marked with failing tests. Ready for
 | Skipping unit tests, only writing e2e | Both e2e AND unit tests for each checkpoint |
 | Not running tests to verify failure | Always run and capture the failure output |
 | Writing all tests then committing once | Commit after each checkpoint's tests |
+
+## Error Handling
+* If a test passes without implementation, the test is wrong — it's testing existing behavior, not new functionality. Rewrite it.
+* If a test fails for the wrong reason (import error, typo), fix the test and re-run. Document the fix in `builderNotes`.
+* Run `python3 scripts/verify-all-red.py .pathfinder/tasks` before creating the scout gate to catch missing evidence.
 
 ## Output
 

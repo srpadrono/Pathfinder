@@ -1,6 +1,6 @@
 ---
 name: writing-skills
-description: Use when creating new skills, editing existing skills, or verifying skills work before deployment
+description: "Creates or improves agent skills following the Superpowers structure with TDD validation. Use when authoring new skills or refactoring existing ones. Do not use for general documentation, README files, or non-agentic library code."
 ---
 
 # Writing Skills

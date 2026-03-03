@@ -1,6 +1,6 @@
 ---
 name: using-pathfinder
-description: "Use when starting any conversation — establishes expedition-based TDD workflow with phase enforcement. Pathfinder layers structure on top of Superpowers skills."
+description: "Establishes expedition-based TDD workflow with phase enforcement on top of Superpowers skills. Use when starting feature work that benefits from structured survey-plan-scout-build-report phases. Do not use for quick fixes, hotfixes, or tasks under 30 minutes."
 ---
 
 <EXTREMELY-IMPORTANT>
@@ -124,3 +124,8 @@ bash scripts/verify-expedition.sh
 | "Dependencies don't matter here" | They prevent cascading failures | Check deps, always |
 | "I know the tests pass" | Memory is unreliable | Run them. Capture evidence. |
 | "PR can wait" | Unmerged work is invisible work | Report phase is not optional |
+
+## Error Handling
+* If `.pathfinder/state.json` is corrupted or missing required fields, re-run `python3 scripts/validate-tasks.py` and regenerate state from task files.
+* If git hooks block a commit, check which phase gate is missing and complete that phase first.
+* If the expedition branch has diverged from main, rebase before reporting: `git rebase main`.

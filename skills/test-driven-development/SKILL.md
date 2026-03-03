@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+description: "Enforces strict RED-GREEN-REFACTOR cycle for all code changes with evidence capture. Use when writing new code or modifying behavior. Do not use for documentation-only changes, config updates, or dependency bumps."
 ---
 
 # Test-Driven Development (TDD)

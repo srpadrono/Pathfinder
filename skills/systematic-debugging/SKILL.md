@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+description: "Methodically diagnoses root cause of bugs through hypothesis testing and evidence collection. Use when encountering bugs, test failures, or unexpected behavior. Do not use for known fixes, configuration issues, or typo corrections."
 ---
 
 # Systematic Debugging

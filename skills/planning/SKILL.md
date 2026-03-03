@@ -1,6 +1,6 @@
 ---
 name: planning
-description: "Use after survey approval to break design into task files with dependencies — wraps writing-plans with structured checkpoint tracking."
+description: "Breaks an approved design into machine-readable task files with dependencies and checkpoint tracking. Use after survey approval when design is finalized. Do not use before survey approval or for ad-hoc tasks without an expedition."
 ---
 
 # Planning
@@ -109,6 +109,10 @@ state['checkpoints']['planned'] = <number of tasks>
 json.dump(state, open('.pathfinder/state.json', 'w'), indent=2)
 ```
 
+### Step 5b: Validate Tasks
+
+Execute: `python3 scripts/validate-tasks.py .pathfinder/tasks` to check for missing fields, invalid status, and dependency cycles.
+
 ### Step 6: Commit
 
 ```bash
@@ -130,6 +134,11 @@ graph TD
     FEAT-02[FEAT-02: Data loading] --> FEAT-03
     FEAT-01 --> FEAT-04[FEAT-04: Edge case]
 ```
+
+## Error Handling
+* If task validation fails, run `python3 scripts/validate-tasks.py .pathfinder/tasks` and fix reported errors.
+* If circular dependencies are detected, restructure tasks to break the cycle.
+* If the plan exceeds 20 checkpoints, consider splitting into multiple expeditions.
 
 ## Output
 

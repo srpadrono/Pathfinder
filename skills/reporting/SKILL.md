@@ -1,6 +1,6 @@
 ---
 name: reporting
-description: "Use after building to independently verify all tests, compute quality score, and create PR — wraps verification-before-completion and finishing-a-development-branch."
+description: "Independently verifies all tests, computes quality score, and creates a PR with expedition report. Use after all checkpoints are green and building is complete. Do not use before build phase completes or for informal progress updates."
 ---
 
 # Reporting
@@ -78,6 +78,10 @@ This computes a 0-100 quality score:
 - 🟢 **90-100:** Excellent — merge-ready
 - 🟡 **70-89:** Acceptable — review carefully
 - 🔴 **Below 70:** Do not merge — fix issues first
+
+### Step 3b: Compute Quality Score
+
+Execute: `python3 scripts/compute-quality-score.py .pathfinder/tasks` to generate the quality report.
 
 ### Step 4: Create Report Gate
 
@@ -210,6 +214,11 @@ For each .pathfinder/tasks/*.json where status is "green":
 
 Do NOT modify any source code or test code. Only update task JSON files.
 ```
+
+## Error Handling
+* If `scripts/compute-quality-score.py` returns a score below 70, list failing criteria and fix before creating the PR.
+* If a previously-green checkpoint fails during verification, update its status back to `red` and report the regression.
+* If `gh pr create` fails, verify the branch has been pushed and the GitHub CLI is authenticated (`gh auth status`).
 
 ## Output
 
