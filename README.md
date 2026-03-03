@@ -1,55 +1,60 @@
 # Pathfinder
 
-*Marks the trail before others follow.*
+An expedition-based TDD workflow for AI coding agents with **automated UI test generation** for any tech stack.
 
-An expedition-based TDD workflow for AI coding agents, built on top of [Superpowers](https://github.com/obra/superpowers).
+## What It Does
 
-Pathfinder layers **phase enforcement, task tracking, and quality scoring** on top of Superpowers' composable skill engine. Scouts write failing tests, Builders implement, and git hooks ensure nobody skips steps.
+Point Pathfinder at any project — it detects your UI framework, generates test skeletons with correct selectors and waits, and enforces a disciplined development cycle through git hooks.
 
-## How It Works
+**Supported frameworks:** Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, Flutter integration tests.
 
-```
-/survey  →  /scout  →  /build  →  /report
-   │           │          │          │
-brainstorm   write      implement   verify
-+ design     failing    minimal     + quality
-approval     tests      code        score + PR
-```
+## Quick Start
 
-### Phase Gates (Enforced)
+```bash
+git clone https://github.com/srhenrybot-hub/superpowers.git ~/.pathfinder
+cd your-project
+git config core.hooksPath ~/.pathfinder/.githooks
 
-| Phase | What happens | Gate file |
-|-------|-------------|-----------|
-| **Survey** | Understand problem, explore approaches, get design approval | `survey.json` |
-| **Plan** | Break design into bite-sized tasks with dependencies | `plan.json` + `tasks/*.json` |
-| **Scout** | Write ALL failing tests (TDD RED phase) | `scout.json` |
-| **Build** | Implement minimal code to pass tests (TDD GREEN phase) | `build.json` |
-| **Report** | Verify independently, compute quality score, create PR | `report.json` |
-
-**You cannot skip phases.** Git hooks enforce this:
-- No source code during survey/plan/scout
-- No build gate without scout gate
-- No push to main (feature branches only)
-
-### Task-Level Tracking
-
-Each checkpoint is a JSON file in `.pathfinder/tasks/`:
-
-```json
-{
-  "id": "FEAT-01",
-  "status": "green",
-  "dependencies": ["FEAT-00"],
-  "evidence": {
-    "red": { "e2e": "FAIL ...", "timestamp": "..." },
-    "green": { "e2e": "PASS ...", "fullSuite": "42 passed, 0 failed", "timestamp": "..." }
-  }
-}
+# Initialize expedition
+python3 ~/.pathfinder/scripts/pathfinder-init.py my-feature
 ```
 
-Status lifecycle: `planned` → `red` → `green` → `verified`
+Then: `/survey` → `/plan` → `/scout` → `/build` → `/report`
 
-### Quality Score (0-100)
+## Workflow
+
+| Phase | What happens | Enforced by |
+|-------|-------------|-------------|
+| **Survey** | Explore requirements, get design approval | `survey.json` gate |
+| **Plan** | Break into task files with dependencies | `plan.json` + `tasks/*.json` |
+| **Scout** | Generate failing UI + unit tests (RED) | `scout.json` gate |
+| **Build** | Implement minimal code to pass tests (GREEN) | `build.json` gate |
+| **Report** | Verify, compute quality score, create PR | `report.json` gate |
+
+**Phases cannot be skipped.** Git hooks block:
+- Source code changes during survey/plan/scout
+- Build gate without scout gate
+- Push to main/master
+
+## UI Test Generation
+
+```bash
+# Detect framework
+python3 skills/ui-testing/scripts/detect-ui-framework.py .
+# → {"uiFramework": "playwright", "platform": "web", "unitRunner": "vitest"}
+
+# Generate test skeleton
+python3 skills/ui-testing/scripts/generate-ui-test.py FEAT-01 "User can login" playwright --route /login
+# → e2e/feat_01.spec.ts with correct imports, selectors, waits
+
+# Visual regression
+python3 skills/ui-testing/scripts/snapshot-compare.py capture login screenshot.png
+python3 skills/ui-testing/scripts/snapshot-compare.py compare login new-screenshot.png
+```
+
+Framework-specific patterns (selectors, waits, assertions) in `skills/ui-testing/references/`.
+
+## Quality Score (0-100)
 
 | Criterion | Points |
 |-----------|--------|
@@ -59,89 +64,34 @@ Status lifecycle: `planned` → `red` → `green` → `verified`
 | Branch hygiene | 10 |
 | PR created | 10 |
 | All verified | 10 |
-| Documentation (graphs + journey) | 10 |
+| Documentation | 10 |
 
-🟢 90-100: Merge-ready | 🟡 70-89: Review carefully | 🔴 <70: Fix first
+🟢 90+: Merge-ready · 🟡 70-89: Review carefully · 🔴 <70: Fix first
 
-## Built on Superpowers
+## Structure
 
-Pathfinder keeps ALL of Superpowers' skills and adds expedition structure:
-
-| Pathfinder Skill | Wraps Superpowers Skill |
-|-----------------|------------------------|
-| `pathfinder:surveying` | `superpowers:brainstorming` |
-| `pathfinder:planning` | `superpowers:writing-plans` |
-| `pathfinder:scouting` | `superpowers:test-driven-development` |
-| `pathfinder:building` | `superpowers:subagent-driven-development` |
-| `pathfinder:reporting` | `superpowers:verification-before-completion` + `superpowers:finishing-a-development-branch` |
-
-All Superpowers skills remain available: systematic-debugging, code-review, git-worktrees, parallel-agents, etc.
-
-## Installation
-
-### Claude Code (via Plugin)
-
-```bash
-# Register marketplace (if not already)
-/plugin marketplace add obra/superpowers-marketplace
-
-# Install Pathfinder
-/plugin install pathfinder
+```
+skills/
+  surveying/          # Requirements + design approval
+  planning/           # Task files + dependency graphs
+  scouting/           # Write failing tests (RED)
+  building/           # Implement to pass tests (GREEN)
+  reporting/          # Verify + quality score + PR
+  ui-testing/         # Framework detection + test generation
+    references/       # Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, Flutter
+    scripts/          # detect-ui-framework.py, generate-ui-test.py, snapshot-compare.py
+  using-pathfinder/   # Entry point + quick reference
+scripts/              # pathfinder-init.py, check-deps, verify-expedition, etc.
+hooks/                # Session start hook
 ```
 
-### Manual (any agent)
+7 skills · 8 scripts · 7 framework references · ~1,500 lines total
 
-```bash
-git clone https://github.com/srhenrybot-hub/superpowers.git ~/.pathfinder
-cd your-project
-git config core.hooksPath ~/.pathfinder/.githooks
-```
+## Requirements
 
-### OpenClaw
-
-Symlink to skills directory:
-```bash
-ln -s /path/to/pathfinder ~/.npm-global/lib/node_modules/openclaw/skills/pathfinder
-```
-
-## Quick Reference
-
-```bash
-# Start expedition
-/survey
-
-# Write failing tests
-/scout
-
-# Implement
-/build
-
-# Verify + PR
-/report
-
-# Check expedition status
-cat .pathfinder/state.json
-
-# Check dependencies
-bash scripts/pathfinder-check-deps.sh FEAT-01
-
-# Run quality verification
-bash scripts/verify-expedition.sh
-```
-
-## Documentation
-
-- **[Workflow Guide](docs/workflow.md)** — Complete expedition walkthrough with examples
-- **[Scenarios](docs/scenarios.md)** — Greenfield, new features, and refactoring
-- **[Test Runners](docs/test-runners.md)** — Playwright, Maestro, Cypress, pytest, and more
-- **[Architecture](docs/architecture.md)** — How Pathfinder layers on Superpowers
-- **[Installation](docs/installation.md)** — Setup for Claude Code, OpenClaw, or any project
-- **[Testing](docs/testing.md)** — How to test scripts, hooks, and skills
-
-## Credits
-
-- [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent — the skill engine and workflow foundation
-- Expedition metaphor and enforcement layer by [srpadrono](https://github.com/srpadrono)
+- Git
+- Python 3
+- `gh` CLI (for PR creation)
 
 ## License
 
