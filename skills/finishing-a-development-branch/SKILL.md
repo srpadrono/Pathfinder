@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup
+description: "Guides completion of a development branch — rebasing, squashing, PR creation, or cleanup. Use after all tests pass and implementation is complete. Do not use on the main branch or during active development."
 ---
 
 # Finishing a Development Branch
