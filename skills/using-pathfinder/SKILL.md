@@ -1,11 +1,19 @@
 ---
 name: using-pathfinder
-description: "Establishes expedition-based TDD workflow with phase enforcement. Use when starting feature work that benefits from structured survey-plan-scout-build-report phases. Do not use for quick fixes, hotfixes, or tasks under 30 minutes."
+description: "Establishes expedition-based TDD workflow with automated UI test generation for any tech stack. Use when starting feature work that needs structured development with UI test coverage. Do not use for quick fixes, hotfixes, or tasks under 30 minutes."
 ---
 
 # Using Pathfinder
 
-Pathfinder enforces disciplined development through phase gates, task tracking, and quality scoring.
+Pathfinder enforces disciplined development through phase gates, automated UI test generation, and quality scoring. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, and Flutter.
+
+## Quick Start
+
+```bash
+python3 scripts/pathfinder-init.py <expedition-name>
+```
+
+Auto-detects your UI test framework and creates expedition state.
 
 ## Workflow
 
@@ -17,33 +25,41 @@ Pathfinder enforces disciplined development through phase gates, task tracking, 
 |-------|-------|-------------|
 | Survey | `pathfinder:surveying` | Explore requirements, get design approval |
 | Plan | `pathfinder:planning` | Break into task files with dependencies |
-| Scout | `pathfinder:scouting` | Write ALL failing tests (RED) |
+| Scout | `pathfinder:scouting` | Generate UI + unit tests (RED) via `pathfinder:ui-testing` |
 | Build | `pathfinder:building` | Implement minimal code (GREEN) |
 | Report | `pathfinder:reporting` | Verify, score, create PR |
 
 **Phases cannot be skipped.** Git hooks enforce this.
 
-## Resuming
+## UI Testing
 
-On session start, check for `.pathfinder/state.json`. If it exists, announce current phase and progress.
+The `pathfinder:ui-testing` skill generates framework-correct test skeletons:
 
-## Test Runners
+```bash
+# Detect framework
+python3 skills/ui-testing/scripts/detect-ui-framework.py .
 
-Configured in `state.json.testRunners` during survey. See `docs/test-runners.md` for commands per framework.
+# Generate test
+python3 skills/ui-testing/scripts/generate-ui-test.py FEAT-01 "User can login" playwright
+
+# Visual regression
+python3 skills/ui-testing/scripts/snapshot-compare.py capture login-screen screenshot.png
+```
+
+Framework-specific patterns in `skills/ui-testing/references/<framework>.md`.
 
 ## Quick Reference
 
 ```bash
-cat .pathfinder/state.json                        # expedition status
-cat .pathfinder/tasks/FEAT-01.json                # checkpoint detail
-bash scripts/pathfinder-check-deps.sh FEAT-01     # can I build this?
-bash scripts/pathfinder-update-state.sh            # sync state from tasks
-bash scripts/verify-expedition.sh                  # full verification + score
-python3 scripts/validate-tasks.py .pathfinder/tasks  # validate task files
+python3 scripts/pathfinder-init.py <name>              # init expedition
+cat .pathfinder/state.json                              # status
+bash scripts/pathfinder-check-deps.sh FEAT-01           # can I build this?
+bash scripts/pathfinder-update-state.sh                 # sync state
+bash scripts/verify-expedition.sh                       # quality score
 ```
 
 ## Error Handling
 
 - Corrupted `state.json` → re-run `validate-tasks.py` and regenerate from task files.
 - Git hooks block commit → check which phase gate is missing, complete it first.
-- Branch diverged from main → rebase before reporting.
+- UI framework not detected → specify manually in `state.json.testRunners.e2e`.
