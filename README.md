@@ -26,6 +26,12 @@ Line coverage says 78%. But can a user sign up, upload a file, and view the resu
 
 **Pathfinder fixes this.** It crawls your codebase, discovers every user journey, and produces a **living coverage map** — so you can see exactly where the gaps are and fill them systematically.
 
+
+
+https://github.com/user-attachments/assets/46affe21-3c8f-484c-abaf-c05cbece274d
+
+
+
 ---
 
 ## ⚡ Quick Start
