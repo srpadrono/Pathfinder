@@ -13,15 +13,15 @@ else
 
 # Pathfinder — UI Test Coverage Mapping
 read:
-  - ~/.pathfinder/SKILL.md
+  - ~/.pathfinder/skill/SKILL.md
 AIDER
   echo "✅ Added to $TARGET"
   echo ""
   echo "To load specific skills in Aider, run:"
-  echo "  /read ~/.pathfinder/references/mapping.md"
-  echo "  /read ~/.pathfinder/references/blazing.md"
-  echo "  /read ~/.pathfinder/references/scouting.md"
-  echo "  /read ~/.pathfinder/references/summiting.md"
+  echo "  /read ~/.pathfinder/skill/references/mapping.md"
+  echo "  /read ~/.pathfinder/skill/references/blazing.md"
+  echo "  /read ~/.pathfinder/skill/references/scouting.md"
+  echo "  /read ~/.pathfinder/skill/references/summiting.md"
 fi
 
 echo ""

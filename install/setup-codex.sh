@@ -4,10 +4,10 @@ set -euo pipefail
 PATHFINDER_HOME="${HOME}/.pathfinder"
 SNIPPET='
 ## Pathfinder — UI Test Coverage Mapping
-Read ~/.pathfinder/SKILL.md at session start.
+Read ~/.pathfinder/skill/SKILL.md at session start.
 Commands: /map, /blaze, /scout, /summit
-When invoked, read the matching skill from ~/.pathfinder/references/{mapping,blazing,scouting,summiting}.md.
-Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/scripts/
+When invoked, read the matching skill from ~/.pathfinder/skill/references/{mapping,blazing,scouting,summiting}.md.
+Scripts: ~/.pathfinder/skill/scripts/ and ~/.pathfinder/skill/scripts/
 Run scripts with python3. All output JSON to stdout, errors to stderr.
 '
 

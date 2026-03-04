@@ -26,24 +26,24 @@ Pathfinder is installed at ~/.pathfinder. It maps user journeys in a codebase, v
 
 When the user says /map, /blaze, /scout, or /summit, read the matching skill file and follow its instructions:
 
-- `/map` → Read `~/.pathfinder/references/mapping.md`
-- `/blaze` → Read `~/.pathfinder/references/blazing.md`
-- `/scout` → Read `~/.pathfinder/references/scouting.md`
-- `/summit` → Read `~/.pathfinder/references/summiting.md`
+- `/map` → Read `~/.pathfinder/skill/references/mapping.md`
+- `/blaze` → Read `~/.pathfinder/skill/references/blazing.md`
+- `/scout` → Read `~/.pathfinder/skill/references/scouting.md`
+- `/summit` → Read `~/.pathfinder/skill/references/summiting.md`
 
-Full overview: `~/.pathfinder/SKILL.md`
+Full overview: `~/.pathfinder/skill/SKILL.md`
 
 ## Scripts
 
 All scripts are Python 3 CLIs. Run them with `python3`. They output JSON to stdout and errors to stderr.
 
 ```bash
-python3 ~/.pathfinder/scripts/pathfinder-init.py                              # Initialize
-python3 ~/.pathfinder/scripts/scan-test-coverage.py .          # Scan tests
-python3 ~/.pathfinder/scripts/generate-diagrams.py .pathfinder/journeys.json  # Diagrams
-python3 ~/.pathfinder/scripts/detect-ui-framework.py .      # Detect framework
-python3 ~/.pathfinder/scripts/generate-ui-test.py ID "desc" framework --auto  # Generate test
-python3 ~/.pathfinder/scripts/coverage-score.py .pathfinder/journeys.json     # Coverage score
+python3 ~/.pathfinder/skill/scripts/pathfinder-init.py                              # Initialize
+python3 ~/.pathfinder/skill/scripts/scan-test-coverage.py .          # Scan tests
+python3 ~/.pathfinder/skill/scripts/generate-diagrams.py .pathfinder/journeys.json  # Diagrams
+python3 ~/.pathfinder/skill/scripts/detect-ui-framework.py .      # Detect framework
+python3 ~/.pathfinder/skill/scripts/generate-ui-test.py ID "desc" framework --auto  # Generate test
+python3 ~/.pathfinder/skill/scripts/coverage-score.py .pathfinder/journeys.json     # Coverage score
 ```
 
 ## Project Files
@@ -55,13 +55,13 @@ python3 ~/.pathfinder/scripts/coverage-score.py .pathfinder/journeys.json     # 
 ## Framework References
 
 When writing tests, read the matching reference for correct selectors, waits, and patterns:
-- `~/.pathfinder/references/playwright.md`
-- `~/.pathfinder/references/cypress.md`
-- `~/.pathfinder/references/maestro.md`
-- `~/.pathfinder/references/detox.md`
-- `~/.pathfinder/references/xcuitest.md`
-- `~/.pathfinder/references/espresso.md`
-- `~/.pathfinder/references/flutter-test.md`
+- `~/.pathfinder/skill/references/playwright.md`
+- `~/.pathfinder/skill/references/cypress.md`
+- `~/.pathfinder/skill/references/maestro.md`
+- `~/.pathfinder/skill/references/detox.md`
+- `~/.pathfinder/skill/references/xcuitest.md`
+- `~/.pathfinder/skill/references/espresso.md`
+- `~/.pathfinder/skill/references/flutter-test.md`
 INSTRUCTIONS
   echo "✅ Created $TARGET"
 fi

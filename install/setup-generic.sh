@@ -14,10 +14,10 @@ cat << 'SNIPPET'
 I have Pathfinder installed at ~/.pathfinder. It maps user journeys and generates UI tests.
 
 Commands:
-- /map — Read ~/.pathfinder/references/mapping.md and follow it
-- /blaze — Read ~/.pathfinder/references/blazing.md and follow it
-- /scout — Read ~/.pathfinder/references/scouting.md and follow it
-- /summit — Read ~/.pathfinder/references/summiting.md and follow it
+- /map — Read ~/.pathfinder/skill/references/mapping.md and follow it
+- /blaze — Read ~/.pathfinder/skill/references/blazing.md and follow it
+- /scout — Read ~/.pathfinder/skill/references/scouting.md and follow it
+- /summit — Read ~/.pathfinder/skill/references/summiting.md and follow it
 
 Scripts are CLI tools (python3). All output JSON to stdout, errors to stderr.
 SNIPPET

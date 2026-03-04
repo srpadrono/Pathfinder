@@ -2,7 +2,7 @@
 """Tests for generate-diagrams.py"""
 import subprocess, json, tempfile, os
 
-SCRIPT = os.path.join(os.path.dirname(__file__), "..", "scripts", "generate-diagrams.py")
+SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skill", "scripts", "generate-diagrams.py")
 
 def test_basic_diagram():
     with tempfile.TemporaryDirectory() as d:

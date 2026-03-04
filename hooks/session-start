@@ -6,7 +6,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-using_content=$(cat "${PLUGIN_ROOT}/SKILL.md" 2>&1 || echo "Error reading skill")
+using_content=$(cat "${PLUGIN_ROOT}/skill/SKILL.md" 2>&1 || echo "Error reading skill")
 
 escape_for_json() {
     local s="$1"

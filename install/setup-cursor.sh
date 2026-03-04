@@ -5,12 +5,12 @@ PATHFINDER_HOME="${HOME}/.pathfinder"
 SNIPPET='
 ## Pathfinder — UI Test Coverage Mapping
 When I say /map, /blaze, /scout, or /summit, read the matching skill:
-- /map → ~/.pathfinder/references/mapping.md
-- /blaze → ~/.pathfinder/references/blazing.md
-- /scout → ~/.pathfinder/references/scouting.md
-- /summit → ~/.pathfinder/references/summiting.md
-Overview: ~/.pathfinder/SKILL.md
-Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/scripts/
+- /map → ~/.pathfinder/skill/references/mapping.md
+- /blaze → ~/.pathfinder/skill/references/blazing.md
+- /scout → ~/.pathfinder/skill/references/scouting.md
+- /summit → ~/.pathfinder/skill/references/summiting.md
+Overview: ~/.pathfinder/skill/SKILL.md
+Scripts: ~/.pathfinder/skill/scripts/ and ~/.pathfinder/skill/scripts/
 All scripts take CLI args and output JSON to stdout.
 '
 
