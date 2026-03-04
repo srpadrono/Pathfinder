@@ -1,9 +1,9 @@
 ---
-name: verifying
+name: summiting
 description: "Runs all UI tests, updates the journey diagram with results, and computes coverage score. Use after scouting to validate test coverage. Do not use before any tests have been written."
 ---
 
-# Verifying
+# Summiting
 
 Run all tests, update the journey map, regenerate the diagram, and report coverage.
 
@@ -21,7 +21,7 @@ python3 skills/ui-testing/scripts/detect-ui-framework.py .
 
 3. **Regenerate diagrams:**
 ```bash
-python3 skills/diagramming/scripts/generate-diagrams.py .pathfinder/journeys.json
+python3 skills/blazeming/scripts/generate-diagrams.py .pathfinder/journeys.json
 ```
 
 4. **Compute coverage score:**
@@ -35,7 +35,7 @@ git add .pathfinder/
 git commit -m "Verify: Coverage at X% (Y/Z steps tested)"
 ```
 
-6. **If creating a PR**, include the diagrams and coverage summary from `.pathfinder/diagrams.md` in the PR body.
+6. **If creating a PR**, include the diagrams and coverage summary from `.pathfinder/blazes.md` in the PR body.
 
 ## Coverage Thresholds
 

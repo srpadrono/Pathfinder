@@ -1,6 +1,6 @@
 ---
 name: scouting
-description: "Writes UI tests for untested journey steps, verifying existing behavior or catching missing functionality. Use after diagramming when coverage gaps are identified. Do not use before mapping and diagramming are complete."
+description: "Writes UI tests for untested journey steps, verifying existing behavior or catching missing functionality. Use after blazing when coverage gaps are identified. Do not use before mapping and blazing are complete."
 ---
 
 # Scouting
@@ -10,7 +10,7 @@ Write UI tests for every ❌ step in the journey map. Each test verifies that a 
 ## Process
 
 1. **Read the journey map:** `.pathfinder/journeys.json`
-2. **Read the diagram:** `.pathfinder/diagrams.md` — identify all ❌ steps.
+2. **Read the diagram:** `.pathfinder/blazes.md` — identify all ❌ steps.
 3. **Prioritize:** Critical journeys first (auth, core CRUD), then secondary flows.
 
 For each untested step:
@@ -31,8 +31,8 @@ git commit -m "Scout: Test <JOURNEY> journey (N steps)"
 
 After testing a batch:
 
-10. **Regenerate diagrams:** `python3 skills/diagramming/scripts/generate-diagrams.py .pathfinder/journeys.json`
-11. **Commit:** `git add .pathfinder/diagrams.md && git commit -m "Diagram: Coverage now X%"`
+10. **Regenerate diagrams:** `python3 skills/blazeming/scripts/generate-diagrams.py .pathfinder/journeys.json`
+11. **Commit:** `git add .pathfinder/blazes.md && git commit -m "Diagram: Coverage now X%"`
 
 ## Error Handling
 

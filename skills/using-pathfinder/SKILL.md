@@ -16,15 +16,15 @@ python3 scripts/pathfinder-init.py
 ## Workflow
 
 ```
-/map → /diagram → /scout → /verify
+/map → /blaze → /scout → /summit
 ```
 
 | Phase | Skill | What happens |
 |-------|-------|-------------|
 | Map | `pathfinder:mapping` | Deep dive into code, discover all user journeys |
-| Diagram | `pathfinder:diagramming` | Generate Mermaid diagrams: ✅ tested, ❌ untested |
+| Blaze | `pathfinder:blazing` | Generate Mermaid diagrams: ✅ tested, ❌ untested |
 | Scout | `pathfinder:scouting` | Write UI tests for ❌ steps via `pathfinder:ui-testing` |
-| Verify | `pathfinder:verifying` | Run tests, update diagrams ❌→✅, compute coverage |
+| Summit | `pathfinder:summiting` | Run tests, update diagrams ❌→✅, compute coverage |
 
 ## Project Configuration
 
@@ -49,7 +49,7 @@ The test generator reads this to match existing project patterns. If absent, it 
 ```bash
 python3 scripts/pathfinder-init.py                                    # init
 python3 skills/mapping/scripts/scan-test-coverage.py .                # scan tests
-python3 skills/diagramming/scripts/generate-diagrams.py .pathfinder/journeys.json  # diagrams
+python3 skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json  # diagrams
 python3 skills/ui-testing/scripts/generate-ui-test.py AUTH-01 "Login" playwright --auto  # test
 python3 scripts/coverage-score.py .pathfinder/journeys.json           # score
 ```

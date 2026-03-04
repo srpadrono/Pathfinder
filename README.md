@@ -5,13 +5,13 @@ Map every user journey in your codebase. See what's tested. Fill the gaps.
 ## What It Does
 
 ```
-/map → /diagram → /scout → /verify
+/map → /blaze → /scout → /summit
 ```
 
 1. **Map** — Deep dives into your code to discover every user journey (routes, screens, interactions)
-2. **Diagram** — Generates Mermaid journey diagrams showing ✅ tested and ❌ untested steps
+2. **Blaze** — Generates Mermaid journey diagrams showing ✅ tested and ❌ untested steps
 3. **Scout** — Generates UI tests for untested steps using the correct framework
-4. **Verify** — Runs tests, updates diagrams ❌→✅, computes coverage score
+4. **Summit** — Runs tests, updates diagrams ❌→✅, computes coverage score
 
 ```mermaid
 journey
@@ -72,11 +72,11 @@ python3 scripts/coverage-score.py .pathfinder/journeys.json
 ```
 skills/
   mapping/           # Discover user journeys
-  diagramming/       # Generate Mermaid coverage diagrams
+  blazing/       # Generate Mermaid coverage diagrams
   scouting/          # Write tests for ❌ steps
   ui-testing/        # Framework detection + test generation
     references/      # Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, Flutter
-  verifying/         # Run tests, update diagrams, coverage score
+  summiting/         # Run tests, update diagrams, coverage score
   using-pathfinder/  # Entry point
 scripts/             # pathfinder-init.py, coverage-score.py
 ```

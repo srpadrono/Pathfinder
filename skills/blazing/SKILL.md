@@ -1,9 +1,9 @@
 ---
-name: diagramming
-description: "Generates Mermaid journey diagrams from the journey map, showing tested (✅) and untested (❌) steps. Use after mapping to visualize test coverage gaps. Do not use before mapping is complete."
+name: blazing
+description: "Marks the trail with Mermaid journey diagrams showing tested (✅) and untested (❌) steps. Use after mapping to blaze coverage markers. Do not use before mapping is complete."
 ---
 
-# Diagramming
+# Blazing
 
 Transform the journey map into visual Mermaid diagrams that show exactly what's tested and what's not.
 
@@ -12,7 +12,7 @@ Transform the journey map into visual Mermaid diagrams that show exactly what's 
 1. **Read journey map:** Load `.pathfinder/journeys.json`
 2. **Generate diagrams:** Run `python3 scripts/generate-diagrams.py .pathfinder/journeys.json`
 
-This creates `.pathfinder/diagrams.md` with one Mermaid journey diagram per journey:
+This creates `.pathfinder/blazes.md` with one Mermaid journey diagram per journey:
 
 ```mermaid
 journey
@@ -39,7 +39,7 @@ journey
 | 📄 Reports | 12 | 0 | 0% |
 ```
 
-4. **Commit:** `git add .pathfinder/diagrams.md && git commit -m "Diagram: N journeys mapped (X% coverage)"`
+4. **Commit:** `git add .pathfinder/blazes.md && git commit -m "Diagram: N journeys mapped (X% coverage)"`
 
 ## Updating After Tests
 
