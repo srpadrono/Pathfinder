@@ -1,15 +1,15 @@
 {
   "name": "pathfinder",
-  "version": "0.4.0",
-  "description": "Expedition-based TDD workflow for AI coding agents, built on Superpowers",
+  "version": "1.1.0",
+  "description": "UI test coverage mapping tool for AI coding agents",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/srhenrybot-hub/superpowers.git"
+    "url": "https://github.com/srpadrono/Pathfinder.git"
   },
   "scripts": {
-    "verify": "bash scripts/verify-expedition.sh",
-    "check-deps": "bash scripts/pathfinder-check-deps.sh",
-    "update-state": "bash scripts/pathfinder-update-state.sh"
+    "init": "python3 scripts/pathfinder-init.py",
+    "coverage": "python3 scripts/coverage-score.py .pathfinder/journeys.json",
+    "diagrams": "python3 skills/diagramming/scripts/generate-diagrams.py .pathfinder/journeys.json"
   }
 }

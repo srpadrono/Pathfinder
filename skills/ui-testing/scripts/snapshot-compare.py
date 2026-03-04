@@ -6,34 +6,93 @@ Usage:
   python3 snapshot-compare.py compare <name> <image-path> [--threshold 5]
 
 Baselines stored in .pathfinder/baselines/
+Requires Pillow for pixel-level comparison. Falls back to hash comparison if unavailable.
 """
-import argparse, os, sys, json, shutil
+import argparse, os, sys, json, shutil, hashlib
 
 BASELINES_DIR = ".pathfinder/baselines"
 
+def file_hash(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def pixel_diff(baseline_path, current_path):
+    """Compare two images pixel-by-pixel. Returns diff percentage (0-100)."""
+    try:
+        from PIL import Image
+        import math
+    except ImportError:
+        return None  # Pillow not available
+
+    img1 = Image.open(baseline_path).convert("RGB")
+    img2 = Image.open(current_path).convert("RGB")
+
+    # Resize to same dimensions if different
+    if img1.size != img2.size:
+        img2 = img2.resize(img1.size, Image.LANCZOS)
+
+    pixels1 = list(img1.getdata())
+    pixels2 = list(img2.getdata())
+    total = len(pixels1)
+
+    if total == 0:
+        return 0.0
+
+    diff_pixels = 0
+    for p1, p2 in zip(pixels1, pixels2):
+        # Consider a pixel different if any channel differs by > 10
+        if any(abs(a - b) > 10 for a, b in zip(p1, p2)):
+            diff_pixels += 1
+
+    return round(diff_pixels / total * 100, 2)
+
 def capture(name, image_path):
+    if not os.path.exists(image_path):
+        print(f"ERROR: Image not found: {image_path}", file=sys.stderr)
+        sys.exit(1)
+
     os.makedirs(BASELINES_DIR, exist_ok=True)
     ext = os.path.splitext(image_path)[1] or ".png"
     baseline = os.path.join(BASELINES_DIR, f"{name}{ext}")
     shutil.copy2(image_path, baseline)
-    print(json.dumps({"action": "capture", "name": name, "baseline": baseline}))
+    print(json.dumps({"action": "capture", "name": name, "baseline": baseline, "hash": file_hash(baseline)}))
 
 def compare(name, image_path, threshold):
-    ext = os.path.splitext(image_path)[1] or ".png"
-    baseline = os.path.join(BASELINES_DIR, f"{name}{ext}")
-
-    if not os.path.exists(baseline):
-        print(json.dumps({"action": "compare", "name": name, "error": "no baseline", "suggestion": f"Run: python3 snapshot-compare.py capture {name} {image_path}"}))
+    if not os.path.exists(image_path):
+        print(f"ERROR: Image not found: {image_path}", file=sys.stderr)
         sys.exit(1)
 
-    # Simple file size comparison as proxy (real pixel diff needs PIL/Pillow)
-    baseline_size = os.path.getsize(baseline)
-    current_size = os.path.getsize(image_path)
+    # Find baseline (try common extensions)
+    baseline = None
+    for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+        candidate = os.path.join(BASELINES_DIR, f"{name}{ext}")
+        if os.path.exists(candidate):
+            baseline = candidate
+            break
 
-    if baseline_size == 0:
-        diff_pct = 100.0
-    else:
-        diff_pct = abs(current_size - baseline_size) / baseline_size * 100
+    if not baseline:
+        print(json.dumps({
+            "action": "compare", "name": name, "error": "no baseline",
+            "suggestion": f"Run: python3 snapshot-compare.py capture {name} {image_path}"
+        }))
+        sys.exit(1)
+
+    # Try pixel-level diff first
+    diff_pct = pixel_diff(baseline, image_path)
+    method = "pixel"
+
+    if diff_pct is None:
+        # Fallback: hash comparison (exact match only)
+        hash1 = file_hash(baseline)
+        hash2 = file_hash(image_path)
+        diff_pct = 0.0 if hash1 == hash2 else 100.0
+        method = "hash"
+        if diff_pct > 0:
+            print("WARNING: Pillow not installed — using hash comparison (exact match only). "
+                  "Install Pillow for pixel-level diff: pip install Pillow", file=sys.stderr)
 
     passed = diff_pct <= threshold
 
@@ -42,14 +101,15 @@ def compare(name, image_path, threshold):
         "name": name,
         "baseline": baseline,
         "current": image_path,
-        "diffPercent": round(diff_pct, 2),
+        "diffPercent": diff_pct,
         "threshold": threshold,
+        "method": method,
         "passed": passed,
     }
     print(json.dumps(result, indent=2))
 
     if not passed:
-        print(f"VISUAL REGRESSION: {name} diff {diff_pct:.1f}% exceeds {threshold}%", file=sys.stderr)
+        print(f"VISUAL REGRESSION: {name} diff {diff_pct}% exceeds {threshold}% (method: {method})", file=sys.stderr)
         print(f"Update baseline: python3 snapshot-compare.py capture {name} {image_path}", file=sys.stderr)
         sys.exit(1)
 
