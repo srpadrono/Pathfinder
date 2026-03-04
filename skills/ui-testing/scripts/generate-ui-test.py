@@ -1,44 +1,90 @@
 #!/usr/bin/env python3
-"""Generate a UI test skeleton for a checkpoint.
+"""Generate or append UI tests matching the project's existing patterns.
 
-Usage: python3 generate-ui-test.py <checkpoint-id> <description> <framework> [--route /path] [--output path/to/test]
+Usage:
+  # New file (no existing test for this journey)
+  python3 generate-ui-test.py AUTH-01 "Open login page" playwright --route /login
 
-Outputs the test file content to stdout if no --output, or writes to file.
+  # Append to existing journey file
+  python3 generate-ui-test.py AUTH-05 "Logout redirects" playwright --route /dashboard --append e2e/tests/auth.spec.ts
+
+  # Auto-detect: appends if journey file exists, creates if not
+  python3 generate-ui-test.py AUTH-05 "Logout redirects" playwright --route /dashboard --auto
+
+Options:
+  --test-dir     Override test directory (default: auto-detect from config or playwright.config.ts)
+  --describe     Group name for test.describe() (default: derived from checkpoint ID prefix)
+  --auth         Include authenticated storageState (reads from playwright config)
+  --append FILE  Append test to existing file instead of creating new one
+  --auto         Auto-detect: append if matching journey file exists, create otherwise
+  --output FILE  Output path for new file (default: auto)
 """
-import argparse, sys, os, json
+import argparse, sys, os, json, re, glob
 
-TEMPLATES = {
-    "playwright": '''import {{ test, expect }} from '@playwright/test'
+# --- Templates ---
 
-test('{checkpoint_id}: {description}', async ({{ page }}) => {{
-  // Arrange
-  await page.goto('{route}')
+PLAYWRIGHT_NEW_FILE = '''import {{ test, expect }} from '@playwright/test'
 
-  // Act
-  // TODO: implement user actions
+/**
+ * {journey_name} Journey E2E Tests
+ */
 
-  // Assert
-  // TODO: add assertions
-  await expect(page.getByText('TODO')).toBeVisible()
-}})
-''',
-    "cypress": '''describe('{checkpoint_id}: {description}', () => {{
-  it('should {description_lower}', () => {{
-    // Arrange
-    cy.visit('{route}')
-
+test.describe('{journey_name}', () => {{
+{auth_block}  test('{description}', async ({{ page }}) => {{
+    await page.goto('{route}')
+{wait_block}
     // Act
     // TODO: implement user actions
 
     // Assert
     // TODO: add assertions
-    cy.contains('TODO').should('be.visible')
+    await expect(page.getByRole('heading')).toBeVisible()
   }})
 }})
-''',
-    "maestro": '''appId: {app_id}
+'''
+
+PLAYWRIGHT_APPEND = '''
+  test('{description}', async ({{ page }}) => {{
+    await page.goto('{route}')
+{wait_block}
+    // Act
+    // TODO: implement user actions
+
+    // Assert
+    // TODO: add assertions
+    await expect(page.getByRole('heading')).toBeVisible()
+  }})
+'''
+
+CYPRESS_NEW_FILE = '''describe('{journey_name}', () => {{
+  {auth_block}it('{description}', () => {{
+    cy.visit('{route}')
+{wait_block}
+    // Act
+    // TODO: implement user actions
+
+    // Assert
+    // TODO: add assertions
+    cy.get('[data-cy="result"]').should('be.visible')
+  }})
+}})
+'''
+
+CYPRESS_APPEND = '''
+  it('{description}', () => {{
+    cy.visit('{route}')
+{wait_block}
+    // Act
+    // TODO: implement user actions
+
+    // Assert
+    cy.get('[data-cy="result"]').should('be.visible')
+  }})
+'''
+
+MAESTRO_NEW_FILE = '''appId: {app_id}
 ---
-# {checkpoint_id}: {description}
+# {journey_name}: {description}
 
 - launchApp
 
@@ -50,13 +96,14 @@ test('{checkpoint_id}: {description}', async ({{ page }}) => {{
 
 # Assert
 - assertVisible: "TODO"
-''',
-    "detox": '''describe('{checkpoint_id}: {description}', () => {{
+'''
+
+DETOX_NEW_FILE = '''describe('{journey_name}', () => {{
   beforeAll(async () => {{
     await device.launchApp()
   }})
 
-  it('should {description_lower}', async () => {{
+  it('{description}', async () => {{
     // Arrange
     // TODO: navigate to target screen
 
@@ -67,10 +114,24 @@ test('{checkpoint_id}: {description}', async ({{ page }}) => {{
     await expect(element(by.text('TODO'))).toBeVisible()
   }})
 }})
-''',
-    "xcuitest": '''import XCTest
+'''
 
-class {checkpoint_class}Tests: XCTestCase {{
+DETOX_APPEND = '''
+  it('{description}', async () => {{
+    // Arrange
+    // TODO: navigate to target screen
+
+    // Act
+    // TODO: implement user actions
+
+    // Assert
+    await expect(element(by.text('TODO'))).toBeVisible()
+  }})
+'''
+
+XCUITEST_NEW_FILE = '''import XCTest
+
+class {class_name}Tests: XCTestCase {{
     let app = XCUIApplication()
 
     override func setUpWithError() throws {{
@@ -78,21 +139,15 @@ class {checkpoint_class}Tests: XCTestCase {{
         app.launch()
     }}
 
-    func test{checkpoint_func}() throws {{
+    func test{func_name}() throws {{
         // {description}
-
-        // Arrange
-        // TODO: navigate to target screen
-
-        // Act
-        // TODO: implement user actions
-
-        // Assert
+        // TODO: implement
         XCTAssertTrue(app.staticTexts["TODO"].exists)
     }}
 }}
-''',
-    "espresso": '''package com.app.test
+'''
+
+ESPRESSO_NEW_FILE = '''package com.app.test
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -105,97 +160,277 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class {checkpoint_class}Test {{
+class {class_name}Test {{
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Test
-    fun test{checkpoint_func}() {{
+    fun test{func_name}() {{
         // {description}
-
-        // Arrange
-        // TODO: navigate to target screen
-
-        // Act
-        // TODO: implement user actions
-
-        // Assert
+        // TODO: implement
         onView(withText("TODO")).check(matches(isDisplayed()))
     }}
 }}
-''',
-    "flutter-test": '''import 'package:flutter_test/flutter_test.dart';
+'''
+
+FLUTTER_NEW_FILE = '''import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:app/main.dart' as app;
 
 void main() {{
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('{checkpoint_id}: {description}', (tester) async {{
-    // Arrange
-    app.main();
-    await tester.pumpAndSettle();
+  group('{journey_name}', () {{
+    testWidgets('{description}', (tester) async {{
+      app.main();
+      await tester.pumpAndSettle();
 
-    // Act
-    // TODO: implement user actions
+      // Act
+      // TODO: implement
 
-    // Assert
-    expect(find.text('TODO'), findsOneWidget);
+      // Assert
+      expect(find.text('TODO'), findsOneWidget);
+    }});
   }});
 }}
-''',
+'''
+
+FLUTTER_APPEND = '''
+    testWidgets('{description}', (tester) async {{
+      app.main();
+      await tester.pumpAndSettle();
+
+      // Act
+      // TODO: implement
+
+      // Assert
+      expect(find.text('TODO'), findsOneWidget);
+    }});
+'''
+
+TEMPLATES_NEW = {
+    "playwright": PLAYWRIGHT_NEW_FILE,
+    "cypress": CYPRESS_NEW_FILE,
+    "maestro": MAESTRO_NEW_FILE,
+    "detox": DETOX_NEW_FILE,
+    "xcuitest": XCUITEST_NEW_FILE,
+    "espresso": ESPRESSO_NEW_FILE,
+    "flutter-test": FLUTTER_NEW_FILE,
 }
 
-# Default output paths per framework
-DEFAULT_PATHS = {
-    "playwright": "e2e/{checkpoint_lower}.spec.ts",
-    "cypress": "cypress/e2e/{checkpoint_lower}.cy.ts",
-    "maestro": "e2e/flows/{checkpoint_lower}.yaml",
-    "detox": "e2e/{checkpoint_lower}.test.ts",
-    "xcuitest": "AppUITests/{checkpoint_class}Tests.swift",
-    "espresso": "app/src/androidTest/java/com/app/test/{checkpoint_class}Test.kt",
-    "flutter-test": "integration_test/{checkpoint_lower}_test.dart",
+TEMPLATES_APPEND = {
+    "playwright": PLAYWRIGHT_APPEND,
+    "cypress": CYPRESS_APPEND,
+    "detox": DETOX_APPEND,
+    "flutter-test": FLUTTER_APPEND,
 }
+
+# --- Path detection ---
+
+def find_test_dir():
+    """Auto-detect test directory from project config."""
+    # Check .pathfinder/config.json
+    if os.path.exists(".pathfinder/config.json"):
+        with open(".pathfinder/config.json") as f:
+            cfg = json.load(f)
+            if "testDir" in cfg:
+                return cfg["testDir"]
+
+    # Check playwright config for testDir
+    for cfg_path in ["e2e/playwright.config.ts", "playwright.config.ts", "e2e/playwright.config.js", "playwright.config.js"]:
+        if os.path.exists(cfg_path):
+            with open(cfg_path) as f:
+                content = f.read()
+            m = re.search(r"testDir:\s*['\"]\.?/?([^'\"]+)['\"]", content)
+            if m:
+                base = os.path.dirname(cfg_path)
+                return os.path.join(base, m.group(1)) if base else m.group(1)
+            return os.path.dirname(cfg_path) or "e2e"
+
+    # Check cypress
+    for cfg_path in ["cypress.config.ts", "cypress.config.js"]:
+        if os.path.exists(cfg_path):
+            return "cypress/e2e"
+
+    # Maestro
+    if os.path.exists("e2e/.maestro") or os.path.exists("e2e/flows"):
+        return "e2e/flows"
+
+    # Flutter
+    if os.path.exists("integration_test"):
+        return "integration_test"
+
+    return "e2e/tests"
+
+
+def find_existing_journey_file(journey_prefix, test_dir, framework):
+    """Find an existing test file that matches this journey."""
+    prefix_lower = journey_prefix.lower().replace("-", "").replace("_", "")
+
+    exts = {"playwright": ".spec.ts", "cypress": ".cy.ts", "detox": ".test.ts",
+            "maestro": ".yaml", "flutter-test": "_test.dart",
+            "xcuitest": "Tests.swift", "espresso": "Test.kt"}
+    ext = exts.get(framework, ".spec.ts")
+
+    for f in glob.glob(os.path.join(test_dir, f"*{ext}")) + glob.glob(os.path.join(test_dir, "**", f"*{ext}"), recursive=True):
+        basename = os.path.basename(f).lower().replace("-", "").replace("_", "")
+        if prefix_lower in basename:
+            return f
+
+    return None
+
+
+def detect_auth_pattern(framework):
+    """Detect if the project uses auth setup in tests."""
+    if framework != "playwright":
+        return ""
+
+    for cfg_path in ["e2e/playwright.config.ts", "playwright.config.ts"]:
+        if os.path.exists(cfg_path):
+            with open(cfg_path) as f:
+                content = f.read()
+            if "storageState" in content:
+                return "  // Uses authenticated state from playwright setup project\n\n"
+    return ""
+
+
+def append_to_file(filepath, content, framework):
+    """Append a test to an existing file, inside the last describe/group block."""
+    with open(filepath) as f:
+        existing = f.read()
+
+    if framework in ("playwright", "cypress", "detox"):
+        # Find the last closing }) of a describe block and insert before it
+        # Look for the last })\n pattern that closes a describe
+        lines = existing.rstrip().split('\n')
+
+        # Find the last line that is just })
+        insert_idx = None
+        for i in range(len(lines) - 1, -1, -1):
+            if lines[i].strip() == '})':
+                insert_idx = i
+                break
+
+        if insert_idx is not None:
+            lines.insert(insert_idx, content.rstrip())
+            result = '\n'.join(lines) + '\n'
+        else:
+            # Fallback: just append
+            result = existing.rstrip() + '\n' + content + '\n'
+
+    elif framework == "flutter-test":
+        # Insert before last });
+        lines = existing.rstrip().split('\n')
+        insert_idx = None
+        for i in range(len(lines) - 1, -1, -1):
+            if lines[i].strip() == '});':
+                insert_idx = i
+                break
+        if insert_idx is not None:
+            lines.insert(insert_idx, content.rstrip())
+            result = '\n'.join(lines) + '\n'
+        else:
+            result = existing.rstrip() + '\n' + content + '\n'
+    else:
+        # Maestro, XCUITest, Espresso — just append
+        result = existing.rstrip() + '\n' + content + '\n'
+
+    with open(filepath, 'w') as f:
+        f.write(result)
+
+    return filepath
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate UI test skeleton")
-    parser.add_argument("checkpoint_id", help="e.g. FEAT-01")
+    parser = argparse.ArgumentParser(description="Generate or append UI tests")
+    parser.add_argument("checkpoint_id", help="e.g. AUTH-01")
     parser.add_argument("description", help="What this test verifies")
-    parser.add_argument("framework", choices=list(TEMPLATES.keys()))
+    parser.add_argument("framework", choices=list(TEMPLATES_NEW.keys()))
     parser.add_argument("--route", default="/", help="Route/screen to test")
     parser.add_argument("--app-id", default="com.example.app", help="Mobile app ID")
-    parser.add_argument("--output", help="Output file path (default: auto)")
+    parser.add_argument("--test-dir", help="Override test directory")
+    parser.add_argument("--describe", help="test.describe() group name")
+    parser.add_argument("--auth", action="store_true", help="Include auth setup")
+    parser.add_argument("--append", help="Append to this existing file")
+    parser.add_argument("--auto", action="store_true", help="Auto-detect: append or create")
+    parser.add_argument("--output", help="Output path for new file")
     args = parser.parse_args()
 
-    # Build template vars
-    checkpoint_lower = args.checkpoint_id.lower().replace("-", "_")
-    checkpoint_class = args.checkpoint_id.replace("-", "")
-    checkpoint_func = args.checkpoint_id.replace("-", "_")
+    # Derive journey name from checkpoint prefix (AUTH-01 → AUTH → Authentication)
+    prefix = args.checkpoint_id.rsplit("-", 1)[0] if "-" in args.checkpoint_id else args.checkpoint_id
+    journey_name = args.describe or prefix.replace("-", " ").replace("_", " ").title()
 
-    content = TEMPLATES[args.framework].format(
+    test_dir = args.test_dir or find_test_dir()
+    checkpoint_lower = args.checkpoint_id.lower().replace("-", "_")
+    class_name = args.checkpoint_id.replace("-", "")
+    func_name = args.checkpoint_id.replace("-", "_")
+
+    # Determine: append or new file?
+    append_file = args.append
+    if not append_file and args.auto:
+        append_file = find_existing_journey_file(prefix, test_dir, args.framework)
+
+    # Auth block
+    auth_block = detect_auth_pattern(args.framework) if args.auth or args.auto else ""
+
+    # Wait block
+    wait_map = {
+        "playwright": "    await page.waitForLoadState('networkidle')\n",
+        "cypress": "    cy.intercept('GET', '/api/**').as('load')\n    cy.wait('@load')\n",
+        "detox": "",
+        "maestro": "",
+        "flutter-test": "",
+        "xcuitest": "",
+        "espresso": "",
+    }
+    wait_block = wait_map.get(args.framework, "")
+
+    template_vars = dict(
         checkpoint_id=args.checkpoint_id,
         description=args.description,
-        description_lower=args.description[0].lower() + args.description[1:] if args.description else "",
         route=args.route,
         app_id=args.app_id,
-        checkpoint_lower=checkpoint_lower,
-        checkpoint_class=checkpoint_class,
-        checkpoint_func=checkpoint_func,
+        journey_name=journey_name,
+        auth_block=auth_block,
+        wait_block=wait_block,
+        class_name=class_name,
+        func_name=func_name,
     )
 
-    output = args.output or DEFAULT_PATHS[args.framework].format(
-        checkpoint_lower=checkpoint_lower,
-        checkpoint_class=checkpoint_class,
-    )
+    if append_file and os.path.exists(append_file):
+        # Append mode
+        if args.framework not in TEMPLATES_APPEND:
+            print(f"ERROR: Append not supported for {args.framework}. Create a new file.", file=sys.stderr)
+            sys.exit(1)
 
-    if args.output or not sys.stdout.isatty():
+        content = TEMPLATES_APPEND[args.framework].format(**template_vars)
+        result_path = append_to_file(append_file, content, args.framework)
+        print(f"Appended to: {result_path}", file=sys.stderr)
+        print(json.dumps({"action": "append", "file": result_path, "checkpoint": args.checkpoint_id}))
+
+    else:
+        # New file mode
+        content = TEMPLATES_NEW[args.framework].format(**template_vars)
+
+        # Determine output path
+        ext_map = {"playwright": ".spec.ts", "cypress": ".cy.ts", "detox": ".test.ts",
+                   "maestro": ".yaml", "flutter-test": "_test.dart",
+                   "xcuitest": "Tests.swift", "espresso": "Test.kt"}
+        ext = ext_map.get(args.framework, ".spec.ts")
+
+        if args.output:
+            output = args.output
+        else:
+            # Use journey prefix as filename (AUTH-01 → auth.spec.ts)
+            filename = prefix.lower().replace(" ", "-").replace("_", "-") + ext
+            output = os.path.join(test_dir, filename)
+
         os.makedirs(os.path.dirname(output), exist_ok=True)
         with open(output, "w") as f:
             f.write(content)
-        print(f"Generated: {output}", file=sys.stderr)
-    else:
-        print(f"# Output path: {output}")
-        print(content)
+        print(f"Created: {output}", file=sys.stderr)
+        print(json.dumps({"action": "create", "file": output, "checkpoint": args.checkpoint_id}))
+
 
 if __name__ == "__main__":
     main()
