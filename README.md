@@ -2,28 +2,122 @@
 
 # 🧭 Pathfinder
 
-**Map your user journeys. Blaze the trail. Scout the gaps. Reach the summit.**
+### Map every user journey. See what's tested. Fill the gaps.
 
-An AI-powered UI test coverage tool that discovers every user journey in your codebase,
-visualizes what's tested vs untested, and generates the missing tests — for any tech stack.
+An AI-agent skill that discovers user journeys in any codebase, visualizes test coverage with interactive Mermaid diagrams, and generates framework-correct UI tests to close the gaps.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3](https://img.shields.io/badge/Python-3.x-green.svg)](https://python.org)
 [![Tests: 20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
 
+**Works with:** Claude Code · Codex · Cursor · Windsurf · Aider · OpenClaw · any AI coding agent
+
+[Installation](#-installation) · [How It Works](#-how-it-works) · [Supported Frameworks](#-supported-frameworks) · [Commands](#-commands)
+
 </div>
 
 ---
 
-## The Problem
+## 🎯 The Problem
 
-Your codebase has tests, but you can't answer: *"Which user journeys are actually covered?"*
+You have tests. But can you answer: **"Which user journeys are actually covered?"**
 
-Line coverage says 78%. But can a user log in, upload a file, and view the result? Nobody knows — there's no map.
+Line coverage says 78%. But can a user sign up, upload a file, and view the result end-to-end? Nobody knows. There's no map.
 
-## The Solution
+**Pathfinder fixes this.** It crawls your codebase, discovers every user journey, and produces a **living coverage map** — so you can see exactly where the gaps are and fill them systematically.
 
-Pathfinder crawls your codebase, maps every user journey, and produces a living coverage diagram:
+---
+
+## ⚡ Quick Start
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
+```
+
+<details>
+<summary>Or install manually</summary>
+
+```bash
+git clone https://github.com/srpadrono/Pathfinder.git ~/.pathfinder
+cd your-project
+python3 ~/.pathfinder/scripts/pathfinder-init.py
+```
+
+Then set up for your agent → **[Installation Guide](docs/installation.md)**
+
+</details>
+
+Then tell your AI agent:
+
+```
+/map
+```
+
+---
+
+## 🔍 How It Works
+
+Pathfinder runs in **four phases**, each named after trail exploration:
+
+<table>
+<tr>
+<td width="25%" align="center">
+
+### 🗺️ Map
+**Discover the terrain**
+
+Deep dives into routes, screens, components, and API calls. Groups them into user journeys. Checks which steps already have tests.
+
+</td>
+<td width="25%" align="center">
+
+### 🔥 Blaze
+**Mark the trail**
+
+Generates Mermaid journey diagrams with **✅** tested and **❌** untested markers. Produces a coverage summary table.
+
+</td>
+<td width="25%" align="center">
+
+### 🔭 Scout
+**Explore the gaps**
+
+Generates framework-correct test skeletons for every ❌ step. Appends to existing files or creates new ones matching your patterns.
+
+</td>
+<td width="25%" align="center">
+
+### ⛰️ Summit
+**Reach the peak**
+
+Runs all tests, reconciles results, updates the diagrams, and computes a coverage score. ❌ → ✅
+
+</td>
+</tr>
+</table>
+
+```
+/map  ──→  /blaze  ──→  /scout  ──→  /summit
+  │           │            │            │
+  ▼           ▼            ▼            ▼
+Crawl      Mermaid      Write        Run all
+code       ✅ / ❌      tests        Update ❌→✅
+  │           │            │            │
+  └───────────┴────────────┴────────────┘
+                     │
+              journeys.json
+            (source of truth)
+```
+
+The cycle repeats. New code → `/map` → new ❌ steps → `/scout` → `/summit`. The diagram always reflects reality.
+
+---
+
+## 📊 What You Get
+
+### Journey Diagrams
+
+Every user journey becomes a visual Mermaid diagram:
 
 ```mermaid
 journey
@@ -37,94 +131,49 @@ journey
       Logout: 3: ❌
 ```
 
+### Coverage Table
+
 ```
-| Journey          | Steps | Tested | Coverage   |
-|------------------|-------|--------|------------|
-| 🔐 Auth          | 5     | 3      | 🟡 60%    |
-| 📤 Upload        | 8     | 0      | 🔴 0%     |
-| 📄 Reports       | 12    | 7      | 🟡 58%    |
-| Total            | 25    | 10     | 40%        |
-```
-
-Every test you write flips an ❌ to ✅. Progress is visible.
-
----
-
-## Quick Start
-
-```bash
-# Install (interactive — picks your platform)
-bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
-
-# Or manually
-git clone https://github.com/srpadrono/Pathfinder.git ~/.pathfinder
-
-# Initialize in your project
-cd your-project
-python3 ~/.pathfinder/scripts/pathfinder-init.py
-
-# Start mapping
+| Journey            | Steps | Tested | Coverage    |
+|--------------------|-------|--------|-------------|
+| 🔐 Authentication  | 5     | 3      | 🟡 60.0%   |
+| 📤 File Upload     | 8     | 0      | 🔴 0.0%    |
+| 📄 Reports         | 12    | 7      | 🟡 58.3%   |
+| 💬 Chat            | 6     | 6      | 🟢 100.0%  |
+| **Total**          | **31**| **16** | **51.6%**   |
 ```
 
-**Works with:** Claude Code · Codex · OpenClaw · Cursor · Windsurf · Aider · any agent that reads markdown.
+### Coverage Score
 
-See **[Installation Guide](docs/installation.md)** for setup instructions per platform.
-
----
-
-## The Four Phases
-
-### 🗺️ `/map` — Discover the terrain
-
-Pathfinder deep dives into your codebase — reading routes, screens, components, API calls, and navigation patterns. It groups them into user journeys and checks which steps already have tests.
-
-**Output:** `.pathfinder/journeys.json` — structured map of every journey with per-step coverage.
-
-### 🔥 `/blaze` — Mark the trail
-
-Transforms the journey map into Mermaid diagrams with ✅ (tested) and ❌ (untested) markers. Generates a coverage summary table with per-journey percentages.
-
-**Output:** `.pathfinder/diagrams.md` — auto-regenerated whenever journeys.json changes.
-
-### 🔭 `/scout` — Explore the gaps
-
-For each ❌ step, generates a framework-correct test skeleton with proper selectors, waits, and assertions. Appends to existing test files when a journey already has a file, or creates new ones matching your project's patterns.
-
-**Output:** UI test files + updated journey map with `tested: true`.
-
-### ⛰️ `/summit` — Reach the peak
-
-Runs the full test suite, reconciles results with the journey map, updates diagrams, and computes a coverage score.
-
-| Coverage | Status | Meaning |
-|----------|--------|---------|
-| 🟢 80%+ | Excellent | Ship it |
-| 🟡 50-79% | Acceptable | Document the gaps |
-| 🔴 <50% | Insufficient | Keep scouting |
+| Score | Status | Meaning |
+|-------|--------|---------|
+| 🟢 **80%+** | Excellent | Ship it |
+| 🟡 **50–79%** | Acceptable | Document the gaps |
+| 🔴 **<50%** | Insufficient | Keep scouting |
 
 ---
 
-## Supported Frameworks
+## 🛠️ Supported Frameworks
 
-Pathfinder auto-detects your UI test framework and generates tests with the correct patterns:
+Pathfinder **auto-detects** your UI test framework and generates tests with the correct selectors, waits, and patterns:
 
-| Framework | Platform | Auto-detected from |
-|-----------|----------|--------------------|
-| **Playwright** | Web | `playwright.config.ts` |
-| **Cypress** | Web | `cypress.config.ts` |
-| **Maestro** | Mobile (any) | `e2e/.maestro/config.yaml` or Expo `app.json` |
-| **Detox** | React Native | `.detoxrc.js` |
-| **XCUITest** | iOS Native | `.xcodeproj` |
-| **Espresso** | Android Native | `build.gradle` |
-| **Flutter** | Flutter | `integration_test/` + `pubspec.yaml` |
+| Framework | Platform | Selectors | Auto-detected from |
+|-----------|----------|-----------|-------------------|
+| **Playwright** | Web | `getByRole`, `getByTestId` | `playwright.config.ts` |
+| **Cypress** | Web | `cy.get('[data-cy=]')` | `cypress.config.ts` |
+| **Maestro** | Mobile | `id:`, `text:` | Expo `app.json` |
+| **Detox** | React Native | `by.id()`, `by.label()` | `.detoxrc.js` |
+| **XCUITest** | iOS | `app.buttons[""]` | `.xcodeproj` |
+| **Espresso** | Android | `withId()`, `withText()` | `build.gradle` |
+| **Flutter** | Flutter | `find.byKey()` | `integration_test/` |
 
-Each framework has a dedicated reference guide with selector strategies, wait patterns, and test templates.
+Each framework has a dedicated reference guide with selector strategies, wait patterns, and test templates — loaded only when needed.
 
 ---
 
-## Smart Test Generation
+## 🧠 Smart Test Generation
 
-The test generator adapts to your project:
+The test generator adapts to **your project's existing patterns**:
 
 ```bash
 # Auto-detect: appends to existing auth.spec.ts or creates new file
@@ -132,34 +181,51 @@ python3 ~/.pathfinder/skills/ui-testing/scripts/generate-ui-test.py \
   AUTH-05 "Logout redirects to login" playwright --route /dashboard --auto
 ```
 
-- **`--auto`** — finds existing test file for the journey → appends inside `test.describe()`. No match → creates new file.
-- **`--append <file>`** — explicitly append to a specific test file.
-- **Reads your config** — test directory from `playwright.config.ts`, auth pattern from `storageState`.
-- **Accessibility-first selectors** — `getByRole`, `getByTestId`, not CSS classes.
-- **Condition-based waits** — `waitForLoadState`, `waitForExistence`, never `sleep()`.
+| Feature | How it works |
+|---------|-------------|
+| **Auto-append** | Finds existing journey file → inserts inside `test.describe()` block |
+| **Auto-create** | No existing file → creates with proper imports, describe wrapper, auth setup |
+| **Test directory** | Reads from `playwright.config.ts` / `cypress.config.ts` — no hardcoded paths |
+| **Auth detection** | Detects `storageState` pattern and includes authenticated setup |
+| **Selectors** | Accessibility-first: `getByRole` > `getByTestId` > `getByText` > CSS (last resort) |
+| **Waits** | Condition-based only: `waitForLoadState`, `waitForExistence` — never `sleep()` |
+| **Visual regression** | Screenshot baseline capture + pixel-level diff comparison |
 
 ---
 
-## Project Configuration
+## 📦 Installation
 
-Optional `.pathfinder/config.json` for custom patterns:
+**One-liner** (interactive — picks your platform):
 
-```json
-{
-  "testDir": "e2e/tests",
-  "framework": "playwright",
-  "unitRunner": "vitest",
-  "auth": {
-    "storageState": "e2e/.auth/user.json"
-  }
-}
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-If absent, Pathfinder auto-detects everything from your framework config files.
+**Manual** — see platform-specific guides in **[docs/installation.md](docs/installation.md)**:
+
+| Platform | Config file | Setup command |
+|----------|------------|---------------|
+| Claude Code | `CLAUDE.md` | `bash ~/.pathfinder/install/setup-claude-code.sh` |
+| Codex | `AGENTS.md` | `bash ~/.pathfinder/install/setup-codex.sh` |
+| Cursor | `.cursorrules` | `bash ~/.pathfinder/install/setup-cursor.sh` |
+| Windsurf | `.windsurfrules` | `bash ~/.pathfinder/install/setup-windsurf.sh` |
+| Aider | `.aider.conf.yml` | `bash ~/.pathfinder/install/setup-aider.sh` |
+| OpenClaw | Skills symlink | `bash ~/.pathfinder/install/setup-openclaw.sh` |
 
 ---
 
-## Commands
+## 💻 Commands
+
+### Agent Commands
+
+| Command | What happens |
+|---------|-------------|
+| `/map` | Discover all user journeys in the codebase |
+| `/blaze` | Generate Mermaid coverage diagrams |
+| `/scout` | Write UI tests for untested steps |
+| `/summit` | Run tests, update diagrams, compute score |
+
+### CLI Scripts
 
 ```bash
 # Initialize Pathfinder in a project
@@ -168,86 +234,102 @@ python3 ~/.pathfinder/scripts/pathfinder-init.py
 # Scan existing test coverage
 python3 ~/.pathfinder/skills/mapping/scripts/scan-test-coverage.py .
 
-# Generate Mermaid diagrams
+# Generate coverage diagrams
 python3 ~/.pathfinder/skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json
 
 # Detect UI framework
 python3 ~/.pathfinder/skills/ui-testing/scripts/detect-ui-framework.py .
 
-# Generate a test
-python3 ~/.pathfinder/skills/ui-testing/scripts/generate-ui-test.py FEAT-01 "Description" playwright --auto
+# Generate a test skeleton
+python3 ~/.pathfinder/skills/ui-testing/scripts/generate-ui-test.py \
+  FEAT-01 "User can upload file" playwright --route /upload --auto
 
 # Compute coverage score
 python3 ~/.pathfinder/scripts/coverage-score.py .pathfinder/journeys.json
 
 # Visual regression
 python3 ~/.pathfinder/skills/ui-testing/scripts/snapshot-compare.py capture login screenshot.png
-python3 ~/.pathfinder/skills/ui-testing/scripts/snapshot-compare.py compare login new-screenshot.png
+python3 ~/.pathfinder/skills/ui-testing/scripts/snapshot-compare.py compare login new.png
 ```
 
 ---
 
-## How It Fits Together
+## ⚙️ Configuration
 
-```
-                    ┌─────────────────────────┐
-                    │     journeys.json        │
-                    │   (source of truth)      │
-                    └──┬─────┬─────┬──────┬───┘
-                       │     │     │      │
-                    /map  /blaze /scout /summit
-                       │     │     │      │
-                       ▼     ▼     ▼      ▼
-                    Crawl  Mermaid Write  Run tests
-                    code   ✅/❌  tests  Update ❌→✅
-                       │     │     │      │
-                       └─────┴─────┴──────┘
-                               │
-                        diagrams.md
-                      (visual output)
-```
+Pathfinder auto-detects everything. Optionally create `.pathfinder/config.json` to customize:
 
-The cycle repeats. New code → `/map` again → new ❌ steps appear → `/scout` → `/summit`. The diagram always reflects reality.
+```json
+{
+  "project": "my-app",
+  "framework": "playwright",
+  "testDir": "e2e/tests",
+  "unitRunner": "vitest",
+  "auth": {
+    "storageState": "e2e/.auth/user.json"
+  }
+}
+```
 
 ---
 
-## Requirements
-
-- **Python 3** — runs all scripts
-- **Git** — version control for journey maps and tests
-- **A UI test framework** — auto-detected, or specify in config
-- **Pillow** *(optional)* — enables pixel-level visual regression (`pip install Pillow`)
-
----
-
-## Structure
+## 📁 Project Structure
 
 ```
-pathfinder/
+~/.pathfinder/
 ├── skills/
-│   ├── mapping/           # 🗺️ Discover user journeys
-│   ├── blazing/           # 🔥 Generate Mermaid coverage diagrams
-│   ├── scouting/          # 🔭 Write tests for gaps
-│   ├── summiting/         # ⛰️ Run tests, compute coverage
-│   ├── ui-testing/        # Framework detection + test generation
-│   │   ├── references/    # 7 framework-specific guides
-│   │   └── scripts/       # detect, generate, snapshot
-│   └── using-pathfinder/  # Entry point
-├── scripts/               # init, coverage score
-├── tests/                 # 20 self-tests
-└── .githooks/             # pre-commit, post-commit, pre-push
+│   ├── mapping/              🗺️  Discover user journeys
+│   │   └── scripts/             scan-test-coverage.py
+│   ├── blazing/              🔥  Generate Mermaid diagrams
+│   │   └── scripts/             generate-diagrams.py
+│   ├── scouting/             🔭  Write tests for gaps
+│   ├── summiting/            ⛰️  Run tests, compute coverage
+│   ├── ui-testing/           🧪  Framework detection + test generation
+│   │   ├── references/          7 framework-specific guides
+│   │   └── scripts/             detect, generate, snapshot
+│   └── using-pathfinder/     🧭  Entry point + quick reference
+├── scripts/                     pathfinder-init.py, coverage-score.py
+├── install/                     8 platform setup scripts
+├── tests/                       20 self-tests
+└── .githooks/                   pre-commit, post-commit, pre-push
 ```
 
 ---
 
-## License
+## 🔗 Git Hooks
 
-MIT
+Enable with: `git config core.hooksPath ~/.pathfinder/.githooks`
+
+| Hook | What it does |
+|------|-------------|
+| **pre-commit** | Validates `journeys.json` is valid JSON |
+| **post-commit** | Auto-regenerates diagrams when `journeys.json` changes |
+| **pre-push** | Blocks direct push to `main` / `master` |
+
+---
+
+## 📋 Requirements
+
+| Requirement | Purpose |
+|-------------|---------|
+| **Python 3** | Runs all scripts |
+| **Git** | Version control for journey maps |
+| **UI test framework** | Auto-detected, or specify in config |
+| **Pillow** *(optional)* | Pixel-level visual regression |
+
+---
+
+## 📄 License
+
+MIT — use it, fork it, improve it.
 
 ---
 
 <div align="center">
 
-*Map the terrain. Blaze the markers. Scout the gaps. Reach the summit.* 🧭
+**Map the terrain. Blaze the markers. Scout the gaps. Reach the summit.**
+
+🗺️ → 🔥 → 🔭 → ⛰️
+
+[Get Started](#-quick-start) · [View on GitHub](https://github.com/srpadrono/Pathfinder)
 
 </div>
