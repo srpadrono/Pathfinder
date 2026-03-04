@@ -1,65 +1,58 @@
 ---
 name: using-pathfinder
-description: "Establishes expedition-based TDD workflow with automated UI test generation for any tech stack. Use when starting feature work that needs structured development with UI test coverage. Do not use for quick fixes, hotfixes, or tasks under 30 minutes."
+description: "Maps user journeys in any codebase, visualizes test coverage with Mermaid diagrams, and generates UI tests to fill gaps. Use when you want to understand and improve UI test coverage on an existing project. Do not use for unit testing, API testing, or greenfield projects with no code."
 ---
 
 # Using Pathfinder
 
-Pathfinder enforces disciplined development through phase gates, automated UI test generation, and quality scoring. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, and Flutter.
+Pathfinder discovers every user journey in your codebase, shows what's tested vs not with Mermaid diagrams, then generates the missing UI tests.
 
 ## Quick Start
 
 ```bash
-python3 scripts/pathfinder-init.py <expedition-name>
+python3 scripts/pathfinder-init.py
 ```
-
-Auto-detects your UI test framework and creates expedition state.
 
 ## Workflow
 
 ```
-/survey → /plan → /scout → /build → /report
+/map → /diagram → /scout → /verify
 ```
 
 | Phase | Skill | What happens |
 |-------|-------|-------------|
-| Survey | `pathfinder:surveying` | Explore requirements, get design approval |
-| Plan | `pathfinder:planning` | Break into task files with dependencies |
-| Scout | `pathfinder:scouting` | Generate UI + unit tests (RED) via `pathfinder:ui-testing` |
-| Build | `pathfinder:building` | Implement minimal code (GREEN) |
-| Report | `pathfinder:reporting` | Verify, score, create PR |
+| Map | `pathfinder:mapping` | Deep dive into code, discover all user journeys |
+| Diagram | `pathfinder:diagramming` | Generate Mermaid diagrams: ✅ tested, ❌ untested |
+| Scout | `pathfinder:scouting` | Write UI tests for ❌ steps using `pathfinder:ui-testing` |
+| Verify | `pathfinder:verifying` | Run tests, update diagrams ❌→✅, compute coverage |
 
-**Phases cannot be skipped.** Git hooks enforce this.
+## The Diagram Is the Source of Truth
 
-## UI Testing
-
-The `pathfinder:ui-testing` skill generates framework-correct test skeletons:
-
-```bash
-# Detect framework
-python3 skills/ui-testing/scripts/detect-ui-framework.py .
-
-# Generate test
-python3 skills/ui-testing/scripts/generate-ui-test.py FEAT-01 "User can login" playwright
-
-# Visual regression
-python3 skills/ui-testing/scripts/snapshot-compare.py capture login-screen screenshot.png
+```mermaid
+journey
+    title 🔐 Authentication
+    section Login
+      Open login page: 3: ❌
+      Enter credentials: 5: ✅
+      See dashboard: 5: ✅
+    section Logout
+      Tap logout: 3: ❌
 ```
 
-Framework-specific patterns in `skills/ui-testing/references/<framework>.md`.
+Every time you write a test, the diagram updates. Coverage percentage goes up. Gaps become visible.
 
 ## Quick Reference
 
 ```bash
-python3 scripts/pathfinder-init.py <name>              # init expedition
-cat .pathfinder/state.json                              # status
-bash scripts/pathfinder-check-deps.sh FEAT-01           # can I build this?
-bash scripts/pathfinder-update-state.sh                 # sync state
-bash scripts/verify-expedition.sh                       # quality score
+python3 scripts/pathfinder-init.py                                    # init
+python3 skills/mapping/scripts/scan-test-coverage.py .                # scan existing tests
+python3 skills/diagramming/scripts/generate-diagrams.py .pathfinder/journeys.json  # diagrams
+python3 skills/ui-testing/scripts/generate-ui-test.py AUTH-01 "Login" playwright    # generate test
+python3 scripts/coverage-score.py .pathfinder/journeys.json           # coverage score
 ```
 
 ## Error Handling
 
-- Corrupted `state.json` → re-run `validate-tasks.py` and regenerate from task files.
-- Git hooks block commit → check which phase gate is missing, complete it first.
-- UI framework not detected → specify manually in `state.json.testRunners.e2e`.
+- No UI framework detected → specify manually or install one.
+- Journey map missing → run `/map` first.
+- Coverage drops → new code added untested routes. Re-run `/map`.

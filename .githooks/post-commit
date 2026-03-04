@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# Pathfinder: Auto-update state.json after every commit
-[ -f .pathfinder/state.json ] || exit 0
+# Pathfinder: Auto-regenerate diagrams after journey map changes
+[ -f .pathfinder/journeys.json ] || exit 0
 
-# Find scripts dir relative to repo root
-REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-UPDATE_SCRIPT="${REPO_ROOT}/scripts/pathfinder-update-state.sh"
+# Check if journeys.json was in the last commit
+if git diff-tree --no-commit-id --name-only -r HEAD | grep -q "journeys.json"; then
+  SCRIPT_DIR="$(git config core.hooksPath 2>/dev/null || echo ".githooks")"
+  PATHFINDER_ROOT="$(dirname "$SCRIPT_DIR")"
+  DIAGRAM_SCRIPT="${PATHFINDER_ROOT}/skills/diagramming/scripts/generate-diagrams.py"
 
-if [ -f "$UPDATE_SCRIPT" ]; then
-  bash "$UPDATE_SCRIPT" 2>/dev/null || true
+  if [ -f "$DIAGRAM_SCRIPT" ]; then
+    python3 "$DIAGRAM_SCRIPT" .pathfinder/journeys.json 2>/dev/null || true
+  fi
 fi

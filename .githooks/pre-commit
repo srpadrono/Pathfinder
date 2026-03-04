@@ -1,50 +1,13 @@
 #!/usr/bin/env bash
-# Pathfinder: Enforce phase ordering via state.json
+# Pathfinder: Ensure journeys.json stays valid
 set -euo pipefail
 
-# Skip if not a pathfinder expedition
-[ -f .pathfinder/state.json ] || exit 0
+[ -f .pathfinder/journeys.json ] || exit 0
 
-STATE_FILE=".pathfinder/state.json"
-PHASE=$(python3 -c "import json; print(json.load(open('$STATE_FILE'))['currentPhase'])")
-
-# Get staged files
-STAGED=$(git diff --cached --name-only)
-
-# Rule 1: No source code changes during survey/plan/scout phases
-if echo "$PHASE" | grep -qE "^(survey|plan|scout)$"; then
-  SRC_CHANGES=$(echo "$STAGED" | grep -E "^src/" | grep -v "\.test\." | grep -v "\.spec\." || true)
-  if [ -n "$SRC_CHANGES" ]; then
-    echo "✘ Pathfinder: Cannot modify source code during $PHASE phase."
-    echo "  Blocked files:"
-    echo "$SRC_CHANGES" | sed 's/^/    /'
-    echo "  Current phase: $PHASE — only test files allowed."
-    exit 1
-  fi
-fi
-
-# Rule 2: Build gate requires scout gate
-if echo "$STAGED" | grep -q ".pathfinder/build.json"; then
-  if [ ! -f .pathfinder/scout.json ]; then
-    echo "✘ Pathfinder: Cannot create build gate without scout gate."
-    exit 1
-  fi
-fi
-
-# Rule 3: Report gate requires build gate
-if echo "$STAGED" | grep -q ".pathfinder/report.json"; then
-  if [ ! -f .pathfinder/build.json ]; then
-    echo "✘ Pathfinder: Cannot create report gate without build gate."
-    exit 1
-  fi
-fi
-
-# Rule 4: Scout gate requires plan gate
-if echo "$STAGED" | grep -q ".pathfinder/scout.json"; then
-  if [ ! -f .pathfinder/plan.json ]; then
-    echo "✘ Pathfinder: Cannot create scout gate without plan gate."
-    exit 1
-  fi
-fi
+# Validate JSON
+python3 -c "import json; json.load(open('.pathfinder/journeys.json'))" 2>/dev/null || {
+  echo "✘ Pathfinder: .pathfinder/journeys.json is invalid JSON."
+  exit 1
+}
 
 exit 0
