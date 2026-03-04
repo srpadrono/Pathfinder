@@ -389,6 +389,16 @@ def main():
 
     # ── Combined Decision Tree ──
     lines.append("## 🌳 Decision Tree — All Paths\n")
+    lines.append("### Legend\n")
+    lines.append("| Symbol | Meaning |")
+    lines.append("|--------|---------|")
+    lines.append("| 🟢 ✅ | **Tested** — step has a passing UI test |")
+    lines.append("| 🟡 ⚠️ | **Partial** — test written but disabled or implicitly covered |")
+    lines.append("| 🔴 ❌ | **Untested** — no UI test coverage |")
+    lines.append("| 🔵 🔀 | **Decision point** — user chooses between paths |")
+    lines.append("| ⚡ | **Error path** — API failure branch |")
+    lines.append("| `──▶` | Same-screen transition |")
+    lines.append("| `╌╌▶` | Cross-screen navigation |\n")
     lines.append("```mermaid")
     lines.extend(build_decision_tree(journeys))
     lines.append("```\n")
