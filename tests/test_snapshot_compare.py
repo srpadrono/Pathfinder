@@ -2,7 +2,7 @@
 """Tests for snapshot-compare.py"""
 import subprocess, json, tempfile, os, shutil
 
-SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "ui-testing", "scripts", "snapshot-compare.py")
+SCRIPT = os.path.join(os.path.dirname(__file__), "..", "scripts", "snapshot-compare.py")
 
 def create_test_image(path, size=100, color=(255, 0, 0)):
     """Create a simple PNG. Falls back to copying a 1-byte file if no Pillow."""

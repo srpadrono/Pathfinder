@@ -1,22 +1,17 @@
----
-name: ui-testing
-description: "Generates and runs automated UI tests for any tech stack. Use when writing UI/E2E tests during scouting phase or when adding UI test coverage to existing features. Supports Playwright (web), Cypress (web), Maestro (mobile), Detox (React Native), XCUITest (iOS), Espresso (Android), Flutter integration tests. Do not use for unit tests, API tests, or non-UI validation."
----
-
 # UI Testing
 
 Generate framework-correct UI tests with proper selectors, waits, and assertions for any stack.
 
 ## Process
 
-1. **Detect framework:** Run `python3 skills/ui-testing/scripts/detect-ui-framework.py .` to identify the project's UI test stack.
+1. **Detect framework:** Run `python3 scripts/detect-ui-framework.py .` to identify the project's UI test stack.
 2. **Read framework reference:** Based on detected framework, read the matching file from `references/`:
    - Web: `references/playwright.md` or `references/cypress.md`
    - React Native: `references/maestro.md` or `references/detox.md`
    - iOS: `references/xcuitest.md`
    - Android: `references/espresso.md`
    - Flutter: `references/flutter-test.md`
-3. **Generate test skeleton:** Run `python3 skills/ui-testing/scripts/generate-ui-test.py` with checkpoint details.
+3. **Generate test skeleton:** Run `python3 scripts/generate-ui-test.py` with checkpoint details.
 4. **Run the test** to verify it works.
 5. **Capture screenshot evidence** when available.
 
@@ -46,8 +41,8 @@ Never use fixed `sleep()` / `waitFor(ms)`. Use condition-based waits:
 
 When the framework supports screenshots:
 
-1. Capture baseline: `python3 skills/ui-testing/scripts/snapshot-compare.py capture <name>`
-2. Compare after changes: `python3 skills/ui-testing/scripts/snapshot-compare.py compare <name>`
+1. Capture baseline: `python3 scripts/snapshot-compare.py capture <name>`
+2. Compare after changes: `python3 scripts/snapshot-compare.py compare <name>`
 3. Evidence stored in `.pathfinder/baselines/`
 
 ## Error Handling

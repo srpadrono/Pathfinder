@@ -2,10 +2,8 @@
 """Initialize Pathfinder in a project.
 
 Usage: python3 pathfinder-init.py [--name project-name]
-
-Creates .pathfinder/config.json with detected framework settings.
 """
-import argparse, json, os, sys, subprocess, datetime
+import argparse, json, os, sys, subprocess, datetime, re
 
 def main():
     parser = argparse.ArgumentParser()
@@ -20,7 +18,7 @@ def main():
 
     # Detect UI framework
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    detect = os.path.join(script_dir, "..", "skills", "ui-testing", "scripts", "detect-ui-framework.py")
+    detect = os.path.join(script_dir, "detect-ui-framework.py")
 
     detection = {"uiFramework": "unknown", "unitRunner": "unknown", "platform": "unknown"}
     if os.path.exists(detect):
@@ -34,7 +32,6 @@ def main():
     test_dir = None
     for cfg in ["e2e/playwright.config.ts", "playwright.config.ts", "cypress.config.ts"]:
         if os.path.exists(cfg):
-            import re
             with open(cfg) as f:
                 content = f.read()
             m = re.search(r"testDir:\s*['\"]\.?/?([^'\"]+)['\"]", content)
@@ -46,7 +43,7 @@ def main():
             break
 
     config = {
-        "version": "1.3.0",
+        "version": "2.0.0",
         "project": name,
         "framework": detection.get("uiFramework", "unknown"),
         "platform": detection.get("platform", "unknown"),
@@ -56,7 +53,6 @@ def main():
     if test_dir:
         config["testDir"] = test_dir
 
-    # Detect auth pattern
     for cfg in ["e2e/playwright.config.ts", "playwright.config.ts"]:
         if os.path.exists(cfg):
             with open(cfg) as f:

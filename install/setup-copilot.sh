@@ -26,12 +26,12 @@ Pathfinder is installed at ~/.pathfinder. It maps user journeys in a codebase, v
 
 When the user says /map, /blaze, /scout, or /summit, read the matching skill file and follow its instructions:
 
-- `/map` → Read `~/.pathfinder/skills/mapping/SKILL.md`
-- `/blaze` → Read `~/.pathfinder/skills/blazing/SKILL.md`
-- `/scout` → Read `~/.pathfinder/skills/scouting/SKILL.md`
-- `/summit` → Read `~/.pathfinder/skills/summiting/SKILL.md`
+- `/map` → Read `~/.pathfinder/references/mapping.md`
+- `/blaze` → Read `~/.pathfinder/references/blazing.md`
+- `/scout` → Read `~/.pathfinder/references/scouting.md`
+- `/summit` → Read `~/.pathfinder/references/summiting.md`
 
-Full overview: `~/.pathfinder/skills/using-pathfinder/SKILL.md`
+Full overview: `~/.pathfinder/SKILL.md`
 
 ## Scripts
 
@@ -39,10 +39,10 @@ All scripts are Python 3 CLIs. Run them with `python3`. They output JSON to stdo
 
 ```bash
 python3 ~/.pathfinder/scripts/pathfinder-init.py                              # Initialize
-python3 ~/.pathfinder/skills/mapping/scripts/scan-test-coverage.py .          # Scan tests
-python3 ~/.pathfinder/skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json  # Diagrams
-python3 ~/.pathfinder/skills/ui-testing/scripts/detect-ui-framework.py .      # Detect framework
-python3 ~/.pathfinder/skills/ui-testing/scripts/generate-ui-test.py ID "desc" framework --auto  # Generate test
+python3 ~/.pathfinder/scripts/scan-test-coverage.py .          # Scan tests
+python3 ~/.pathfinder/scripts/generate-diagrams.py .pathfinder/journeys.json  # Diagrams
+python3 ~/.pathfinder/scripts/detect-ui-framework.py .      # Detect framework
+python3 ~/.pathfinder/scripts/generate-ui-test.py ID "desc" framework --auto  # Generate test
 python3 ~/.pathfinder/scripts/coverage-score.py .pathfinder/journeys.json     # Coverage score
 ```
 
@@ -55,13 +55,13 @@ python3 ~/.pathfinder/scripts/coverage-score.py .pathfinder/journeys.json     # 
 ## Framework References
 
 When writing tests, read the matching reference for correct selectors, waits, and patterns:
-- `~/.pathfinder/skills/ui-testing/references/playwright.md`
-- `~/.pathfinder/skills/ui-testing/references/cypress.md`
-- `~/.pathfinder/skills/ui-testing/references/maestro.md`
-- `~/.pathfinder/skills/ui-testing/references/detox.md`
-- `~/.pathfinder/skills/ui-testing/references/xcuitest.md`
-- `~/.pathfinder/skills/ui-testing/references/espresso.md`
-- `~/.pathfinder/skills/ui-testing/references/flutter-test.md`
+- `~/.pathfinder/references/playwright.md`
+- `~/.pathfinder/references/cypress.md`
+- `~/.pathfinder/references/maestro.md`
+- `~/.pathfinder/references/detox.md`
+- `~/.pathfinder/references/xcuitest.md`
+- `~/.pathfinder/references/espresso.md`
+- `~/.pathfinder/references/flutter-test.md`
 INSTRUCTIONS
   echo "✅ Created $TARGET"
 fi

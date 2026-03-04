@@ -4,13 +4,13 @@ set -euo pipefail
 PATHFINDER_HOME="${HOME}/.pathfinder"
 SNIPPET='
 ## Pathfinder — UI Test Coverage Mapping
-Read ~/.pathfinder/skills/using-pathfinder/SKILL.md at session start.
+Read ~/.pathfinder/SKILL.md at session start.
 When I say /map, /blaze, /scout, or /summit, read the matching skill:
-- /map → ~/.pathfinder/skills/mapping/SKILL.md
-- /blaze → ~/.pathfinder/skills/blazing/SKILL.md
-- /scout → ~/.pathfinder/skills/scouting/SKILL.md
-- /summit → ~/.pathfinder/skills/summiting/SKILL.md
-Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/skills/*/scripts/
+- /map → ~/.pathfinder/references/mapping.md
+- /blaze → ~/.pathfinder/references/blazing.md
+- /scout → ~/.pathfinder/references/scouting.md
+- /summit → ~/.pathfinder/references/summiting.md
+Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/scripts/
 '
 
 echo "🔧 Setting up for Claude Code..."

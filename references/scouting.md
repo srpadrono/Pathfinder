@@ -1,8 +1,3 @@
----
-name: scouting
-description: "Writes UI tests for untested journey steps, verifying existing behavior or catching missing functionality. Use after blazing when coverage gaps are identified. Do not use before mapping and blazing are complete."
----
-
 # Scouting
 
 Write UI tests for every ❌ step in the journey map. Each test verifies that a user journey step works correctly.
@@ -15,9 +10,9 @@ Write UI tests for every ❌ step in the journey map. Each test verifies that a 
 
 For each untested step:
 
-4. **Generate test:** `python3 skills/ui-testing/scripts/generate-ui-test.py <STEP-ID> "<action>" <framework> --route <screen> --auto`
+4. **Generate test:** `python3 scripts/generate-ui-test.py <STEP-ID> "<action>" <framework> --route <screen> --auto`
    - `--auto` appends to existing journey file if found, creates new file if not.
-5. **Read framework reference:** `skills/ui-testing/references/<framework>.md` for correct selectors and waits.
+5. **Read framework reference:** `references/<framework>.md` for correct selectors and waits.
 6. **Fill in the test** with real selectors, actions, and assertions matching the actual UI.
 7. **Run the test.**
    - **Passes** → the feature works, step is now covered. Mark `tested: true`.
@@ -31,11 +26,11 @@ git commit -m "Scout: Test <JOURNEY> journey (N steps)"
 
 After testing a batch:
 
-10. **Regenerate diagrams:** `python3 skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json`
+10. **Regenerate diagrams:** `python3 scripts/generate-diagrams.py .pathfinder/journeys.json`
 11. **Commit:** `git add .pathfinder/blazes.md && git commit -m "Diagram: Coverage now X%"`
 
 ## Error Handling
 
-- Framework not installed → run `python3 skills/ui-testing/scripts/detect-ui-framework.py .` and install.
+- Framework not installed → run `python3 scripts/detect-ui-framework.py .` and install.
 - Test fails due to wrong selector → read the component source, fix the selector.
 - Step is untestable (native OS dialog, third-party auth redirect) → mark `tested: "partial"` with a note.

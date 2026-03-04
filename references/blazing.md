@@ -1,8 +1,3 @@
----
-name: blazing
-description: "Marks the trail with Mermaid journey diagrams showing tested (✅) and untested (❌) steps. Use after mapping to blaze coverage markers. Do not use before mapping is complete."
----
-
 # Blazing
 
 Transform the journey map into visual Mermaid diagrams that show exactly what's tested and what's not.
@@ -10,7 +5,7 @@ Transform the journey map into visual Mermaid diagrams that show exactly what's 
 ## Process
 
 1. **Read journey map:** Load `.pathfinder/journeys.json`
-2. **Generate diagrams:** Run `python3 skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json`
+2. **Generate diagrams:** Run `python3 scripts/generate-diagrams.py .pathfinder/journeys.json`
 
 This creates `.pathfinder/blazes.md` with one Mermaid journey diagram per journey:
 
@@ -45,7 +40,7 @@ journey
 
 After writing tests in the scout phase, re-run:
 ```bash
-python3 skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json
+python3 scripts/generate-diagrams.py .pathfinder/journeys.json
 ```
 
 The diagram updates ❌ → ✅ for newly tested steps.

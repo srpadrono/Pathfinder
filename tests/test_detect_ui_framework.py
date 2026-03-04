@@ -2,7 +2,7 @@
 """Tests for detect-ui-framework.py"""
 import subprocess, json, tempfile, os, sys
 
-SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "ui-testing", "scripts", "detect-ui-framework.py")
+SCRIPT = os.path.join(os.path.dirname(__file__), "..", "scripts", "detect-ui-framework.py")
 
 def run(tmpdir):
     r = subprocess.run(["python3", SCRIPT, tmpdir], capture_output=True, text=True)

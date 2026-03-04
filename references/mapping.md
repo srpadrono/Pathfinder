@@ -1,15 +1,10 @@
----
-name: mapping
-description: "Deep dives into an existing codebase to discover all user journeys, screens, routes, and interactions. Use when starting Pathfinder on a repo or receiving /map command. Do not use for greenfield projects with no existing code."
----
-
 # Mapping
 
 Crawl the codebase to discover every user journey. This is the foundation — nothing gets tested until it's mapped.
 
 ## Process
 
-1. **Detect UI framework:** Run `python3 skills/ui-testing/scripts/detect-ui-framework.py .` to identify the test stack. If `.pathfinder/config.json` exists, read the framework from there.
+1. **Detect UI framework:** Run `python3 scripts/detect-ui-framework.py .` to identify the test stack. If `.pathfinder/config.json` exists, read the framework from there.
 
 2. **Detect project type** and read entry points:
 
@@ -36,7 +31,7 @@ Crawl the codebase to discover every user journey. This is the foundation — no
 
 5. **Check existing test coverage.** For each journey step, search for existing tests:
 ```bash
-python3 skills/mapping/scripts/scan-test-coverage.py .
+python3 scripts/scan-test-coverage.py .
 ```
 
 6. **Create journey map** (`.pathfinder/journeys.json`):

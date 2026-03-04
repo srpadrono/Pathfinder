@@ -23,9 +23,9 @@ Add Pathfinder as a skill directory in your project's `CLAUDE.md` or global sett
 # Option A: Add to project (recommended)
 echo '
 ## Pathfinder
-Read ~/.pathfinder/skills/using-pathfinder/SKILL.md at session start.
-When I say /map, /blaze, /scout, or /summit, read the matching skill from ~/.pathfinder/skills/.
-Scripts are in ~/.pathfinder/scripts/ and ~/.pathfinder/skills/*/scripts/.
+Read ~/.pathfinder/SKILL.md at session start.
+When I say /map, /blaze, /scout, or /summit, read the matching skill from ~/.pathfinder/references/.
+Scripts are in ~/.pathfinder/scripts/ and ~/.pathfinder/scripts/.
 ' >> CLAUDE.md
 
 # Option B: Global config (~/.claude/settings.json)
@@ -46,10 +46,10 @@ Add to your project's `AGENTS.md` or `codex.md`:
 ```bash
 echo '
 ## Pathfinder — UI Test Coverage
-Read ~/.pathfinder/skills/using-pathfinder/SKILL.md at session start.
+Read ~/.pathfinder/SKILL.md at session start.
 Commands: /map, /blaze, /scout, /summit
-When invoked, read the matching skill from ~/.pathfinder/skills/{mapping,blazing,scouting,summiting}/SKILL.md.
-Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/skills/*/scripts/
+When invoked, read the matching skill from ~/.pathfinder/references/{mapping,blazing,scouting,summiting}.md.
+Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/scripts/
 Run scripts with python3. All output JSON to stdout, errors to stderr.
 ' >> AGENTS.md
 ```
@@ -58,7 +58,7 @@ Run scripts with python3. All output JSON to stdout, errors to stderr.
 
 Symlink to the skills directory:
 ```bash
-ln -s ~/.pathfinder ~/.npm-global/lib/node_modules/openclaw/skills/pathfinder
+ln -s ~/.pathfinder $(npm root -g)/openclaw/skills/pathfinder
 ```
 
 Pathfinder's `hooks/session-start` and `hooks/hooks.json` handle auto-loading.
@@ -71,13 +71,13 @@ Add to `.cursorrules` in your project root:
 echo '
 ## Pathfinder — UI Test Coverage Mapping
 When I say /map, /blaze, /scout, or /summit, read the matching skill:
-- /map → ~/.pathfinder/skills/mapping/SKILL.md
-- /blaze → ~/.pathfinder/skills/blazing/SKILL.md
-- /scout → ~/.pathfinder/skills/scouting/SKILL.md
-- /summit → ~/.pathfinder/skills/summiting/SKILL.md
+- /map → ~/.pathfinder/references/mapping.md
+- /blaze → ~/.pathfinder/references/blazing.md
+- /scout → ~/.pathfinder/references/scouting.md
+- /summit → ~/.pathfinder/references/summiting.md
 
-Overview: ~/.pathfinder/skills/using-pathfinder/SKILL.md
-Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/skills/*/scripts/
+Overview: ~/.pathfinder/SKILL.md
+Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/scripts/
 All scripts take CLI args and output JSON to stdout.
 ' >> .cursorrules
 ```
@@ -90,13 +90,13 @@ Add to `.windsurfrules` in your project root:
 echo '
 ## Pathfinder — UI Test Coverage Mapping
 When I say /map, /blaze, /scout, or /summit, read the matching skill:
-- /map → ~/.pathfinder/skills/mapping/SKILL.md
-- /blaze → ~/.pathfinder/skills/blazing/SKILL.md
-- /scout → ~/.pathfinder/skills/scouting/SKILL.md
-- /summit → ~/.pathfinder/skills/summiting/SKILL.md
+- /map → ~/.pathfinder/references/mapping.md
+- /blaze → ~/.pathfinder/references/blazing.md
+- /scout → ~/.pathfinder/references/scouting.md
+- /summit → ~/.pathfinder/references/summiting.md
 
-Overview: ~/.pathfinder/skills/using-pathfinder/SKILL.md
-Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/skills/*/scripts/
+Overview: ~/.pathfinder/SKILL.md
+Scripts: ~/.pathfinder/scripts/ and ~/.pathfinder/scripts/
 ' >> .windsurfrules
 ```
 
@@ -106,12 +106,12 @@ Add to `.aider.conf.yml`:
 
 ```yaml
 read:
-  - ~/.pathfinder/skills/using-pathfinder/SKILL.md
+  - ~/.pathfinder/SKILL.md
 ```
 
 Then reference skills manually when needed:
 ```
-/read ~/.pathfinder/skills/mapping/SKILL.md
+/read ~/.pathfinder/references/mapping.md
 ```
 
 ### Any Other Agent
@@ -124,10 +124,10 @@ If your agent reads markdown instructions, add this to whatever config file it u
 I have Pathfinder installed at ~/.pathfinder. It maps user journeys and generates UI tests.
 
 Commands:
-- /map — Read ~/.pathfinder/skills/mapping/SKILL.md and follow it
-- /blaze — Read ~/.pathfinder/skills/blazing/SKILL.md and follow it
-- /scout — Read ~/.pathfinder/skills/scouting/SKILL.md and follow it
-- /summit — Read ~/.pathfinder/skills/summiting/SKILL.md and follow it
+- /map — Read ~/.pathfinder/references/mapping.md and follow it
+- /blaze — Read ~/.pathfinder/references/blazing.md and follow it
+- /scout — Read ~/.pathfinder/references/scouting.md and follow it
+- /summit — Read ~/.pathfinder/references/summiting.md and follow it
 
 Scripts are CLI tools that take arguments and output JSON. Run with python3.
 ```

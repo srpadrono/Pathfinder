@@ -177,7 +177,7 @@ The test generator adapts to **your project's existing patterns**:
 
 ```bash
 # Auto-detect: appends to existing auth.spec.ts or creates new file
-python3 ~/.pathfinder/skills/ui-testing/scripts/generate-ui-test.py \
+python3 ~/.pathfinder/scripts/generate-ui-test.py \
   AUTH-05 "Logout redirects to login" playwright --route /dashboard --auto
 ```
 
@@ -233,24 +233,24 @@ bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/in
 python3 ~/.pathfinder/scripts/pathfinder-init.py
 
 # Scan existing test coverage
-python3 ~/.pathfinder/skills/mapping/scripts/scan-test-coverage.py .
+python3 ~/.pathfinder/scripts/scan-test-coverage.py .
 
 # Generate coverage diagrams
-python3 ~/.pathfinder/skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json
+python3 ~/.pathfinder/scripts/generate-diagrams.py .pathfinder/journeys.json
 
 # Detect UI framework
-python3 ~/.pathfinder/skills/ui-testing/scripts/detect-ui-framework.py .
+python3 ~/.pathfinder/scripts/detect-ui-framework.py .
 
 # Generate a test skeleton
-python3 ~/.pathfinder/skills/ui-testing/scripts/generate-ui-test.py \
+python3 ~/.pathfinder/scripts/generate-ui-test.py \
   FEAT-01 "User can upload file" playwright --route /upload --auto
 
 # Compute coverage score
 python3 ~/.pathfinder/scripts/coverage-score.py .pathfinder/journeys.json
 
 # Visual regression
-python3 ~/.pathfinder/skills/ui-testing/scripts/snapshot-compare.py capture login screenshot.png
-python3 ~/.pathfinder/skills/ui-testing/scripts/snapshot-compare.py compare login new.png
+python3 ~/.pathfinder/scripts/snapshot-compare.py capture login screenshot.png
+python3 ~/.pathfinder/scripts/snapshot-compare.py compare login new.png
 ```
 
 ---
@@ -277,21 +277,18 @@ Pathfinder auto-detects everything. Optionally create `.pathfinder/config.json` 
 
 ```
 ~/.pathfinder/
-├── skills/
-│   ├── mapping/              🗺️  Discover user journeys
-│   │   └── scripts/             scan-test-coverage.py
-│   ├── blazing/              🔥  Generate Mermaid diagrams
-│   │   └── scripts/             generate-diagrams.py
-│   ├── scouting/             🔭  Write tests for gaps
-│   ├── summiting/            ⛰️  Run tests, compute coverage
-│   ├── ui-testing/           🧪  Framework detection + test generation
-│   │   ├── references/          7 framework-specific guides
-│   │   └── scripts/             detect, generate, snapshot
-│   └── using-pathfinder/     🧭  Entry point + quick reference
-├── scripts/                     pathfinder-init.py, coverage-score.py
-├── install/                     8 platform setup scripts
-├── tests/                       20 self-tests
-└── .githooks/                   pre-commit, post-commit, pre-push
+├── SKILL.md                 🧭 Entry point (loaded by all platforms)
+├── references/
+│   ├── mapping.md           🗺️  /map instructions
+│   ├── blazing.md           🔥  /blaze instructions
+│   ├── scouting.md          🔭  /scout instructions
+│   ├── summiting.md         ⛰️   /summit instructions
+│   ├── ui-testing.md        🧪  Selectors, waits, visual regression
+│   └── *.md                 7 framework-specific guides
+├── scripts/                 7 Python CLI tools
+├── install/                 9 platform setup scripts
+├── tests/                   20 self-tests
+└── .githooks/               pre-commit, post-commit, pre-push
 ```
 
 ---

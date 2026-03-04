@@ -1,17 +1,12 @@
----
-name: summiting
-description: "Runs all UI tests, updates the journey diagram with results, and computes coverage score. Use after scouting to validate test coverage. Do not use before any tests have been written."
----
-
 # Summiting
 
 Run all tests, update the journey map, regenerate the diagram, and report coverage.
 
 ## Process
 
-1. **Run the full UI test suite** using the detected framework. Read the matching framework reference in `skills/ui-testing/references/` for commands.
+1. **Run the full UI test suite** using the detected framework. Read the matching framework reference in `references/` for commands.
 ```bash
-python3 skills/ui-testing/scripts/detect-ui-framework.py .
+python3 scripts/detect-ui-framework.py .
 # Then run the appropriate command
 ```
 
@@ -21,7 +16,7 @@ python3 skills/ui-testing/scripts/detect-ui-framework.py .
 
 3. **Regenerate diagrams:**
 ```bash
-python3 skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json
+python3 scripts/generate-diagrams.py .pathfinder/journeys.json
 ```
 
 4. **Compute coverage score:**
