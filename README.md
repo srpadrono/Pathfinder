@@ -61,8 +61,11 @@ cd your-project
 python3 ~/.pathfinder/scripts/pathfinder-init.py
 
 # Start mapping
-# Tell your AI agent: /map
 ```
+
+**Works with:** Claude Code · Codex · OpenClaw · Cursor · Windsurf · Aider · any agent that reads markdown.
+
+See **[Installation Guide](docs/installation.md)** for setup instructions per platform.
 
 ---
 
