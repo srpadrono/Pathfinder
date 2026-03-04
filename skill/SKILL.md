@@ -1,6 +1,6 @@
 ---
 name: pathfinder
-description: "Maps user journeys in any codebase, visualizes test coverage with Mermaid diagrams (✅/❌), and generates framework-correct UI tests to fill gaps. Use when understanding or improving UI test coverage on an existing project. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, Flutter. Do not use for unit tests, API tests, or greenfield projects with no code."
+description: "Maps user journeys in any codebase, visualizes test coverage with Mermaid flowcharts (✅/❌), and generates framework-correct UI tests to fill gaps. Use when understanding or improving UI test coverage on an existing project. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, Flutter. Do not use for unit tests, API tests, or greenfield projects with no code."
 ---
 
 # Pathfinder
@@ -22,7 +22,7 @@ python3 scripts/pathfinder-init.py
 | Command | Phase | What happens | Reference |
 |---------|-------|-------------|-----------|
 | `/map` | 🗺️ Map | Crawl code, discover all user journeys | [references/mapping.md](references/mapping.md) |
-| `/blaze` | 🔥 Blaze | Generate Mermaid diagrams: ✅ tested, ❌ untested | [references/blazing.md](references/blazing.md) |
+| `/blaze` | 🔥 Blaze | Generate Mermaid flowcharts: ✅ tested, ❌ untested | [references/blazing.md](references/blazing.md) |
 | `/scout` | 🔭 Scout | Write UI tests for ❌ steps | [references/scouting.md](references/scouting.md) |
 | `/summit` | ⛰️ Summit | Run tests, update diagrams ❌→✅, coverage score | [references/summiting.md](references/summiting.md) |
 
@@ -51,7 +51,7 @@ All scripts are Python 3 CLIs. They output JSON to stdout, errors to stderr.
 | `scripts/scan-test-coverage.py .` | Scan existing tests and map to routes |
 | `scripts/detect-ui-framework.py .` | Auto-detect UI test framework |
 | `scripts/generate-ui-test.py ID "desc" framework --auto` | Generate or append a UI test |
-| `scripts/generate-diagrams.py .pathfinder/journeys.json` | Generate Mermaid coverage diagrams |
+| `scripts/generate-diagrams.py .pathfinder/journeys.json` | Generate Mermaid flowcharts |
 | `scripts/coverage-score.py .pathfinder/journeys.json` | Compute coverage percentage |
 | `scripts/snapshot-compare.py capture\|compare name image` | Visual regression |
 

@@ -74,7 +74,7 @@ Deep dives into routes, screens, components, and API calls. Groups them into use
 ### 🔥 Blaze
 **Mark the trail**
 
-Generates Mermaid journey diagrams with **✅** tested and **❌** untested markers. Produces a coverage summary table.
+Generates Mermaid flowcharts with **✅** tested and **❌** untested markers. Produces a coverage summary table.
 
 </td>
 <td width="25%" align="center">
@@ -115,20 +115,30 @@ The cycle repeats. New code → `/map` → new ❌ steps → `/scout` → `/summ
 
 ## 📊 What You Get
 
-### Journey Diagrams
+### Journey Flowcharts
 
-Every user journey becomes a visual Mermaid diagram:
+Every user journey becomes a visual flowchart — green = tested, red = gap:
 
 ```mermaid
-journey
-    title 🔐 Authentication
-    section /login
-      Open login page: 5: ✅
-      Enter credentials: 5: ✅
-      See error on wrong password: 3: ❌
-    section /dashboard
-      See dashboard after login: 5: ✅
-      Logout: 3: ❌
+flowchart TD
+    subgraph /login
+        AUTH_01(✅ Open login page)
+        AUTH_02(✅ Enter credentials)
+        AUTH_03[❌ See error on wrong password]
+    end
+    subgraph /dashboard
+        AUTH_04(✅ See dashboard after login)
+        AUTH_05[❌ Logout]
+    end
+    AUTH_01 --> AUTH_02
+    AUTH_02 --> AUTH_03
+    AUTH_03 -.-> AUTH_04
+    AUTH_04 --> AUTH_05
+    style AUTH_01 fill:#2ea043,stroke:#1a7f37,color:#fff
+    style AUTH_02 fill:#2ea043,stroke:#1a7f37,color:#fff
+    style AUTH_03 fill:#f85149,stroke:#da3633,color:#fff
+    style AUTH_04 fill:#2ea043,stroke:#1a7f37,color:#fff
+    style AUTH_05 fill:#f85149,stroke:#da3633,color:#fff
 ```
 
 ### Coverage Table
@@ -222,7 +232,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/in
 | Command | What happens |
 |---------|-------------|
 | `/map` | Discover all user journeys in the codebase |
-| `/blaze` | Generate Mermaid coverage diagrams |
+| `/blaze` | Generate Mermaid flowcharts |
 | `/scout` | Write UI tests for untested steps |
 | `/summit` | Run tests, update diagrams, compute score |
 
