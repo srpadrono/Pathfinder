@@ -53,6 +53,17 @@ Then set up for your agent → **[Installation Guide](docs/installation.md)**
 
 </details>
 
+<details>
+<summary>Non-interactive install (CI / automation)</summary>
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh) --platform copilot
+```
+
+Valid platforms: `claude-code`, `copilot`, `codex`, `openclaw`, `cursor`, `windsurf`, `aider`, `generic`
+
+</details>
+
 Then tell your AI agent:
 
 ```
@@ -166,6 +177,145 @@ flowchart TD
 | 🟢 **80%+** | Excellent | Ship it |
 | 🟡 **50–79%** | Acceptable | Document the gaps |
 | 🔴 **<50%** | Insufficient | Keep scouting |
+
+---
+
+## 🏪 Real-World Example
+
+Here's Pathfinder on a **food delivery app's checkout module** — 5 journeys, 28 steps, taken from 52% to 100% coverage in one session.
+
+### 📸 Before (52%)
+
+```mermaid
+flowchart TD
+    ENTRY{{"🔀 Cart type?"}}
+    STANDARD("✅ Standard delivery items")
+    PICKUP["❌ Pickup order - no address needed"]
+    ENTRY -->|"Delivery"| STANDARD
+    ENTRY -->|"Pickup"| PICKUP
+    CHECKOUT("✅ User sees order summary")
+    STANDARD --> CHECKOUT
+    PICKUP --> CHECKOUT
+    CHECKOUT_decision{{"🔀 User action?"}}
+    CHECKOUT --> CHECKOUT_decision
+    PAY("✅ User taps Pay Now")
+    CHECKOUT_decision -->|"Pay"| PAY
+    PAY_LOADING[/"⚠️ Payment processing"/]
+    PAY --> PAY_LOADING
+    PAY_OK("✅ Order confirmed screen")
+    PAY_LOADING -.-> PAY_OK
+    PAY_OK_decision{{"🔀 Tip enabled?"}}
+    PAY_OK --> PAY_OK_decision
+    TRACK["❌ Tap Track My Order"]
+    PAY_OK_decision -->|"Always"| TRACK
+    TIP["❌ Tap Add Tip"]
+    PAY_OK_decision -->|"Flag on"| TIP
+    EDIT("✅ User taps Edit Order")
+    CHECKOUT_decision -->|"Edit"| EDIT
+    PROMO("✅ User applies promo code")
+    EDIT --> PROMO
+    PROMO_OK("✅ Discount applied")
+    PROMO --> PROMO_OK
+    PROMO_FAIL["❌ Invalid promo alert"]
+    PROMO -.->|"⚡ Invalid"| PROMO_FAIL
+    ERR_PAY["❌ Payment fails - card declined"]
+    PAY_LOADING -.->|"⚡ Error"| ERR_PAY
+    ERR_ALERT["❌ Error alert with Retry"]
+    ERR_PAY --> ERR_ALERT
+    ERR_RETRY["❌ User taps Retry"]
+    ERR_ALERT --> ERR_RETRY
+    style ENTRY fill:#1f6feb,stroke:#1158c7,color:#fff
+    style STANDARD fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PICKUP fill:#f85149,stroke:#da3633,color:#fff
+    style CHECKOUT fill:#2ea043,stroke:#1a7f37,color:#fff
+    style CHECKOUT_decision fill:#1f6feb,stroke:#1158c7,color:#fff
+    style PAY fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PAY_LOADING fill:#d29922,stroke:#b87d14,color:#fff
+    style PAY_OK fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PAY_OK_decision fill:#1f6feb,stroke:#1158c7,color:#fff
+    style TRACK fill:#f85149,stroke:#da3633,color:#fff
+    style TIP fill:#f85149,stroke:#da3633,color:#fff
+    style EDIT fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PROMO fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PROMO_OK fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PROMO_FAIL fill:#f85149,stroke:#da3633,color:#fff
+    style ERR_PAY fill:#f85149,stroke:#da3633,color:#fff
+    style ERR_ALERT fill:#f85149,stroke:#da3633,color:#fff
+    style ERR_RETRY fill:#f85149,stroke:#da3633,color:#fff
+```
+
+### 🚀 After (100%)
+
+```mermaid
+flowchart TD
+    ENTRY{{"🔀 Cart type?"}}
+    STANDARD("✅ Standard delivery items")
+    PICKUP("✅ Pickup order - no address needed")
+    ENTRY -->|"Delivery"| STANDARD
+    ENTRY -->|"Pickup"| PICKUP
+    CHECKOUT("✅ User sees order summary")
+    STANDARD --> CHECKOUT
+    PICKUP --> CHECKOUT
+    CHECKOUT_decision{{"🔀 User action?"}}
+    CHECKOUT --> CHECKOUT_decision
+    PAY("✅ User taps Pay Now")
+    CHECKOUT_decision -->|"Pay"| PAY
+    PAY_LOADING("✅ Payment processing")
+    PAY --> PAY_LOADING
+    PAY_OK("✅ Order confirmed screen")
+    PAY_LOADING -.-> PAY_OK
+    PAY_OK_decision{{"🔀 Tip enabled?"}}
+    PAY_OK --> PAY_OK_decision
+    TRACK("✅ Tap Track My Order")
+    PAY_OK_decision -->|"Always"| TRACK
+    TIP("✅ Tap Add Tip")
+    PAY_OK_decision -->|"Flag on"| TIP
+    EDIT("✅ User taps Edit Order")
+    CHECKOUT_decision -->|"Edit"| EDIT
+    PROMO("✅ User applies promo code")
+    EDIT --> PROMO
+    PROMO_OK("✅ Discount applied")
+    PROMO --> PROMO_OK
+    PROMO_FAIL("✅ Invalid promo alert")
+    PROMO -.->|"⚡ Invalid"| PROMO_FAIL
+    ERR_PAY("✅ Payment fails - card declined")
+    PAY_LOADING -.->|"⚡ Error"| ERR_PAY
+    ERR_ALERT("✅ Error alert with Retry")
+    ERR_PAY --> ERR_ALERT
+    ERR_RETRY("✅ User taps Retry")
+    ERR_ALERT --> ERR_RETRY
+    style ENTRY fill:#1f6feb,stroke:#1158c7,color:#fff
+    style STANDARD fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PICKUP fill:#2ea043,stroke:#1a7f37,color:#fff
+    style CHECKOUT fill:#2ea043,stroke:#1a7f37,color:#fff
+    style CHECKOUT_decision fill:#1f6feb,stroke:#1158c7,color:#fff
+    style PAY fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PAY_LOADING fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PAY_OK fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PAY_OK_decision fill:#1f6feb,stroke:#1158c7,color:#fff
+    style TRACK fill:#2ea043,stroke:#1a7f37,color:#fff
+    style TIP fill:#2ea043,stroke:#1a7f37,color:#fff
+    style EDIT fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PROMO fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PROMO_OK fill:#2ea043,stroke:#1a7f37,color:#fff
+    style PROMO_FAIL fill:#2ea043,stroke:#1a7f37,color:#fff
+    style ERR_PAY fill:#2ea043,stroke:#1a7f37,color:#fff
+    style ERR_ALERT fill:#2ea043,stroke:#1a7f37,color:#fff
+    style ERR_RETRY fill:#2ea043,stroke:#1a7f37,color:#fff
+```
+
+### 📊 Coverage Delta
+
+| Journey | Before | After | Delta |
+|---------|--------|-------|-------|
+| 🛒 Checkout (Pay) | 50% | 100% | +3 steps |
+| ✏️ Edit Order (Promo) | 75% | 100% | +1 step |
+| 🚗 Pickup variant | 0% | 100% | +1 step |
+| 💳 Payment errors | 0% | 100% | +3 steps |
+| 💰 Tip feature flag | 0% | 100% | +1 step |
+| **Total** | **52%** | **✅ 100%** | **+9 steps, 22 tests** |
+
+> All generated in one `/map` → `/blaze` → `/scout` → `/summit` session.
 
 ---
 

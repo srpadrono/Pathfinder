@@ -25,7 +25,7 @@ echo '
 ## Pathfinder
 Read ~/.pathfinder/skill/SKILL.md at session start.
 When I say /map, /blaze, /scout, or /summit, read the matching skill from ~/.pathfinder/skill/references/.
-Scripts are in ~/.pathfinder/skill/scripts/ and ~/.pathfinder/skill/scripts/.
+Scripts are in ~/.pathfinder/skill/scripts/.
 ' >> CLAUDE.md
 
 # Option B: Global config (~/.claude/settings.json)
@@ -39,6 +39,16 @@ cd your-project
 git config core.hooksPath ~/.pathfinder/.githooks
 ```
 
+### GitHub Copilot CLI
+
+Run the setup script from your project root:
+
+```bash
+bash ~/.pathfinder/install/setup-copilot.sh
+```
+
+This creates `.github/instructions/pathfinder.instructions.md` with `applyTo: "**"` frontmatter so Copilot loads it for all files. It includes command mappings, script paths, and framework references.
+
 ### Codex (OpenAI)
 
 Add to your project's `AGENTS.md` or `codex.md`:
@@ -49,7 +59,7 @@ echo '
 Read ~/.pathfinder/skill/SKILL.md at session start.
 Commands: /map, /blaze, /scout, /summit
 When invoked, read the matching skill from ~/.pathfinder/skill/references/{mapping,blazing,scouting,summiting}.md.
-Scripts: ~/.pathfinder/skill/scripts/ and ~/.pathfinder/skill/scripts/
+Scripts: ~/.pathfinder/skill/scripts/
 Run scripts with python3. All output JSON to stdout, errors to stderr.
 ' >> AGENTS.md
 ```
@@ -77,7 +87,7 @@ When I say /map, /blaze, /scout, or /summit, read the matching skill:
 - /summit → ~/.pathfinder/skill/references/summiting.md
 
 Overview: ~/.pathfinder/skill/SKILL.md
-Scripts: ~/.pathfinder/skill/scripts/ and ~/.pathfinder/skill/scripts/
+Scripts: ~/.pathfinder/skill/scripts/
 All scripts take CLI args and output JSON to stdout.
 ' >> .cursorrules
 ```
@@ -96,7 +106,7 @@ When I say /map, /blaze, /scout, or /summit, read the matching skill:
 - /summit → ~/.pathfinder/skill/references/summiting.md
 
 Overview: ~/.pathfinder/skill/SKILL.md
-Scripts: ~/.pathfinder/skill/scripts/ and ~/.pathfinder/skill/scripts/
+Scripts: ~/.pathfinder/skill/scripts/
 ' >> .windsurfrules
 ```
 
@@ -163,18 +173,12 @@ Tell your agent `/map` — it should read the mapping skill and start discoverin
 cd ~/.pathfinder && git pull origin main
 ```
 
-### GitHub Copilot CLI
+## Troubleshooting
 
-Copilot CLI uses `.github/instructions/pathfinder.instructions.md` — a lightweight instruction file that points to the globally installed tool:
-
-```bash
-bash ~/.pathfinder/install/setup-copilot.sh
-```
-
-This creates `.github/instructions/pathfinder.instructions.md` with:
-- Pathfinder commands (/map, /blaze, /scout, /summit) mapped to skill files
-- All script paths for direct CLI usage
-- Framework reference file locations
-- Project file paths (journeys.json, blazes.md, config.json)
-
-The `applyTo: "**"` frontmatter ensures Copilot loads it for all files in the repo.
+| Problem | Solution |
+|---------|----------|
+| `python3: command not found` | Install Python 3: `brew install python` (macOS) or `sudo apt install python3` (Linux) |
+| Agent doesn't recognise `/map` | Check that the instruction file was created (e.g. `.github/instructions/pathfinder.instructions.md` for Copilot) |
+| `journeys.json` not found | Run `python3 ~/.pathfinder/skill/scripts/pathfinder-init.py` in your project first |
+| Permission denied on install | Run `chmod +x ~/.pathfinder/install/*.sh` |
+| Git hooks not firing | Verify with `git config core.hooksPath` — should show `~/.pathfinder/.githooks` |

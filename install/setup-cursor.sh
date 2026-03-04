@@ -10,7 +10,7 @@ When I say /map, /blaze, /scout, or /summit, read the matching skill:
 - /scout → ~/.pathfinder/skill/references/scouting.md
 - /summit → ~/.pathfinder/skill/references/summiting.md
 Overview: ~/.pathfinder/skill/SKILL.md
-Scripts: ~/.pathfinder/skill/scripts/ and ~/.pathfinder/skill/scripts/
+Scripts: ~/.pathfinder/skill/scripts/
 All scripts take CLI args and output JSON to stdout.
 '
 

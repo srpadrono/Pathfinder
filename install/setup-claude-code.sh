@@ -10,7 +10,7 @@ When I say /map, /blaze, /scout, or /summit, read the matching skill:
 - /blaze → ~/.pathfinder/skill/references/blazing.md
 - /scout → ~/.pathfinder/skill/references/scouting.md
 - /summit → ~/.pathfinder/skill/references/summiting.md
-Scripts: ~/.pathfinder/skill/scripts/ and ~/.pathfinder/skill/scripts/
+Scripts: ~/.pathfinder/skill/scripts/
 '
 
 echo "🔧 Setting up for Claude Code..."
