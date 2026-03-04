@@ -33,6 +33,11 @@ def sanitize_id(text):
     return re.sub(r"[^a-zA-Z0-9]", "_", text).strip("_")
 
 
+def sanitize_label(text):
+    """Escape characters that break Mermaid label parsing."""
+    return text.replace("(", "[").replace(")", "]")
+
+
 def build_flowchart(journey):
     """Build a Mermaid flowchart for one journey."""
     steps = journey.get("steps", [])
@@ -56,7 +61,7 @@ def build_flowchart(journey):
         is_tested = step.get("tested") is True
         is_partial = step.get("tested") == "partial"
         marker = "✅" if is_tested else "⚠️" if is_partial else "❌"
-        label = f"{marker} {action}"
+        label = sanitize_label(f"{marker} {action}")
 
         if screen not in screens:
             screens[screen] = []
@@ -67,12 +72,13 @@ def build_flowchart(journey):
         if len(screens) > 1:
             lines.append(f"    subgraph {screen}")
         for node_id, label, is_tested, is_partial in nodes:
+            quoted = f'"{label}"'
             if is_tested:
-                lines.append(f"        {node_id}({label})")
+                lines.append(f"        {node_id}({quoted})")
             elif is_partial:
-                lines.append(f"        {node_id}[/{label}/]")
+                lines.append(f"        {node_id}[/{quoted}/]")
             else:
-                lines.append(f"        {node_id}[{label}]")
+                lines.append(f"        {node_id}[{quoted}]")
         if len(screens) > 1:
             lines.append("    end")
 
