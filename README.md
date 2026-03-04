@@ -10,7 +10,7 @@ An AI-agent skill that discovers user journeys in any codebase, visualizes test 
 [![Python 3](https://img.shields.io/badge/Python-3.x-green.svg)](https://python.org)
 [![Tests: 20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
 
-**Works with:** Claude Code · Codex · Cursor · Windsurf · Aider · OpenClaw · any AI coding agent
+**Works with:** Claude Code · GitHub Copilot · Codex · Cursor · Windsurf · Aider · OpenClaw · any AI coding agent
 
 [Installation](#-installation) · [How It Works](#-how-it-works) · [Supported Frameworks](#-supported-frameworks) · [Commands](#-commands)
 
@@ -206,6 +206,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/in
 | Platform | Config file | Setup command |
 |----------|------------|---------------|
 | Claude Code | `CLAUDE.md` | `bash ~/.pathfinder/install/setup-claude-code.sh` |
+| GitHub Copilot | `AGENTS.md` / `.github/copilot-instructions.md` | `bash ~/.pathfinder/install/setup-copilot.sh` |
 | Codex | `AGENTS.md` | `bash ~/.pathfinder/install/setup-codex.sh` |
 | Cursor | `.cursorrules` | `bash ~/.pathfinder/install/setup-cursor.sh` |
 | Windsurf | `.windsurfrules` | `bash ~/.pathfinder/install/setup-windsurf.sh` |

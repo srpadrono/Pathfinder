@@ -162,3 +162,18 @@ Tell your agent `/map` — it should read the mapping skill and start discoverin
 ```bash
 cd ~/.pathfinder && git pull origin main
 ```
+
+### GitHub Copilot CLI
+
+Copilot CLI supports `AGENTS.md` and `.github/copilot-instructions.md`:
+
+```bash
+bash ~/.pathfinder/install/setup-copilot.sh
+```
+
+This offers three options:
+- **AGENTS.md** — works in any directory, read from repo root or `COPILOT_CUSTOM_INSTRUCTIONS_DIRS`
+- **.github/copilot-instructions.md** — repo-wide custom instructions
+- **Both** — maximum compatibility
+
+Copilot CLI also supports path-specific instructions in `.github/instructions/*.instructions.md` if you want per-directory behavior.
