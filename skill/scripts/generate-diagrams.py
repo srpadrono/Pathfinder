@@ -368,10 +368,33 @@ def build_flowchart(journey):
     return lines
 
 
+def compute_coverage(journeys):
+    """Compute coverage stats for a list of journeys."""
+    total = 0
+    tested = 0
+    partial = 0
+    rows = []
+    for j in journeys:
+        steps = j.get("steps", [])
+        j_tested = sum(1 for s in steps if s.get("tested") is True)
+        j_partial = sum(1 for s in steps if s.get("tested") == "partial")
+        total += len(steps)
+        tested += j_tested
+        partial += j_partial
+        cov = round(j_tested / len(steps) * 100, 1) if steps else 0
+        rows.append((j.get("id", ""), j.get("name", ""), len(steps), j_tested, j_partial, cov))
+    overall = round(tested / total * 100, 1) if total else 0
+    return total, tested, partial, overall, rows
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("journeys_file", help="Path to journeys.json")
     parser.add_argument("--output", default=".pathfinder/blazes.md")
+    parser.add_argument("--save-baseline", action="store_true",
+                        help="Force-save current state as the baseline snapshot")
+    parser.add_argument("--clear-baseline", action="store_true",
+                        help="Remove baseline to start fresh")
     args = parser.parse_args()
 
     with open(args.journeys_file) as f:
@@ -382,13 +405,29 @@ def main():
         print("ERROR: No journeys found", file=sys.stderr)
         sys.exit(1)
 
-    lines = ["# Pathfinder Coverage Map\n"]
-    total_steps = 0
-    total_tested = 0
-    summary_rows = []
+    # ── Baseline management ──
+    baseline_path = os.path.join(os.path.dirname(args.journeys_file), "journeys-baseline.json")
 
-    # ── Combined Decision Tree ──
-    lines.append("## 🌳 Decision Tree — All Paths\n")
+    if args.clear_baseline and os.path.exists(baseline_path):
+        os.remove(baseline_path)
+        print(f"Cleared baseline: {baseline_path}")
+
+    baseline_journeys = None
+    if os.path.exists(baseline_path) and not args.save_baseline:
+        with open(baseline_path) as f:
+            baseline_data = json.load(f)
+        baseline_journeys = baseline_data.get("journeys", [])
+
+    if args.save_baseline or not os.path.exists(baseline_path):
+        # Save current state as baseline
+        import shutil
+        shutil.copy2(args.journeys_file, baseline_path)
+        print(f"Baseline saved: {baseline_path}")
+
+    lines = ["# Pathfinder Coverage Map\n"]
+    total_steps, total_tested, total_partial, overall, summary_rows = compute_coverage(journeys)
+
+    # ── Legend ──
     lines.append("### Legend\n")
     lines.append("| Symbol | Meaning |")
     lines.append("|--------|---------|")
@@ -399,38 +438,84 @@ def main():
     lines.append("| ⚡ | **Error path** — API failure branch |")
     lines.append("| `──▶` | Same-screen transition |")
     lines.append("| `╌╌▶` | Cross-screen navigation |\n")
-    lines.append("```mermaid")
-    lines.extend(build_decision_tree(journeys))
-    lines.append("```\n")
 
+    # ── Before / After comparison ──
+    if baseline_journeys is not None:
+        b_total, b_tested, b_partial, b_overall, b_rows = compute_coverage(baseline_journeys)
+
+        # Only show before/after if coverage actually changed
+        if b_overall != overall or b_tested != total_tested:
+            lines.append("## 📸 Before (Baseline)\n")
+            lines.append(f"**Coverage: {b_tested}/{b_total} steps tested ({b_overall}%)**\n")
+            lines.append("```mermaid")
+            lines.extend(build_decision_tree(baseline_journeys))
+            lines.append("```\n")
+
+            lines.append("## 🚀 After (Current)\n")
+            lines.append(f"**Coverage: {total_tested}/{total_steps} steps tested ({overall}%)**\n")
+            lines.append("```mermaid")
+            lines.extend(build_decision_tree(journeys))
+            lines.append("```\n")
+
+            # Delta summary
+            delta_tested = total_tested - b_tested
+            delta_overall = round(overall - b_overall, 1)
+            sign = "+" if delta_tested >= 0 else ""
+            sign_pct = "+" if delta_overall >= 0 else ""
+            lines.append("### 📊 Coverage Delta\n")
+            lines.append("| Metric | Before | After | Delta |")
+            lines.append("|--------|--------|-------|-------|")
+            lines.append(f"| Steps tested | {b_tested}/{b_total} | {total_tested}/{total_steps} | {sign}{delta_tested} |")
+            lines.append(f"| Coverage | {b_overall}% | {overall}% | {sign_pct}{delta_overall}% |")
+
+            # Per-journey delta
+            b_lookup = {r[0]: r for r in b_rows}
+            lines.append("")
+            lines.append("| Journey | Before | After | Delta |")
+            lines.append("|---------|--------|-------|-------|")
+            for jid, jname, j_steps, j_tested, j_partial, j_cov in summary_rows:
+                icon = get_icon(jname)
+                if jid in b_lookup:
+                    _, _, _, bj_tested, _, bj_cov = b_lookup[jid]
+                    d = j_tested - bj_tested
+                    d_sign = "+" if d >= 0 else ""
+                    lines.append(f"| {icon} {jname} | {bj_cov}% | {j_cov}% | {d_sign}{d} steps |")
+                else:
+                    lines.append(f"| {icon} {jname} | — | {j_cov}% | new |")
+            lines.append("")
+        else:
+            # No change — just show current tree
+            lines.append("## 🌳 Decision Tree — All Paths\n")
+            lines.append("```mermaid")
+            lines.extend(build_decision_tree(journeys))
+            lines.append("```\n")
+    else:
+        # No baseline — just show current tree
+        lines.append("## 🌳 Decision Tree — All Paths\n")
+        lines.append("```mermaid")
+        lines.extend(build_decision_tree(journeys))
+        lines.append("```\n")
+
+    # ── Per-journey flowcharts ──
     for journey in journeys:
         jname = journey["name"]
         icon = get_icon(jname)
-        steps = journey.get("steps", [])
-
-        tested = sum(1 for s in steps if s.get("tested") is True)
-        total_steps += len(steps)
-        total_tested += tested
-
-        coverage = round(tested / len(steps) * 100, 1) if steps else 0
-        summary_rows.append((f"{icon} {jname}", len(steps), tested, coverage))
-
         lines.append(f"## {icon} {jname}\n")
         lines.append("```mermaid")
         lines.extend(build_flowchart(journey))
         lines.append("```\n")
 
     # Insert overall coverage after title
-    overall = round(total_tested / total_steps * 100, 1) if total_steps else 0
     lines.insert(1, f"**Coverage: {total_tested}/{total_steps} steps tested ({overall}%)**\n")
 
     # Summary table
     lines.append("## Summary\n")
     lines.append("| Journey | Steps | Tested | Coverage |")
     lines.append("|---------|-------|--------|----------|")
-    for name, step_count, tested_count, cov in summary_rows:
+    for jid, jname, step_count, tested_count, partial_count, cov in summary_rows:
+        icon = get_icon(jname)
         bar = "🟢" if cov >= 80 else "🟡" if cov >= 50 else "🔴"
-        lines.append(f"| {name} | {step_count} | {tested_count} | {bar} {cov}% |")
+        lines.append(f"| {icon} {jname} | {step_count} | {tested_count} | {bar} {cov}% |")
     lines.append(f"| **Total** | **{total_steps}** | **{total_tested}** | **{overall}%** |")
 
     output = "\n".join(lines) + "\n"
