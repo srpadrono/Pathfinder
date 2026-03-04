@@ -53,7 +53,10 @@ Every test you write flips an ❌ to ✅. Progress is visible.
 ## Quick Start
 
 ```bash
-# Install
+# Install (interactive — picks your platform)
+bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
+
+# Or manually
 git clone https://github.com/srpadrono/Pathfinder.git ~/.pathfinder
 
 # Initialize in your project
