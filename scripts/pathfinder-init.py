@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Initialize a Pathfinder session for UI test coverage mapping.
+"""Initialize Pathfinder in a project.
 
 Usage: python3 pathfinder-init.py [--name project-name]
+
+Creates .pathfinder/config.json with detected framework settings.
 """
 import argparse, json, os, sys, subprocess, datetime
 
@@ -28,24 +30,49 @@ def main():
 
     os.makedirs(".pathfinder", exist_ok=True)
 
-    state = {
-        "version": "1.0.0",
+    # Detect test directory
+    test_dir = None
+    for cfg in ["e2e/playwright.config.ts", "playwright.config.ts", "cypress.config.ts"]:
+        if os.path.exists(cfg):
+            import re
+            with open(cfg) as f:
+                content = f.read()
+            m = re.search(r"testDir:\s*['\"]\.?/?([^'\"]+)['\"]", content)
+            if m:
+                base = os.path.dirname(cfg)
+                test_dir = os.path.join(base, m.group(1)) if base else m.group(1)
+            else:
+                test_dir = os.path.dirname(cfg) or "e2e"
+            break
+
+    config = {
+        "version": "1.3.0",
         "project": name,
         "framework": detection.get("uiFramework", "unknown"),
         "platform": detection.get("platform", "unknown"),
         "unitRunner": detection.get("unitRunner", "unknown"),
         "created": datetime.datetime.utcnow().isoformat() + "Z",
-        "journeys": 0,
-        "coverage": 0,
     }
+    if test_dir:
+        config["testDir"] = test_dir
 
-    with open(".pathfinder/state.json", "w") as f:
-        json.dump(state, f, indent=2)
+    # Detect auth pattern
+    for cfg in ["e2e/playwright.config.ts", "playwright.config.ts"]:
+        if os.path.exists(cfg):
+            with open(cfg) as f:
+                if "storageState" in f.read():
+                    config["auth"] = {"storageState": "auto-detected"}
+            break
+
+    with open(".pathfinder/config.json", "w") as f:
+        json.dump(config, f, indent=2)
 
     print(f"✅ Pathfinder initialized for '{name}'")
-    print(f"   UI framework: {detection.get('uiFramework', 'unknown')}")
-    print(f"   Platform: {detection.get('platform', 'unknown')}")
-    print(f"   Unit runner: {detection.get('unitRunner', 'unknown')}")
+    print(f"   Config: .pathfinder/config.json")
+    print(f"   UI framework: {config['framework']}")
+    print(f"   Platform: {config['platform']}")
+    if test_dir:
+        print(f"   Test directory: {test_dir}")
     print(f"\n   Next: /map to discover user journeys")
 
 if __name__ == "__main__":

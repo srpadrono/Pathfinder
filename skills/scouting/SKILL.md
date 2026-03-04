@@ -31,7 +31,7 @@ git commit -m "Scout: Test <JOURNEY> journey (N steps)"
 
 After testing a batch:
 
-10. **Regenerate diagrams:** `python3 skills/blazeming/scripts/generate-diagrams.py .pathfinder/journeys.json`
+10. **Regenerate diagrams:** `python3 skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json`
 11. **Commit:** `git add .pathfinder/blazes.md && git commit -m "Diagram: Coverage now X%"`
 
 ## Error Handling

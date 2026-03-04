@@ -9,7 +9,7 @@ Run all tests, update the journey map, regenerate the diagram, and report covera
 
 ## Process
 
-1. **Run the full UI test suite** using the detected framework. See `docs/test-runners.md` for commands.
+1. **Run the full UI test suite** using the detected framework. Read the matching framework reference in `skills/ui-testing/references/` for commands.
 ```bash
 python3 skills/ui-testing/scripts/detect-ui-framework.py .
 # Then run the appropriate command
@@ -21,7 +21,7 @@ python3 skills/ui-testing/scripts/detect-ui-framework.py .
 
 3. **Regenerate diagrams:**
 ```bash
-python3 skills/blazeming/scripts/generate-diagrams.py .pathfinder/journeys.json
+python3 skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json
 ```
 
 4. **Compute coverage score:**

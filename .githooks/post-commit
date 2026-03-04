@@ -6,7 +6,7 @@
 if git diff-tree --no-commit-id --name-only -r HEAD | grep -q "journeys.json"; then
   SCRIPT_DIR="$(git config core.hooksPath 2>/dev/null || echo ".githooks")"
   PATHFINDER_ROOT="$(dirname "$SCRIPT_DIR")"
-  DIAGRAM_SCRIPT="${PATHFINDER_ROOT}/skills/diagramming/scripts/generate-diagrams.py"
+  DIAGRAM_SCRIPT="${PATHFINDER_ROOT}/skills/blazing/scripts/generate-diagrams.py"
 
   if [ -f "$DIAGRAM_SCRIPT" ]; then
     python3 "$DIAGRAM_SCRIPT" .pathfinder/journeys.json 2>/dev/null || true

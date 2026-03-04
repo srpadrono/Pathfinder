@@ -10,7 +10,7 @@ Pathfinder discovers every user journey in a codebase, shows what's tested vs no
 ## Quick Start
 
 ```bash
-python3 scripts/pathfinder-init.py
+python3 scripts/pathfinder-init.py  # creates .pathfinder/config.json
 ```
 
 ## Workflow
@@ -47,7 +47,7 @@ The test generator reads this to match existing project patterns. If absent, it 
 ## Quick Reference
 
 ```bash
-python3 scripts/pathfinder-init.py                                    # init
+python3 scripts/pathfinder-init.py  # creates .pathfinder/config.json                                    # init
 python3 skills/mapping/scripts/scan-test-coverage.py .                # scan tests
 python3 skills/blazing/scripts/generate-diagrams.py .pathfinder/journeys.json  # diagrams
 python3 skills/ui-testing/scripts/generate-ui-test.py AUTH-01 "Login" playwright --auto  # test

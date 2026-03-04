@@ -9,7 +9,9 @@ Crawl the codebase to discover every user journey. This is the foundation — no
 
 ## Process
 
-1. **Detect project type** and read entry points:
+1. **Detect UI framework:** Run `python3 skills/ui-testing/scripts/detect-ui-framework.py .` to identify the test stack. If `.pathfinder/config.json` exists, read the framework from there.
+
+2. **Detect project type** and read entry points:
 
 | Stack | Read these |
 |-------|-----------|
@@ -20,24 +22,24 @@ Crawl the codebase to discover every user journey. This is the foundation — no
 | iOS | Storyboards, `NavigationStack`, `TabView` |
 | Android | `AndroidManifest.xml`, Navigation graph |
 
-2. **For each screen/route**, identify:
+3. **For each screen/route**, identify:
    - How the user gets there (navigation path)
    - What actions are available (buttons, forms, gestures)
    - What API calls are made
    - What state changes occur
    - Error states and edge cases
 
-3. **Group into journeys.** A journey is an end-to-end user goal:
+4. **Group into journeys.** A journey is an end-to-end user goal:
    - Authentication (signup → verify → login → logout)
    - Core CRUD (create → read → update → delete)
    - Feature flows (upload → process → view result)
 
-4. **Check existing test coverage.** For each journey step, search for existing tests:
+5. **Check existing test coverage.** For each journey step, search for existing tests:
 ```bash
-python3 scripts/scan-test-coverage.py .
+python3 skills/mapping/scripts/scan-test-coverage.py .
 ```
 
-5. **Create journey map** (`.pathfinder/journeys.json`):
+6. **Create journey map** (`.pathfinder/journeys.json`):
 ```json
 {
   "version": "1.0.0",
@@ -57,7 +59,7 @@ python3 scripts/scan-test-coverage.py .
 }
 ```
 
-6. **Commit:** `git add .pathfinder/journeys.json && git commit -m "Map: Discover N journeys, M steps (X tested, Y pending)"`
+7. **Commit:** `git add .pathfinder/journeys.json && git commit -m "Map: Discover N journeys, M steps (X tested, Y pending)"`
 
 ## Error Handling
 

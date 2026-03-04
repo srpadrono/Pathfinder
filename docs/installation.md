@@ -139,7 +139,7 @@ cd your-project
 python3 ~/.pathfinder/scripts/pathfinder-init.py
 ```
 
-This auto-detects your UI framework and creates `.pathfinder/state.json`.
+This auto-detects your UI framework and creates `.pathfinder/config.json`.
 
 ## Step 4: Enable Git Hooks (Optional)
 

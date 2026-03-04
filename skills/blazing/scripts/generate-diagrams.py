@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate Mermaid journey diagrams from journeys.json.
 
-Usage: python3 generate-diagrams.py .pathfinder/journeys.json [--output .pathfinder/diagrams.md]
+Usage: python3 generate-diagrams.py .pathfinder/journeys.json [--output .pathfinder/blazes.md]
 """
 import json, sys, os, argparse
 
@@ -28,7 +28,7 @@ def get_icon(journey_name):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("journeys_file", help="Path to journeys.json")
-    parser.add_argument("--output", default=".pathfinder/diagrams.md")
+    parser.add_argument("--output", default=".pathfinder/blazes.md")
     args = parser.parse_args()
 
     with open(args.journeys_file) as f:
