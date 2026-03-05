@@ -28,7 +28,7 @@ Prefer accessibility-based selectors over implementation details:
 
 ## Wait Strategy (universal)
 
-Never use fixed `sleep()` / `waitFor(ms)`. Use condition-based waits:
+Avoid `sleep()` — prefer condition-based waits:
 
 | Condition | Why |
 |-----------|-----|

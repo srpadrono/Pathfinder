@@ -10,7 +10,7 @@ An AI-agent skill that discovers user journeys in any codebase, visualizes test 
 [![Python 3](https://img.shields.io/badge/Python-3.x-green.svg)](https://python.org)
 [![Tests-20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
 
-**Works with:** Claude Code · GitHub Copilot · Codex · Cursor · Windsurf · Aider · OpenClaw · any AI coding agent
+**Works with:** Claude Code · Codex
 
 [Installation](#-installation) · [How It Works](#-how-it-works) · [Supported Frameworks](#-supported-frameworks) · [Commands](#-commands)
 
@@ -321,7 +321,7 @@ python3 ~/.pathfinder/skill/scripts/generate-ui-test.py \
 
 ---
 
-## 📦 Installation
+## Installation
 
 **One-liner:**
 
@@ -329,7 +329,7 @@ python3 ~/.pathfinder/skill/scripts/generate-ui-test.py \
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-Or add the snippet from **[docs/installation.md](docs/installation.md)** to your agent's config file (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, etc.).
+Or manually — see **[docs/installation.md](docs/installation.md)** for Claude Code and Codex setup.
 
 ---
 
