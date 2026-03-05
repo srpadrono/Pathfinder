@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Tests for detect-ui-framework.py"""
-import subprocess, json, tempfile, os, sys
+import subprocess, json, tempfile, os
 
 SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skill", "scripts", "detect-ui-framework.py")
 

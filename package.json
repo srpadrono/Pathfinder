@@ -1,6 +1,6 @@
 {
   "name": "pathfinder",
-  "version": "2.0.0",
+  "version": "2.0.0-beta.1",
   "description": "UI test coverage mapping tool for AI coding agents",
   "author": "Sergio Padron <srpadron@outlook.com>",
   "license": "MIT",

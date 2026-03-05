@@ -11,7 +11,8 @@ def test_high_coverage():
             {"id": "A-02", "action": "S2", "tested": True},
         ]}]}
         p = os.path.join(d, "j.json")
-        with open(p, "w") as f: json.dump(data, f)
+        with open(p, "w") as f:
+            json.dump(data, f)
         r = subprocess.run(["python3", SCRIPT, p], capture_output=True, text=True)
         assert r.returncode == 0
         out = json.loads(r.stdout)
@@ -27,7 +28,8 @@ def test_low_coverage_exits_1():
             {"id": "A-04", "action": "S4", "tested": False},
         ]}]}
         p = os.path.join(d, "j.json")
-        with open(p, "w") as f: json.dump(data, f)
+        with open(p, "w") as f:
+            json.dump(data, f)
         r = subprocess.run(["python3", SCRIPT, p], capture_output=True, text=True)
         assert r.returncode == 1, "Should exit 1 for <50% coverage"
         out = json.loads(r.stdout)
@@ -40,7 +42,8 @@ def test_partial_status():
             {"id": "A-01", "action": "S1", "tested": "partial"},
         ]}]}
         p = os.path.join(d, "j.json")
-        with open(p, "w") as f: json.dump(data, f)
+        with open(p, "w") as f:
+            json.dump(data, f)
         r = subprocess.run(["python3", SCRIPT, p], capture_output=True, text=True)
         out = json.loads(r.stdout)
         assert out["partial"] == 1

@@ -8,7 +8,7 @@ An AI-agent skill that discovers user journeys in any codebase, visualizes test 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3](https://img.shields.io/badge/Python-3.x-green.svg)](https://python.org)
-[![Tests: 20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
+[![Tests-20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
 
 **Works with:** Claude Code · GitHub Copilot · Codex · Cursor · Windsurf · Aider · OpenClaw · any AI coding agent
 

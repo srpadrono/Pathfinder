@@ -13,7 +13,7 @@ def main():
     name = args.name or os.path.basename(os.getcwd())
 
     if os.path.exists(".pathfinder/journeys.json"):
-        print(f"Pathfinder already initialized. Run /map to update journeys.", file=sys.stderr)
+        print("Pathfinder already initialized. Run /map to update journeys.", file=sys.stderr)
         sys.exit(1)
 
     # Detect UI framework
@@ -64,12 +64,12 @@ def main():
         json.dump(config, f, indent=2)
 
     print(f"✅ Pathfinder initialized for '{name}'")
-    print(f"   Config: .pathfinder/config.json")
+    print("   Config: .pathfinder/config.json")
     print(f"   UI framework: {config['framework']}")
     print(f"   Platform: {config['platform']}")
     if test_dir:
         print(f"   Test directory: {test_dir}")
-    print(f"\n   Next: /map to discover user journeys")
+    print("\n   Next: /map to discover user journeys")
 
 if __name__ == "__main__":
     main()

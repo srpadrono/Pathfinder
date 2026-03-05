@@ -23,7 +23,7 @@ def pixel_diff(baseline_path, current_path):
     """Compare two images pixel-by-pixel. Returns diff percentage (0-100)."""
     try:
         from PIL import Image
-        import math
+        import math  # noqa: F401
     except ImportError:
         return None  # Pillow not available
 
