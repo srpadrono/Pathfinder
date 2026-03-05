@@ -14,6 +14,16 @@ bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/in
 
 This clones Pathfinder to `~/.pathfinder` and adds instructions to your agent's config file.
 
+## Plugin Install (Claude Code)
+
+If you're using Claude Code 1.0.33+:
+
+```bash
+claude plugin add github:srpadrono/Pathfinder
+```
+
+This installs Pathfinder as a plugin with automatic skill discovery. No CLAUDE.md snippet needed.
+
 ## Manual Install
 
 ### 1. Clone
@@ -31,17 +41,13 @@ Add this snippet to your project's `CLAUDE.md`:
 ```markdown
 ## Pathfinder — UI Test Coverage Mapping
 
-Pathfinder is installed at ~/.pathfinder/skill. It maps user journeys, visualizes
+Pathfinder is installed at ~/.pathfinder. It maps user journeys, visualizes
 test coverage with Mermaid flowcharts, and generates framework-correct UI tests.
 
-When I say /map, /blaze, /scout, or /summit, read the matching file and follow it:
-- /map → Read ~/.pathfinder/skill/references/mapping.md
-- /blaze → Read ~/.pathfinder/skill/references/blazing.md
-- /scout → Read ~/.pathfinder/skill/references/scouting.md
-- /summit → Read ~/.pathfinder/skill/references/summiting.md
+Commands: /map, /blaze, /scout, /summit — each is a skill that activates automatically.
 
-Full overview: ~/.pathfinder/skill/SKILL.md
-Scripts: ~/.pathfinder/skill/scripts/ (Python 3 CLIs, JSON output)
+Full overview: ~/.pathfinder/skills/pathfinder/SKILL.md
+Scripts: ~/.pathfinder/skills/pathfinder/scripts/ (Python 3 CLIs, JSON output)
 ```
 
 #### Codex (GitHub Copilot)
@@ -52,7 +58,7 @@ Add the same snippet to your project's `AGENTS.md`.
 
 ```bash
 cd your-project
-python3 ~/.pathfinder/skill/scripts/pathfinder-init.py
+python3 ~/.pathfinder/skills/pathfinder/scripts/pathfinder-init.py
 ```
 
 ### 4. Git hooks (optional)

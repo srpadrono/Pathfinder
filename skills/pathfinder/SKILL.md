@@ -10,11 +10,11 @@ Map every user journey. See what's tested. Fill the gaps. Track progress.
 ## Quick Start
 
 ```bash
-python3 scripts/pathfinder-init.py
+python3 "${CLAUDE_SKILL_DIR}/scripts/pathfinder-init.py"
 ```
 
 This auto-detects your test directory and creates `pathfinder/` inside it (e.g., `e2e/tests/pathfinder/`).
-For monorepos, run init in each module. Use `scripts/aggregate.py` for a combined view.
+For monorepos, run init in each module. Use `${CLAUDE_SKILL_DIR}/scripts/aggregate.py` for a combined view.
 
 ## Workflow
 
@@ -22,14 +22,14 @@ For monorepos, run init in each module. Use `scripts/aggregate.py` for a combine
 /map -> /blaze -> /scout -> /summit
 ```
 
-| Command | Phase | What happens | Reference |
-|---------|-------|-------------|-----------|
-| `/map` | Map | Crawl code, discover all user journeys, create journeys.json | [references/mapping.md](references/mapping.md) |
-| `/blaze` | Blaze | Generate Mermaid flowcharts, decision tree, and coverage delta | [references/blazing.md](references/blazing.md) |
-| `/scout` | Scout | Write UI tests for untested steps | [references/scouting.md](references/scouting.md) |
-| `/summit` | Summit | Run tests, compare before/after, finalize coverage | [references/summiting.md](references/summiting.md) |
+| Command | Phase | What happens |
+|---------|-------|-------------|
+| `/map` | Map | Crawl code, discover all user journeys, create journeys.json |
+| `/blaze` | Blaze | Generate Mermaid flowcharts, decision tree, and coverage delta |
+| `/scout` | Scout | Write UI tests for untested steps |
+| `/summit` | Summit | Run tests, compare before/after, finalize coverage |
 
-**When a command is invoked, read the matching reference file and follow its instructions.**
+Each command is a skill — invoke it directly or let Claude chain them as needed.
 
 ### Partial Workflows
 
@@ -83,7 +83,7 @@ Framework-specific patterns (only load the one matching the project):
 
 ## Scripts
 
-All scripts are Python 3 CLIs in the `scripts/` directory of this skill. They output JSON to stdout, errors to stderr.
+All scripts are Python 3 CLIs in the `scripts/` directory of this skill. They output JSON to stdout, errors to stderr. Reference them via `${CLAUDE_SKILL_DIR}/scripts/`.
 
 | Script | Purpose |
 |--------|---------|

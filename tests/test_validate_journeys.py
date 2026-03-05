@@ -2,7 +2,7 @@
 """Tests for validate-journeys.py"""
 import subprocess, json, tempfile, os
 
-SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skill", "scripts", "validate-journeys.py")
+SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "validate-journeys.py")
 
 
 def run(filepath):

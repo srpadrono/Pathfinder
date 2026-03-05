@@ -1,3 +1,8 @@
+---
+name: map
+description: "Crawls a codebase to discover all user journeys and creates a journey map (journeys.json) with test coverage status. Use when starting UI test coverage work or when the user says /map."
+---
+
 # Mapping
 
 Crawl the codebase to discover every user journey. This is the foundation — nothing gets tested until it's mapped.
@@ -10,7 +15,7 @@ Crawl the codebase to discover every user journey. This is the foundation — no
 
 ## Process
 
-1. **Detect UI framework:** Run `python3 scripts/detect-ui-framework.py .` to identify the test stack. If `<testDir>/pathfinder/config.json` exists, read the framework from there.
+1. **Detect UI framework:** Run `python3 "${CLAUDE_SKILL_DIR}/../pathfinder/scripts/detect-ui-framework.py" .` to identify the test stack. If `<testDir>/pathfinder/config.json` exists, read the framework from there.
 
 2. **Detect project type** and read entry points:
 
@@ -41,7 +46,7 @@ Crawl the codebase to discover every user journey. This is the foundation — no
 
 5. **Check existing test coverage.** For each journey step, search for existing tests:
 ```bash
-python3 scripts/scan-test-coverage.py .
+python3 "${CLAUDE_SKILL_DIR}/../pathfinder/scripts/scan-test-coverage.py" .
 ```
 
 6. **Create journey map** (`<testDir>/pathfinder/journeys.json`):
@@ -72,6 +77,13 @@ python3 scripts/scan-test-coverage.py .
 }
 ```
 
+7. **Validate the journey map:**
+```bash
+python3 "${CLAUDE_SKILL_DIR}/../pathfinder/scripts/validate-journeys.py" <testDir>/pathfinder/journeys.json
+```
+
+8. **Commit:** `git add <testDir>/pathfinder/journeys.json && git commit -m "Map: Discover N journeys, M steps (X tested, Y pending)"`
+
 ### Step status values
 | Value | Meaning |
 |-------|---------|
@@ -80,8 +92,6 @@ python3 scripts/scan-test-coverage.py .
 | `"tested": "partial"` | Test written but disabled, or implicitly covered |
 
 When marking `"partial"`, add a `"note"` field explaining why (e.g., `"note": "test disabled — needs mock API failure"`).
-
-7. **Commit:** `git add <testDir>/pathfinder/journeys.json && git commit -m "Map: Discover N journeys, M steps (X tested, Y pending)"`
 
 ## Tips
 

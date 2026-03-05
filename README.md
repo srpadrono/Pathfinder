@@ -10,7 +10,7 @@ An AI-agent skill that discovers user journeys in any codebase, visualizes test 
 [![Python 3](https://img.shields.io/badge/Python-3.x-green.svg)](https://python.org)
 [![Tests-20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
 
-**Works with:** Claude Code · Codex
+**Works with:** Claude Code (plugin) · Codex · Gemini CLI · Cursor
 
 [Installation](#-installation) · [How It Works](#-how-it-works) · [Supported Frameworks](#-supported-frameworks) · [Commands](#-commands)
 
@@ -305,7 +305,7 @@ The test generator adapts to **your project's existing patterns**:
 
 ```bash
 # Auto-detect: appends to existing auth.spec.ts or creates new file
-python3 ~/.pathfinder/skill/scripts/generate-ui-test.py \
+python3 ~/.pathfinder/skills/pathfinder/scripts/generate-ui-test.py \
   AUTH-05 "Logout redirects to login" playwright --route /dashboard --auto
 ```
 
@@ -323,13 +323,19 @@ python3 ~/.pathfinder/skill/scripts/generate-ui-test.py \
 
 ## Installation
 
-**One-liner:**
+**Claude Code (recommended):**
+
+```bash
+claude plugin add github:srpadrono/Pathfinder
+```
+
+**One-liner (Codex / other agents):**
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-Or manually — see **[docs/installation.md](docs/installation.md)** for Claude Code and Codex setup.
+Or manually — see **[docs/installation.md](docs/installation.md)** for all setup options.
 
 ---
 
@@ -349,13 +355,22 @@ Or manually — see **[docs/installation.md](docs/installation.md)** for Claude 
 ## 📁 Project Structure
 
 ```
-~/.pathfinder/
-├── skill/                       The skill (what agents load)
-│   ├── SKILL.md                 🧭 Entry point
-│   ├── references/              12 reference docs (phases + frameworks)
-│   └── scripts/                 7 Python CLI tools
-├── install/                     9 platform setup scripts
-├── tests/                       20 self-tests
+~/.pathfinder/ (or installed as Claude Code plugin)
+├── .claude-plugin/              Plugin manifest
+│   └── plugin.json
+├── skills/                      Skills (what agents load)
+│   ├── pathfinder/              Main skill — auto-triggers on coverage questions
+│   │   ├── SKILL.md             Entry point
+│   │   ├── references/          8 framework + testing reference docs
+│   │   ├── scripts/             9 Python CLI tools
+│   │   └── assets/              Starter templates
+│   ├── map/                     /map command skill
+│   ├── blaze/                   /blaze command skill
+│   ├── scout/                   /scout command skill
+│   └── summit/                  /summit command skill
+├── hooks/                       SessionStart hook
+├── install/                     Legacy installer (for Codex)
+├── tests/                       27 self-tests
 ├── .githooks/                   pre-commit, post-commit, pre-push
 └── README.md                    Documentation
 ```
