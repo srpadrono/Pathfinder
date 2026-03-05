@@ -334,7 +334,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/in
 | Platform | Config file | Setup command |
 |----------|------------|---------------|
 | Claude Code | `CLAUDE.md` | `bash ~/.pathfinder/install/setup-claude-code.sh` |
-| GitHub Copilot | `.github/instructions/` | `bash ~/.pathfinder/install/setup-copilot.sh` |
+| GitHub Copilot | `AGENTS.md` | `bash ~/.pathfinder/install/setup-copilot.sh` |
 | Codex | `AGENTS.md` | `bash ~/.pathfinder/install/setup-codex.sh` |
 | Cursor | `.cursorrules` | `bash ~/.pathfinder/install/setup-cursor.sh` |
 | Windsurf | `.windsurfrules` | `bash ~/.pathfinder/install/setup-windsurf.sh` |
@@ -364,7 +364,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/in
 │   ├── SKILL.md                 🧭 Entry point
 │   ├── references/              12 reference docs (phases + frameworks)
 │   └── scripts/                 7 Python CLI tools
-├── install/                     9 platform setup scripts
+├── install/                     Single interactive installer
 ├── tests/                       20 self-tests
 ├── .githooks/                   pre-commit, post-commit, pre-push
 └── README.md                    Documentation
