@@ -2,33 +2,37 @@
 set -euo pipefail
 
 PATHFINDER_HOME="${HOME}/.pathfinder"
-SNIPPET='
-## Pathfinder — UI Test Coverage Mapping
-When I say /map, /blaze, /scout, or /summit, read the matching skill:
-- /map → ~/.pathfinder/skill/references/mapping.md
-- /blaze → ~/.pathfinder/skill/references/blazing.md
-- /scout → ~/.pathfinder/skill/references/scouting.md
-- /summit → ~/.pathfinder/skill/references/summiting.md
-Overview: ~/.pathfinder/skill/SKILL.md
-Scripts: ~/.pathfinder/skill/scripts/
-All scripts take CLI args and output JSON to stdout.
-'
-
-echo "🔧 Setting up for Cursor..."
-
 TARGET="${PWD}/.cursorrules"
+
+echo "🔧 Setting up Pathfinder for Cursor..."
+
 if [ -f "$TARGET" ] && grep -q "Pathfinder" "$TARGET" 2>/dev/null; then
   echo "⚠️  Pathfinder already in .cursorrules"
 else
-  echo "$SNIPPET" >> "$TARGET"
-  echo "✅ Added to $TARGET"
+  cat >> "$TARGET" << 'SNIPPET'
+
+## Pathfinder — UI Test Coverage Mapping
+
+Pathfinder is installed at ~/.pathfinder/skill. It maps user journeys, visualizes test coverage with Mermaid flowcharts, and generates framework-correct UI tests.
+
+When I say /map, /blaze, /scout, or /summit, read the matching file and follow it:
+- /map → Read ~/.pathfinder/skill/references/mapping.md
+- /blaze → Read ~/.pathfinder/skill/references/blazing.md
+- /scout → Read ~/.pathfinder/skill/references/scouting.md
+- /summit → Read ~/.pathfinder/skill/references/summiting.md
+
+Full overview: ~/.pathfinder/skill/SKILL.md
+Scripts: ~/.pathfinder/skill/scripts/ (Python 3 CLIs, JSON output)
+SNIPPET
+  echo "✅ Added Pathfinder to $TARGET"
 fi
 
-read -p "Enable git hooks in current project? (y/n): " hooks
+echo ""
+read -p "Enable Pathfinder git hooks? (y/n): " hooks
 if [ "$hooks" = "y" ]; then
   git config core.hooksPath "$PATHFINDER_HOME/.githooks"
   echo "✅ Git hooks enabled"
 fi
 
 echo ""
-echo "🧭 Done! Tell Cursor: /map"
+echo "🧭 Done! Say: /map"

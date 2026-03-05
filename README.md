@@ -334,7 +334,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/in
 | Platform | Config file | Setup command |
 |----------|------------|---------------|
 | Claude Code | `CLAUDE.md` | `bash ~/.pathfinder/install/setup-claude-code.sh` |
-| GitHub Copilot | `.github/instructions/` | `bash ~/.pathfinder/install/setup-copilot.sh` |
+| GitHub Copilot | `AGENTS.md` | `bash ~/.pathfinder/install/setup-copilot.sh` |
 | Codex | `AGENTS.md` | `bash ~/.pathfinder/install/setup-codex.sh` |
 | Cursor | `.cursorrules` | `bash ~/.pathfinder/install/setup-cursor.sh` |
 | Windsurf | `.windsurfrules` | `bash ~/.pathfinder/install/setup-windsurf.sh` |
