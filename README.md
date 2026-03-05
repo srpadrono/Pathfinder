@@ -323,23 +323,13 @@ python3 ~/.pathfinder/skill/scripts/generate-ui-test.py \
 
 ## 📦 Installation
 
-**One-liner** (interactive — picks your platform):
+**One-liner:**
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-**Manual** — see platform-specific guides in **[docs/installation.md](docs/installation.md)**:
-
-| Platform | Config file | Setup command |
-|----------|------------|---------------|
-| Claude Code | `CLAUDE.md` | `bash ~/.pathfinder/install/setup-claude-code.sh` |
-| GitHub Copilot | `AGENTS.md` | `bash ~/.pathfinder/install/setup-copilot.sh` |
-| Codex | `AGENTS.md` | `bash ~/.pathfinder/install/setup-codex.sh` |
-| Cursor | `.cursorrules` | `bash ~/.pathfinder/install/setup-cursor.sh` |
-| Windsurf | `.windsurfrules` | `bash ~/.pathfinder/install/setup-windsurf.sh` |
-| Aider | `.aider.conf.yml` | `bash ~/.pathfinder/install/setup-aider.sh` |
-| OpenClaw | Skills symlink | `bash ~/.pathfinder/install/setup-openclaw.sh` |
+Or add the snippet from **[docs/installation.md](docs/installation.md)** to your agent's config file (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, etc.).
 
 ---
 
