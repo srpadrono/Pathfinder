@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Compute test coverage score from journeys.json.
 
-Usage: python3 coverage-score.py .pathfinder/journeys.json
+Usage: python3 coverage-score.py [path/to/journeys.json]
 """
-import json, sys
+import json, os, sys
+
+
+def default_journeys_path():
+    pathfinder_dir = os.environ.get("PATHFINDER_DIR", ".pathfinder")
+    return os.path.join(pathfinder_dir, "journeys.json")
 
 
 def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else ".pathfinder/journeys.json"
+    path = sys.argv[1] if len(sys.argv) > 1 else default_journeys_path()
 
     with open(path) as f:
         data = json.load(f)

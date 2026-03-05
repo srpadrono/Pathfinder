@@ -8,7 +8,7 @@ An AI-agent skill that discovers user journeys in any codebase, visualizes test 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3](https://img.shields.io/badge/Python-3.x-green.svg)](https://python.org)
-[![Tests-20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
+[![Tests: 20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
 
 **Works with:** Claude Code · GitHub Copilot · Codex · Cursor · Windsurf · Aider · OpenClaw · any AI coding agent
 
@@ -28,9 +28,47 @@ Line coverage says 78%. But can a user sign up, upload a file, and view the resu
 
 
 
-https://github.com/user-attachments/assets/0d42691c-98a1-4f2a-a27c-a4f0e5980ea6
+https://github.com/user-attachments/assets/46affe21-3c8f-484c-abaf-c05cbece274d
 
 
+
+---
+
+## ⚡ Quick Start
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
+```
+
+<details>
+<summary>Or install manually</summary>
+
+```bash
+git clone https://github.com/srpadrono/Pathfinder.git ~/.pathfinder
+cd your-project
+python3 ~/.pathfinder/skill/scripts/pathfinder-init.py
+```
+
+Then set up for your agent → **[Installation Guide](docs/installation.md)**
+
+</details>
+
+<details>
+<summary>Non-interactive install (CI / automation)</summary>
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh) --platform copilot
+```
+
+Valid platforms: `claude-code`, `copilot`, `codex`, `openclaw`, `cursor`, `windsurf`, `aider`, `generic`
+
+</details>
+
+Then tell your AI agent:
+
+```
+/map
+```
 
 ---
 
@@ -142,7 +180,7 @@ flowchart TD
 
 ---
 
-## 🏪 Example
+## 🏪 Real-World Example
 
 Here's Pathfinder on a **food delivery app's checkout module** — 5 journeys, 28 steps, taken from 52% to 100% coverage in one session.
 
@@ -323,7 +361,7 @@ python3 ~/.pathfinder/skill/scripts/generate-ui-test.py \
 
 ## 📦 Installation
 
-**One-liner:**
+**One-liner** (interactive — picks your platform):
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
@@ -343,6 +381,52 @@ Or add the snippet from **[docs/installation.md](docs/installation.md)** to your
 | `/blaze` | Generate Mermaid flowcharts |
 | `/scout` | Write UI tests for untested steps |
 | `/summit` | Run tests, update diagrams, compute score |
+
+### CLI Scripts
+
+```bash
+# Initialize Pathfinder in a project
+python3 ~/.pathfinder/skill/scripts/pathfinder-init.py
+
+# Scan existing test coverage
+python3 ~/.pathfinder/skill/scripts/scan-test-coverage.py .
+
+# Generate coverage diagrams
+python3 ~/.pathfinder/skill/scripts/generate-diagrams.py $PATHFINDER_DIR/journeys.json
+
+# Detect UI framework
+python3 ~/.pathfinder/skill/scripts/detect-ui-framework.py .
+
+# Generate a test skeleton
+python3 ~/.pathfinder/skill/scripts/generate-ui-test.py \
+  FEAT-01 "User can upload file" playwright --route /upload --auto
+
+# Compute coverage score
+python3 ~/.pathfinder/skill/scripts/coverage-score.py $PATHFINDER_DIR/journeys.json
+
+# Visual regression
+python3 ~/.pathfinder/skill/scripts/snapshot-compare.py capture login screenshot.png
+python3 ~/.pathfinder/skill/scripts/snapshot-compare.py compare login new.png
+```
+
+---
+
+## ⚙️ Configuration
+
+Pathfinder auto-detects everything. Optionally create `$PATHFINDER_DIR/config.json` to customize.
+`PATHFINDER_DIR` defaults to `.pathfinder` and can point to a module-level folder:
+
+```json
+{
+  "project": "my-app",
+  "framework": "playwright",
+  "testDir": "e2e/tests",
+  "unitRunner": "vitest",
+  "auth": {
+    "storageState": "e2e/.auth/user.json"
+  }
+}
+```
 
 ---
 
