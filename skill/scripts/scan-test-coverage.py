@@ -16,7 +16,8 @@ test_globs = [
     "e2e/**/*.yaml", "e2e/**/*.yml",
     "cypress/e2e/**/*.cy.ts", "cypress/e2e/**/*.cy.js",
     "integration_test/**/*_test.dart",
-    "**/*UITests*.swift", "**/*Test.kt", "**/*Test.java",
+    "**/*UITests*.swift", "**/*UITest*.swift",
+    "**/*Test.kt", "**/*Test.java",
     "__tests__/**/*.test.tsx", "__tests__/**/*.test.ts",
 ]
 
@@ -151,6 +152,9 @@ def main():
         print("WARNING: No UI test files found", file=sys.stderr)
     if total_routes:
         print(f"Route coverage: {tested_count}/{total_routes} ({result['routeCoverage']}%)", file=sys.stderr)
+
+    if not test_files and not total_routes:
+        print("WARNING: No UI test files or routes found. Is this the right directory?", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,13 @@
 
 Transform the journey map into visual Mermaid diagrams that show exactly what's tested and what's not.
 
+## Contents
+- [Process](#process)
+- [Baseline Management](#baseline-management)
+- [Updating After Tests](#updating-after-tests)
+- [Mermaid Syntax Notes](#mermaid-syntax-notes)
+- [Error Handling](#error-handling)
+
 ## Process
 
 1. **Read journey map:** Load `<testDir>/pathfinder/journeys.json`

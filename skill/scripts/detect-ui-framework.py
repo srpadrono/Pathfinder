@@ -52,13 +52,17 @@ def main():
             framework = "playwright"
             platform = "web"
 
-        elif any(f.endswith(".xcodeproj") for f in os.listdir(root) if not f.startswith(".")):
+        elif any(f.endswith(".xcodeproj") or f.endswith(".xcworkspace") for f in os.listdir(root) if not f.startswith(".")):
             framework = "xcuitest"
             platform = "ios"
 
         elif os.path.exists(os.path.join(root, "build.gradle")) or os.path.exists(os.path.join(root, "build.gradle.kts")):
             framework = "espresso"
             platform = "android"
+
+        elif os.path.exists(os.path.join(root, "Package.swift")):
+            framework = "xcuitest"
+            platform = "ios"
 
     # Also detect unit test runner
     unit_runner = None

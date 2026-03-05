@@ -4,6 +4,19 @@ Run all tests, update the journey map, regenerate diagrams with before/after com
 
 ## Process
 
+Copy this checklist and track progress:
+
+```
+Summit Progress:
+- [ ] Step 1: Save baseline (if starting fresh)
+- [ ] Step 2: Run full UI test suite
+- [ ] Step 3: Update journeys.json with results
+- [ ] Step 4: Regenerate diagrams
+- [ ] Step 5: Compute coverage score
+- [ ] Step 6: Commit results
+- [ ] Step 7: Include diagrams in PR (if applicable)
+```
+
 1. **Save baseline (if starting fresh):** If no baseline exists yet, one is auto-created on diagram generation. To explicitly reset the baseline before a test run:
 ```bash
 python3 scripts/generate-diagrams.py <testDir>/pathfinder/journeys.json --save-baseline

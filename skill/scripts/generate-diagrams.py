@@ -401,8 +401,17 @@ def main():
     if args.output is None:
         args.output = os.path.join(os.path.dirname(args.journeys_file) or '.', 'blazes.md')
 
-    with open(args.journeys_file) as f:
-        data = json.load(f)
+    try:
+        with open(args.journeys_file) as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print(f"ERROR: File not found: {args.journeys_file}", file=sys.stderr)
+        print("Run /map first to create journeys.json", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"ERROR: Invalid JSON in {args.journeys_file}: {e}", file=sys.stderr)
+        print("Check the file for syntax errors or run /map to regenerate", file=sys.stderr)
+        sys.exit(1)
 
     journeys = data.get("journeys", [])
     if not journeys:
@@ -418,9 +427,13 @@ def main():
 
     baseline_journeys = None
     if os.path.exists(baseline_path) and not args.save_baseline:
-        with open(baseline_path) as f:
-            baseline_data = json.load(f)
-        baseline_journeys = baseline_data.get("journeys", [])
+        try:
+            with open(baseline_path) as f:
+                baseline_data = json.load(f)
+            baseline_journeys = baseline_data.get("journeys", [])
+        except json.JSONDecodeError as e:
+            print(f"WARNING: Corrupt baseline JSON in {baseline_path}: {e}", file=sys.stderr)
+            baseline_journeys = None
 
     if args.save_baseline or not os.path.exists(baseline_path):
         # Save current state as baseline
