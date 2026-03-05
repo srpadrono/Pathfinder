@@ -4,10 +4,10 @@ Transform the journey map into visual Mermaid diagrams that show exactly what's 
 
 ## Process
 
-1. **Read journey map:** Load `.pathfinder/journeys.json`
-2. **Generate diagrams:** Run `python3 scripts/generate-diagrams.py .pathfinder/journeys.json`
+1. **Read journey map:** Load `<testDir>/pathfinder/journeys.json`
+2. **Generate diagrams:** Run `python3 scripts/generate-diagrams.py <testDir>/pathfinder/journeys.json`
 
-This creates `.pathfinder/blazes.md` with multiple diagram types:
+This creates `<testDir>/pathfinder/blazes.md` with multiple diagram types:
 
 ### Legend
 A table at the top explains all symbols, colours, and arrow types used:
@@ -71,7 +71,7 @@ flowchart TD
 ```
 
 ### Before/After Comparison (automatic)
-On first run, a baseline is auto-saved to `.pathfinder/journeys-baseline.json`.
+On first run, a baseline is auto-saved to `<testDir>/pathfinder/journeys-baseline.json`.
 On subsequent runs, if coverage has changed, the output includes:
 
 - **📸 Before (Baseline)** — decision tree at baseline coverage
@@ -99,13 +99,13 @@ On subsequent runs, if coverage has changed, the output includes:
 
 Use `--save-baseline` after completing a coverage sprint to reset the "before" snapshot for the next round.
 
-3. **Commit:** `git add .pathfinder/blazes.md && git commit -m "Diagram: N journeys mapped (X% coverage)"`
+3. **Commit:** `git add <testDir>/pathfinder/blazes.md && git commit -m "Diagram: N journeys mapped (X% coverage)"`
 
 ## Updating After Tests
 
 After writing tests in the scout phase, re-run:
 ```bash
-python3 scripts/generate-diagrams.py .pathfinder/journeys.json
+python3 scripts/generate-diagrams.py <testDir>/pathfinder/journeys.json
 ```
 
 The diagram updates ❌ → ✅ for newly tested steps, and the before/after comparison shows progress.

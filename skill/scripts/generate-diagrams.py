@@ -390,12 +390,16 @@ def compute_coverage(journeys):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("journeys_file", help="Path to journeys.json")
-    parser.add_argument("--output", default=".pathfinder/blazes.md")
+    parser.add_argument("--output", default=None)
     parser.add_argument("--save-baseline", action="store_true",
                         help="Force-save current state as the baseline snapshot")
     parser.add_argument("--clear-baseline", action="store_true",
                         help="Remove baseline to start fresh")
     args = parser.parse_args()
+
+    # Default output: same directory as journeys file
+    if args.output is None:
+        args.output = os.path.join(os.path.dirname(args.journeys_file) or '.', 'blazes.md')
 
     with open(args.journeys_file) as f:
         data = json.load(f)
