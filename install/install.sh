@@ -4,77 +4,54 @@ set -euo pipefail
 PATHFINDER_HOME="${HOME}/.pathfinder"
 REPO="https://github.com/srpadrono/Pathfinder.git"
 
-SNIPPET='## Pathfinder — UI Test Coverage Mapping
-
-Pathfinder is installed at ~/.pathfinder. It maps user journeys, visualizes test coverage with Mermaid flowcharts, and generates framework-correct UI tests.
-
-Commands: /map, /blaze, /scout, /summit — each is a skill that activates automatically.
-
-Full overview: ~/.pathfinder/skills/pathfinder/SKILL.md
-Scripts: ~/.pathfinder/skills/pathfinder/scripts/ (Python 3 CLIs, JSON output)'
-
 echo "Pathfinder Installer"
 echo ""
 
-# Step 1: Install
-if [ -d "$PATHFINDER_HOME" ]; then
+# Step 1: Install or update
+if [ -d "$PATHFINDER_HOME/.git" ]; then
   echo "Updating..."
-  cd "$PATHFINDER_HOME" && git pull origin main --quiet
-  cd - > /dev/null
+  git -C "$PATHFINDER_HOME" pull origin main --quiet
 else
+  if [ -d "$PATHFINDER_HOME" ]; then
+    echo "Removing non-git directory at $PATHFINDER_HOME..."
+    rm -rf "$PATHFINDER_HOME"
+  fi
   echo "Installing..."
   git clone --quiet "$REPO" "$PATHFINDER_HOME"
 fi
 echo "Installed at $PATHFINDER_HOME"
 
-# Step 2: Pick agent
+# Step 2: Register as Claude Code marketplace + install plugin
 echo ""
-echo "Which AI coding agent?"
-echo "  1) Claude Code  -> CLAUDE.md"
-echo "  2) Codex        -> AGENTS.md"
-echo "  3) Other        -> prints snippet"
-echo ""
-read -p "Select (1-3): " choice
-
-case $choice in
-  1) TARGET="CLAUDE.md" ;;
-  2) TARGET="AGENTS.md" ;;
-  3)
-    echo ""
-    echo "Add this to your agent's instruction file:"
-    echo ""
-    echo "$SNIPPET"
-    TARGET=""
-    ;;
-  *) echo "Invalid choice"; exit 1 ;;
-esac
-
-if [ -n "${TARGET:-}" ]; then
-  if [ -f "$TARGET" ] && grep -q "Pathfinder" "$TARGET" 2>/dev/null; then
-    echo "Pathfinder already in $TARGET"
+if command -v claude &>/dev/null; then
+  echo "Registering Pathfinder marketplace..."
+  if claude plugin marketplace add srpadrono/Pathfinder --scope user 2>/dev/null; then
+    echo "Marketplace registered."
+    echo "Installing pathfinder plugin..."
+    if claude plugin install pathfinder 2>/dev/null; then
+      echo "Plugin installed."
+    else
+      echo "Plugin install failed — try: claude plugin install pathfinder"
+    fi
   else
-    echo "" >> "$TARGET"
-    echo "$SNIPPET" >> "$TARGET"
-    echo "Added to $TARGET"
+    echo "Marketplace registration failed — try: claude plugin marketplace add srpadrono/Pathfinder"
   fi
+else
+  echo "Claude Code CLI not found. To install the plugin later:"
+  echo "  claude plugin marketplace add srpadrono/Pathfinder"
+  echo "  claude plugin install pathfinder"
 fi
 
-# Step 3: Git hooks
-echo ""
-read -p "Enable git hooks? (y/n): " hooks
-if [ "$hooks" = "y" ]; then
-  git config core.hooksPath "$PATHFINDER_HOME/.githooks"
-  echo "Git hooks enabled"
-fi
-
-# Step 4: Verify
+# Step 3: Verify Python
 echo ""
 if python3 -c "import json" 2>/dev/null; then
   echo "Python 3 available"
 else
-  echo "Warning: Python 3 not found"
+  echo "Warning: Python 3 not found — install it with: brew install python"
 fi
 
 echo ""
-echo "Next: cd your-project && python3 ~/.pathfinder/skills/pathfinder/scripts/pathfinder-init.py"
-echo "Then: /map"
+echo "Done! Next steps:"
+echo "  cd your-project"
+echo "  python3 ~/.pathfinder/skills/pathfinder/scripts/pathfinder-init.py"
+echo "  Then use /map to start"

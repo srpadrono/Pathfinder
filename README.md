@@ -326,10 +326,11 @@ python3 ~/.pathfinder/skills/pathfinder/scripts/generate-ui-test.py \
 **Claude Code (recommended):**
 
 ```bash
-claude plugin add github:srpadrono/Pathfinder
+claude plugin marketplace add srpadrono/Pathfinder
+claude plugin install pathfinder
 ```
 
-**One-liner (Codex / other agents):**
+**One-liner (all agents):**
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
@@ -356,8 +357,9 @@ Or manually — see **[docs/installation.md](docs/installation.md)** for all set
 
 ```
 ~/.pathfinder/ (or installed as Claude Code plugin)
-├── .claude-plugin/              Plugin manifest
-│   └── plugin.json
+├── .claude-plugin/              Plugin + marketplace manifest
+│   ├── plugin.json
+│   └── marketplace.json
 ├── skills/                      Skills (what agents load)
 │   ├── pathfinder/              Main skill — auto-triggers on coverage questions
 │   │   ├── SKILL.md             Entry point

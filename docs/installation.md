@@ -12,17 +12,16 @@
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-This clones Pathfinder to `~/.pathfinder` and adds instructions to your agent's config file.
+This clones Pathfinder to `~/.pathfinder` and registers it as a Claude Code plugin.
 
 ## Plugin Install (Claude Code)
 
-If you're using Claude Code 1.0.33+:
-
 ```bash
-claude plugin add github:srpadrono/Pathfinder
+claude plugin marketplace add srpadrono/Pathfinder
+claude plugin install pathfinder
 ```
 
-This installs Pathfinder as a plugin with automatic skill discovery. No CLAUDE.md snippet needed.
+This registers the Pathfinder marketplace and installs the plugin with automatic skill discovery. No CLAUDE.md snippet needed.
 
 ## Manual Install
 

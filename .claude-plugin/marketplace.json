@@ -1,0 +1,21 @@
+{
+  "name": "pathfinder",
+  "description": "UI test coverage mapping - discover user journeys, visualize test coverage with Mermaid flowcharts, and generate framework-correct UI tests",
+  "owner": {
+    "name": "Sergio Padron",
+    "email": "srpadron@outlook.com"
+  },
+  "plugins": [
+    {
+      "name": "pathfinder",
+      "description": "Maps user journeys, visualizes UI test coverage with Mermaid flowcharts, and generates framework-correct E2E tests. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, and Flutter.",
+      "version": "2.1.0",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/srpadrono/Pathfinder.git"
+      },
+      "category": "testing",
+      "homepage": "https://github.com/srpadrono/Pathfinder"
+    }
+  ]
+}
