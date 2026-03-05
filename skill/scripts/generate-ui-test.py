@@ -227,11 +227,15 @@ TEMPLATES_APPEND = {
 
 # --- Path detection ---
 
+def pathfinder_dir():
+    return os.environ.get("PATHFINDER_DIR", ".pathfinder")
+
 def find_test_dir():
     """Auto-detect test directory from project config."""
-    # Check .pathfinder/config.json
-    if os.path.exists(".pathfinder/config.json"):
-        with open(".pathfinder/config.json") as f:
+    config_path = os.path.join(pathfinder_dir(), "config.json")
+    # Check <pathfinder_dir>/config.json
+    if os.path.exists(config_path):
+        with open(config_path) as f:
             cfg = json.load(f)
             if "testDir" in cfg:
                 return cfg["testDir"]

@@ -8,11 +8,15 @@ import argparse, json, os, sys, subprocess, datetime, re
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--name", help="Project name (default: current dir name)")
+    parser.add_argument("--pathfinder-dir", help="Pathfinder directory (default: PATHFINDER_DIR or .pathfinder)")
     args = parser.parse_args()
 
     name = args.name or os.path.basename(os.getcwd())
+    pathfinder_dir = args.pathfinder_dir or os.environ.get("PATHFINDER_DIR", ".pathfinder")
+    journeys_path = os.path.join(pathfinder_dir, "journeys.json")
+    config_path = os.path.join(pathfinder_dir, "config.json")
 
-    if os.path.exists(".pathfinder/journeys.json"):
+    if os.path.exists(journeys_path):
         print(f"Pathfinder already initialized. Run /map to update journeys.", file=sys.stderr)
         sys.exit(1)
 
@@ -26,7 +30,7 @@ def main():
         if result.returncode == 0:
             detection = json.loads(result.stdout)
 
-    os.makedirs(".pathfinder", exist_ok=True)
+    os.makedirs(pathfinder_dir, exist_ok=True)
 
     # Detect test directory
     test_dir = None
@@ -60,11 +64,11 @@ def main():
                     config["auth"] = {"storageState": "auto-detected"}
             break
 
-    with open(".pathfinder/config.json", "w") as f:
+    with open(config_path, "w") as f:
         json.dump(config, f, indent=2)
 
     print(f"✅ Pathfinder initialized for '{name}'")
-    print(f"   Config: .pathfinder/config.json")
+    print(f"   Config: {config_path}")
     print(f"   UI framework: {config['framework']}")
     print(f"   Platform: {config['platform']}")
     if test_dir:

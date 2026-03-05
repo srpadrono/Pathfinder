@@ -4,8 +4,8 @@ Write UI tests for every ❌ step in the journey map. Each test verifies that a 
 
 ## Process
 
-1. **Read the journey map:** `.pathfinder/journeys.json`
-2. **Read the diagram:** `.pathfinder/blazes.md` — identify all ❌ steps. The decision tree makes gaps easy to spot.
+1. **Read the journey map:** `$PATHFINDER_DIR/journeys.json`
+2. **Read the diagram:** `$PATHFINDER_DIR/blazes.md` — identify all ❌ steps. The decision tree makes gaps easy to spot.
 3. **Prioritize:** Critical journeys first (auth, core CRUD), then secondary flows, then error paths.
 
 For each untested step:
@@ -23,7 +23,7 @@ For each untested step:
 9. **Update `journeys.json`:** Set `tested: true` and add `testFile` for the step.
 10. **Commit per journey:**
 ```bash
-git add <test files> .pathfinder/journeys.json
+git add <test files> $PATHFINDER_DIR/journeys.json
 git commit -m "Scout: Test <JOURNEY> journey (N steps)"
 ```
 
@@ -39,9 +39,9 @@ Some steps can't pass in the current test environment (e.g., mock API always suc
 
 After testing a batch:
 
-11. **Regenerate diagrams:** `python3 scripts/generate-diagrams.py .pathfinder/journeys.json`
+11. **Regenerate diagrams:** `python3 scripts/generate-diagrams.py $PATHFINDER_DIR/journeys.json`
     - The before/after comparison will show your progress since the baseline
-12. **Commit:** `git add .pathfinder/blazes.md && git commit -m "Diagram: Coverage now X%"`
+12. **Commit:** `git add $PATHFINDER_DIR/blazes.md && git commit -m "Diagram: Coverage now X%"`
 
 ## Error Handling
 

@@ -4,7 +4,7 @@ Crawl the codebase to discover every user journey. This is the foundation — no
 
 ## Process
 
-1. **Detect UI framework:** Run `python3 scripts/detect-ui-framework.py .` to identify the test stack. If `.pathfinder/config.json` exists, read the framework from there.
+1. **Detect UI framework:** Run `python3 scripts/detect-ui-framework.py .` to identify the test stack. If `$PATHFINDER_DIR/config.json` exists, read the framework from there.
 
 2. **Detect project type** and read entry points:
 
@@ -36,7 +36,7 @@ Crawl the codebase to discover every user journey. This is the foundation — no
 python3 scripts/scan-test-coverage.py .
 ```
 
-6. **Create journey map** (`.pathfinder/journeys.json`):
+6. **Create journey map** (`$PATHFINDER_DIR/journeys.json`):
 ```json
 {
   "version": "1.0.0",
@@ -73,7 +73,7 @@ python3 scripts/scan-test-coverage.py .
 
 When marking `"partial"`, add a `"note"` field explaining why (e.g., `"note": "test disabled — needs mock API failure"`).
 
-7. **Commit:** `git add .pathfinder/journeys.json && git commit -m "Map: Discover N journeys, M steps (X tested, Y pending)"`
+7. **Commit:** `git add $PATHFINDER_DIR/journeys.json && git commit -m "Map: Discover N journeys, M steps (X tested, Y pending)"`
 
 ## Tips
 
@@ -85,4 +85,4 @@ When marking `"partial"`, add a `"note"` field explaining why (e.g., `"note": "t
 
 ## Output
 
-- `.pathfinder/journeys.json` — machine-readable journey map with coverage status
+- `$PATHFINDER_DIR/journeys.json` — machine-readable journey map with coverage status

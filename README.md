@@ -402,7 +402,7 @@ python3 ~/.pathfinder/skill/scripts/pathfinder-init.py
 python3 ~/.pathfinder/skill/scripts/scan-test-coverage.py .
 
 # Generate coverage diagrams
-python3 ~/.pathfinder/skill/scripts/generate-diagrams.py .pathfinder/journeys.json
+python3 ~/.pathfinder/skill/scripts/generate-diagrams.py $PATHFINDER_DIR/journeys.json
 
 # Detect UI framework
 python3 ~/.pathfinder/skill/scripts/detect-ui-framework.py .
@@ -412,7 +412,7 @@ python3 ~/.pathfinder/skill/scripts/generate-ui-test.py \
   FEAT-01 "User can upload file" playwright --route /upload --auto
 
 # Compute coverage score
-python3 ~/.pathfinder/skill/scripts/coverage-score.py .pathfinder/journeys.json
+python3 ~/.pathfinder/skill/scripts/coverage-score.py $PATHFINDER_DIR/journeys.json
 
 # Visual regression
 python3 ~/.pathfinder/skill/scripts/snapshot-compare.py capture login screenshot.png
@@ -423,7 +423,8 @@ python3 ~/.pathfinder/skill/scripts/snapshot-compare.py compare login new.png
 
 ## ⚙️ Configuration
 
-Pathfinder auto-detects everything. Optionally create `.pathfinder/config.json` to customize:
+Pathfinder auto-detects everything. Optionally create `$PATHFINDER_DIR/config.json` to customize.
+`PATHFINDER_DIR` defaults to `.pathfinder` and can point to a module-level folder:
 
 ```json
 {
