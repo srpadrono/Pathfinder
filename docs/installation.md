@@ -24,16 +24,9 @@ git clone https://github.com/srpadrono/Pathfinder.git ~/.pathfinder
 
 ### 2. Add to your agent
 
-Add this snippet to your agent's instruction file:
+#### Claude Code
 
-| Agent | File |
-|-------|------|
-| Claude Code | `CLAUDE.md` |
-| GitHub Copilot / Codex | `AGENTS.md` |
-| Cursor | `.cursorrules` |
-| Windsurf | `.windsurfrules` |
-| Aider | `.aider.conf.yml` |
-| OpenClaw | `ln -s ~/.pathfinder/skill <skills-dir>/pathfinder` |
+Add this snippet to your project's `CLAUDE.md`:
 
 ```markdown
 ## Pathfinder — UI Test Coverage Mapping
@@ -50,6 +43,10 @@ When I say /map, /blaze, /scout, or /summit, read the matching file and follow i
 Full overview: ~/.pathfinder/skill/SKILL.md
 Scripts: ~/.pathfinder/skill/scripts/ (Python 3 CLIs, JSON output)
 ```
+
+#### Codex (GitHub Copilot)
+
+Add the same snippet to your project's `AGENTS.md`.
 
 ### 3. Initialize in your project
 

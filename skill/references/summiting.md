@@ -19,6 +19,7 @@ python3 scripts/detect-ui-framework.py .
    - Test passes → `"tested": true`
    - Test fails → `"tested": false` (regression or incomplete implementation)
    - Test disabled with comment → `"tested": "partial"` with `"note"` explaining why
+   - See references/scouting.md for test marking conventions.
 
 4. **Regenerate diagrams:**
 ```bash

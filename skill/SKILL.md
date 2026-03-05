@@ -1,6 +1,6 @@
 ---
 name: pathfinder
-description: "Maps user journeys in any codebase, visualizes test coverage with Mermaid flowcharts and decision trees (✅/❌/⚠️), tracks coverage over time with before/after comparison, and generates framework-correct UI tests to fill gaps. Use when understanding or improving UI test coverage on an existing project. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, Flutter. Do not use for unit tests, API tests, or greenfield projects with no code."
+description: "Maps user journeys in any codebase, visualizes test coverage with Mermaid flowcharts and decision trees, tracks coverage over time with before/after comparison, and generates framework-correct UI tests to fill gaps. Use whenever the user wants to understand, visualize, or improve their UI test coverage — even if they don't say 'Pathfinder' or 'coverage map'. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, Flutter. Do not use for unit tests, API tests, or greenfield projects with no code."
 ---
 
 # Pathfinder
