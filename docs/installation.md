@@ -171,10 +171,12 @@ Copilot CLI uses `.github/instructions/pathfinder.instructions.md` — a lightwe
 bash ~/.pathfinder/install/setup-copilot.sh
 ```
 
-This creates `.github/instructions/pathfinder.instructions.md` with:
-- Pathfinder commands (/map, /blaze, /scout, /summit) mapped to skill files
-- All script paths for direct CLI usage
-- Framework reference file locations
-- Project file paths (journeys.json, blazes.md, config.json)
+Three setup methods:
 
-The `applyTo: "**"` frontmatter ensures Copilot loads it for all files in the repo.
+1. **Environment variable** (recommended) — set `COPILOT_CUSTOM_INSTRUCTIONS_DIRS=~/.pathfinder/skill` in your shell profile. Copilot reads the AGENTS.md and references directly. Works across all repos, zero files copied.
+
+2. **Per-repo instructions** — creates `.github/instructions/pathfinder.instructions.md` with `applyTo: "**"` frontmatter. Good for team repos where everyone should use Pathfinder.
+
+3. **Global instructions** — appends to `~/.copilot/copilot-instructions.md`. Lightweight, always available.
+
+All three methods point to `~/.pathfinder/skill/` — no code is copied into your project.
