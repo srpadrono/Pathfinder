@@ -28,14 +28,15 @@ Prefer accessibility-based selectors over implementation details:
 
 ## Wait Strategy (universal)
 
-Avoid `sleep()` — prefer condition-based waits:
+Avoid `sleep()` and deprecated `networkidle` -- prefer condition-based waits:
 
 | Condition | Why |
 |-----------|-----|
 | Element visible/exists | UI rendered |
-| Network idle | Data loaded |
+| Specific element appears | Data loaded (more reliable than network idle) |
 | Animation complete | Transitions done |
 | Text appears/disappears | State changed |
+| `domcontentloaded` | Page structure ready (Playwright) |
 
 ## Visual Regression
 

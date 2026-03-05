@@ -2,6 +2,12 @@
 
 Crawl the codebase to discover every user journey. This is the foundation — nothing gets tested until it's mapped.
 
+## Contents
+- [Process](#process)
+- [Step status values](#step-status-values)
+- [Tips](#tips)
+- [Output](#output)
+
 ## Process
 
 1. **Detect UI framework:** Run `python3 scripts/detect-ui-framework.py .` to identify the test stack. If `<testDir>/pathfinder/config.json` exists, read the framework from there.
@@ -13,9 +19,11 @@ Crawl the codebase to discover every user journey. This is the foundation — no
 | Next.js / React | `app/` or `pages/` routes, layout files, navigation |
 | React Native / Expo | `app/` (Expo Router) or navigation config, tab layouts |
 | Vue / Nuxt | `pages/`, `router/index.ts` |
-| Flutter | `lib/routes/`, `MaterialApp` router |
-| iOS | Storyboards, `NavigationStack`, `TabView`, MVVM ViewModels |
-| Android | `AndroidManifest.xml`, Navigation graph |
+| Flutter | `lib/routes/`, `MaterialApp` router, `GoRouter` config |
+| SwiftUI (iOS/macOS) | `NavigationStack`, `TabView`, `@Observable` ViewModels, `.sheet`/`.fullScreenCover` modifiers |
+| UIKit (iOS) | Storyboards, `UINavigationController`, segues |
+| Android (Compose) | `NavHost`, `NavController`, `@Composable` screens |
+| Android (XML) | `AndroidManifest.xml`, Navigation graph XML |
 
 3. **For each screen/route**, identify:
    - How the user gets there (navigation path)

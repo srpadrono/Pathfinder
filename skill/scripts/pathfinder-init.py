@@ -3,7 +3,8 @@
 
 Usage: python3 pathfinder-init.py [--name project-name] [--output-dir path]
 """
-import argparse, json, os, sys, subprocess, datetime, re
+import argparse, json, os, sys, subprocess, re
+from datetime import datetime, timezone
 
 
 def detect_test_dir():
@@ -79,7 +80,7 @@ def main():
         "framework": detection.get("uiFramework", "unknown"),
         "platform": detection.get("platform", "unknown"),
         "unitRunner": detection.get("unitRunner", "unknown"),
-        "created": datetime.datetime.utcnow().isoformat() + "Z",
+        "created": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }
     if test_dir:
         config["testDir"] = test_dir

@@ -358,6 +358,11 @@ def main():
 
     # Derive journey name from checkpoint prefix (AUTH-01 → AUTH → Authentication)
     prefix = args.checkpoint_id.rsplit("-", 1)[0] if "-" in args.checkpoint_id else args.checkpoint_id
+
+    # Validate checkpoint ID format
+    if not re.match(r'^[A-Za-z]+-\d+$', args.checkpoint_id):
+        print(f"WARNING: Checkpoint ID '{args.checkpoint_id}' doesn't match expected PREFIX-NN format (e.g., AUTH-01)", file=sys.stderr)
+
     journey_name = args.describe or prefix.replace("-", " ").replace("_", " ").title()
 
     test_dir = args.test_dir or find_test_dir()
@@ -375,7 +380,7 @@ def main():
 
     # Wait block
     wait_map = {
-        "playwright": "    await page.waitForLoadState('networkidle')\n",
+        "playwright": "    await page.waitForLoadState('domcontentloaded')\n",
         "cypress": "    cy.intercept('GET', '/api/**').as('load')\n    cy.wait('@load')\n",
         "detox": "",
         "maestro": "",
