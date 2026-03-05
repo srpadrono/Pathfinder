@@ -1,0 +1,15 @@
+{
+  "name": "pathfinder",
+  "description": "Maps user journeys, visualizes UI test coverage with Mermaid flowcharts, and generates framework-correct E2E tests to fill gaps. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, and Flutter.",
+  "version": "2.1.0",
+  "author": {
+    "name": "Sergio Padron",
+    "email": "srpadron@outlook.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/srpadrono/Pathfinder.git"
+  },
+  "homepage": "https://github.com/srpadrono/Pathfinder",
+  "license": "MIT"
+}

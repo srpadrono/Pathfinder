@@ -2,7 +2,7 @@
 """Tests for aggregate.py"""
 import subprocess, json, tempfile, os
 
-SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skill", "scripts", "aggregate.py")
+SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "aggregate.py")
 
 
 def test_discover_modules():

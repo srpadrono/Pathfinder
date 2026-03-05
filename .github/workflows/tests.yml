@@ -25,4 +25,4 @@ jobs:
       - name: Lint
         run: |
           pip install ruff
-          ruff check skill/scripts/ tests/
+          ruff check skills/pathfinder/scripts/ tests/

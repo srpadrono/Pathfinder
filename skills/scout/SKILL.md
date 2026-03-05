@@ -1,18 +1,26 @@
+---
+name: scout
+description: "Writes UI tests for untested steps in the journey map using framework-correct selectors, waits, and patterns. Use when the user says /scout or wants to write tests for coverage gaps."
+---
+
 # Scouting
 
-Write UI tests for every ❌ step in the journey map. Each test verifies that a user journey step works correctly.
+Write UI tests for every untested step in the journey map. Each test verifies that a user journey step works correctly.
 
 ## Process
 
 1. **Read the journey map:** `<testDir>/pathfinder/journeys.json`
-2. **Read the diagram:** `<testDir>/pathfinder/blazes.md` — identify all ❌ steps. The decision tree makes gaps easy to spot.
+2. **Read the diagram:** `<testDir>/pathfinder/blazes.md` — identify all untested steps. The decision tree makes gaps easy to spot.
 3. **Prioritize:** Critical journeys first (auth, core CRUD), then secondary flows, then error paths.
 
 For each untested step:
 
 4. **Read existing test patterns** in the project. Match the style, naming conventions, and test architecture already in use (e.g., BDD protocols, page objects, test fixtures).
-5. **Read framework reference:** `references/<framework>.md` for correct selectors, waits, and patterns.
-6. **Generate test:** `python3 scripts/generate-ui-test.py <STEP-ID> "<action>" <framework> --route <screen> --auto`
+5. **Read framework reference:** Load the matching framework reference from the pathfinder skill for correct selectors, waits, and patterns.
+6. **Generate test:**
+```bash
+python3 "${CLAUDE_SKILL_DIR}/../pathfinder/scripts/generate-ui-test.py" <STEP-ID> "<action>" <framework> --route <screen> --auto
+```
    - `--auto` appends to existing journey file if found, creates new file if not.
 7. **Fill in the test** with real selectors, actions, and assertions matching the actual UI.
    - Use localized strings from the project's resources (e.g., `Localizable.strings`) for button labels.
@@ -39,12 +47,15 @@ Some steps can't pass in the current test environment (e.g., mock API always suc
 
 After testing a batch:
 
-11. **Regenerate diagrams:** `python3 scripts/generate-diagrams.py <testDir>/pathfinder/journeys.json`
+11. **Regenerate diagrams:**
+```bash
+python3 "${CLAUDE_SKILL_DIR}/../pathfinder/scripts/generate-diagrams.py" <testDir>/pathfinder/journeys.json
+```
     - The before/after comparison will show your progress since the baseline
 12. **Commit:** `git add <testDir>/pathfinder/blazes.md && git commit -m "Diagram: Coverage now X%"`
 
 ## Error Handling
 
-- Framework not installed → run `python3 scripts/detect-ui-framework.py .` and install.
+- Framework not installed → run `python3 "${CLAUDE_SKILL_DIR}/../pathfinder/scripts/detect-ui-framework.py" .` and install.
 - Test fails due to wrong selector → read the component source and localized strings, fix the selector.
 - Step is untestable (native OS dialog, third-party auth redirect) → mark `tested: "partial"` with a note.

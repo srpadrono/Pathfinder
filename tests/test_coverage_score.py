@@ -2,7 +2,7 @@
 """Tests for coverage-score.py"""
 import subprocess, json, tempfile, os
 
-SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skill", "scripts", "coverage-score.py")
+SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "coverage-score.py")
 
 def test_high_coverage():
     with tempfile.TemporaryDirectory() as d:

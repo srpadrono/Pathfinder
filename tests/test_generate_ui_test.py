@@ -2,7 +2,7 @@
 """Tests for generate-ui-test.py"""
 import subprocess, json, tempfile, os
 
-SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skill", "scripts", "generate-ui-test.py")
+SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "generate-ui-test.py")
 
 def test_create_playwright():
     with tempfile.TemporaryDirectory() as d:

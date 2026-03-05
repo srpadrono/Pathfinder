@@ -7,9 +7,9 @@ if [ -z "$CHANGED" ]; then
 fi
 
 if [ -n "$CHANGED" ]; then
-  SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)/skill/scripts"
+  SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)/skills/pathfinder/scripts"
   if [ ! -f "$SCRIPT_DIR/generate-diagrams.py" ]; then
-    SCRIPT_DIR="$HOME/.pathfinder/skill/scripts"
+    SCRIPT_DIR="$HOME/.pathfinder/skills/pathfinder/scripts"
   fi
 
   for jfile in $CHANGED; do

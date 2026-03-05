@@ -6,16 +6,12 @@ REPO="https://github.com/srpadrono/Pathfinder.git"
 
 SNIPPET='## Pathfinder — UI Test Coverage Mapping
 
-Pathfinder is installed at ~/.pathfinder/skill. It maps user journeys, visualizes test coverage with Mermaid flowcharts, and generates framework-correct UI tests.
+Pathfinder is installed at ~/.pathfinder. It maps user journeys, visualizes test coverage with Mermaid flowcharts, and generates framework-correct UI tests.
 
-When I say /map, /blaze, /scout, or /summit, read the matching file and follow it:
-- /map → Read ~/.pathfinder/skill/references/mapping.md
-- /blaze → Read ~/.pathfinder/skill/references/blazing.md
-- /scout → Read ~/.pathfinder/skill/references/scouting.md
-- /summit → Read ~/.pathfinder/skill/references/summiting.md
+Commands: /map, /blaze, /scout, /summit — each is a skill that activates automatically.
 
-Full overview: ~/.pathfinder/skill/SKILL.md
-Scripts: ~/.pathfinder/skill/scripts/ (Python 3 CLIs, JSON output)'
+Full overview: ~/.pathfinder/skills/pathfinder/SKILL.md
+Scripts: ~/.pathfinder/skills/pathfinder/scripts/ (Python 3 CLIs, JSON output)'
 
 echo "Pathfinder Installer"
 echo ""
@@ -80,5 +76,5 @@ else
 fi
 
 echo ""
-echo "Next: cd your-project && python3 ~/.pathfinder/skill/scripts/pathfinder-init.py"
+echo "Next: cd your-project && python3 ~/.pathfinder/skills/pathfinder/scripts/pathfinder-init.py"
 echo "Then: /map"
