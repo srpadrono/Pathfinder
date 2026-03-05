@@ -13,6 +13,9 @@ Map every user journey. See what's tested. Fill the gaps. Track progress.
 python3 scripts/pathfinder-init.py
 ```
 
+This auto-detects your test directory and creates `pathfinder/` inside it (e.g., `e2e/tests/pathfinder/`).
+For monorepos, run init in each module. Use `scripts/aggregate.py` for a combined view.
+
 ## Workflow
 
 ```
@@ -77,21 +80,22 @@ All scripts are Python 3 CLIs. They output JSON to stdout, errors to stderr.
 | `scripts/generate-diagrams.py journeys.json` | Generate flowcharts, decision tree, and delta |
 | `scripts/generate-diagrams.py journeys.json --save-baseline` | Reset baseline to current state |
 | `scripts/generate-diagrams.py journeys.json --clear-baseline` | Remove baseline (next run creates fresh one) |
-| `scripts/coverage-score.py .pathfinder/journeys.json` | Compute coverage percentage |
+| `scripts/coverage-score.py <testDir>/pathfinder/journeys.json` | Compute coverage percentage |
 | `scripts/snapshot-compare.py capture\|compare name image` | Visual regression |
+| `scripts/aggregate.py [root]` | Discover all modules, merge coverage summary |
 
 ## Project Files
 
 | File | Purpose |
 |------|---------|
-| `.pathfinder/config.json` | Project config (framework, test directory, auth) |
-| `.pathfinder/journeys.json` | Journey map — source of truth |
-| `.pathfinder/journeys-baseline.json` | Baseline snapshot for before/after comparison (auto-created) |
-| `.pathfinder/blazes.md` | Mermaid coverage diagrams (auto-generated) |
+| `<testDir>/pathfinder/config.json` | Project config (framework, test directory, auth) |
+| `<testDir>/pathfinder/journeys.json` | Journey map — source of truth |
+| `<testDir>/pathfinder/journeys-baseline.json` | Baseline snapshot for before/after comparison (auto-created) |
+| `<testDir>/pathfinder/blazes.md` | Mermaid coverage diagrams (auto-generated) |
 
 ## Configuration
 
-Optional `.pathfinder/config.json`:
+Optional `<testDir>/pathfinder/config.json`:
 
 ```json
 {
@@ -106,7 +110,7 @@ If absent, Pathfinder auto-detects from framework config files.
 
 ## Error Handling
 
-- No UI framework detected → specify in `.pathfinder/config.json` or install one.
+- No UI framework detected → specify in `<testDir>/pathfinder/config.json` or install one.
 - Journey map missing → run `/map` first.
 - Coverage drops after code changes → new untested routes. Re-run `/map`.
 - Mermaid parse errors → labels with parentheses `()` are auto-escaped to `[]`; all labels are double-quoted.

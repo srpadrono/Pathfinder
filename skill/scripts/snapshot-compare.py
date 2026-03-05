@@ -5,12 +5,12 @@ Usage:
   python3 snapshot-compare.py capture <name> <image-path>
   python3 snapshot-compare.py compare <name> <image-path> [--threshold 5]
 
-Baselines stored in .pathfinder/baselines/
+Baselines stored in pathfinder/baselines/
 Requires Pillow for pixel-level comparison. Falls back to hash comparison if unavailable.
 """
 import argparse, os, sys, json, shutil, hashlib
 
-BASELINES_DIR = ".pathfinder/baselines"
+BASELINES_DIR = "pathfinder/baselines"
 
 def file_hash(path):
     h = hashlib.sha256()

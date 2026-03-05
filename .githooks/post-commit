@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
-# Pathfinder: Auto-regenerate diagrams after journey map changes
-[ -f .pathfinder/journeys.json ] || exit 0
+# Auto-regenerate blazes.md when any journeys.json changes
 
-# Check if journeys.json was in the last commit
-if git diff-tree --no-commit-id --name-only -r HEAD | grep -q "journeys.json"; then
-  SCRIPT_DIR="$(git config core.hooksPath 2>/dev/null || echo ".githooks")"
-  PATHFINDER_ROOT="$(dirname "$SCRIPT_DIR")"
-  DIAGRAM_SCRIPT="${PATHFINDER_ROOT}/skill/scripts/generate-diagrams.py"
+CHANGED=$(git diff --cached --name-only HEAD~1 2>/dev/null | grep "pathfinder/journeys.json" || true)
+if [ -z "$CHANGED" ]; then
+  CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | grep "pathfinder/journeys.json" || true)
+fi
 
-  if [ -f "$DIAGRAM_SCRIPT" ]; then
-    python3 "$DIAGRAM_SCRIPT" .pathfinder/journeys.json 2>/dev/null || true
+if [ -n "$CHANGED" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)/skill/scripts"
+  if [ ! -f "$SCRIPT_DIR/generate-diagrams.py" ]; then
+    SCRIPT_DIR="$HOME/.pathfinder/skill/scripts"
   fi
+
+  for jfile in $CHANGED; do
+    if [ -f "$jfile" ]; then
+      echo "🔥 Regenerating diagrams for $jfile..."
+      python3 "$SCRIPT_DIR/generate-diagrams.py" "$jfile" 2>/dev/null && \
+        git add "$(dirname "$jfile")/blazes.md" 2>/dev/null || true
+    fi
+  done
 fi
