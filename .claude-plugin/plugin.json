@@ -6,10 +6,7 @@
     "name": "Sergio Padron",
     "email": "srpadron@outlook.com"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/srpadrono/Pathfinder.git"
-  },
+  "repository": "https://github.com/srpadrono/Pathfinder",
   "homepage": "https://github.com/srpadrono/Pathfinder",
   "license": "MIT"
 }
