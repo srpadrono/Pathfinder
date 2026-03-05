@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Tests for snapshot-compare.py"""
-import subprocess, json, tempfile, os, shutil
+import subprocess, json, tempfile, os
 
 SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skill", "scripts", "snapshot-compare.py")
 

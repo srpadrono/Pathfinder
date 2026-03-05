@@ -226,7 +226,7 @@ def build_decision_tree(journeys):
                         prev_id = sid
 
                     # Sub-decision point
-                    sub_decision_label = ref_steps[common_len - 1].get("action", "Choice?") if common_len > 1 else "Choice?"
+                    _sub_decision_label = ref_steps[common_len - 1].get("action", "Choice?") if common_len > 1 else "Choice?"
                     sub_decision_id = add_decision(prev_id, "User response?")
 
                     for bj in branch_journeys:

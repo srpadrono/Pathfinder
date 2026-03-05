@@ -361,7 +361,7 @@ def main():
     journey_name = args.describe or prefix.replace("-", " ").replace("_", " ").title()
 
     test_dir = args.test_dir or find_test_dir()
-    checkpoint_lower = args.checkpoint_id.lower().replace("-", "_")
+    _checkpoint_lower = args.checkpoint_id.lower().replace("-", "_")
     class_name = args.checkpoint_id.replace("-", "")
     func_name = args.checkpoint_id.replace("-", "_")
 
