@@ -2,58 +2,33 @@
 set -euo pipefail
 
 PATHFINDER_HOME="${HOME}/.pathfinder"
-SNIPPET='
+TARGET="${PWD}/CLAUDE.md"
+
+echo "🔧 Setting up Pathfinder for Claude Code..."
+
+if [ -f "$TARGET" ] && grep -q "Pathfinder" "$TARGET" 2>/dev/null; then
+  echo "⚠️  Pathfinder already in CLAUDE.md"
+else
+  cat >> "$TARGET" << 'SNIPPET'
+
 ## Pathfinder — UI Test Coverage Mapping
-Read ~/.pathfinder/skill/SKILL.md at session start.
-When I say /map, /blaze, /scout, or /summit, read the matching skill:
-- /map → ~/.pathfinder/skill/references/mapping.md
-- /blaze → ~/.pathfinder/skill/references/blazing.md
-- /scout → ~/.pathfinder/skill/references/scouting.md
-- /summit → ~/.pathfinder/skill/references/summiting.md
-Scripts: ~/.pathfinder/skill/scripts/
-'
 
-echo "🔧 Setting up for Claude Code..."
-echo ""
-echo "Choose setup method:"
-echo "  1) Add to project CLAUDE.md (recommended)"
-echo "  2) Add to global ~/.claude/settings.json"
-echo ""
-read -p "Select (1-2): " method
+Pathfinder is installed at ~/.pathfinder/skill. It maps user journeys, visualizes test coverage with Mermaid flowcharts, and generates framework-correct UI tests.
 
-if [ "$method" = "1" ]; then
-  TARGET="${PWD}/CLAUDE.md"
-  if [ -f "$TARGET" ] && grep -q "Pathfinder" "$TARGET" 2>/dev/null; then
-    echo "⚠️  Pathfinder already in CLAUDE.md"
-  else
-    echo "$SNIPPET" >> "$TARGET"
-    echo "✅ Added to $TARGET"
-  fi
-elif [ "$method" = "2" ]; then
-  SETTINGS="${HOME}/.claude/settings.json"
-  mkdir -p "$(dirname "$SETTINGS")"
-  if [ -f "$SETTINGS" ]; then
-    if grep -q "pathfinder" "$SETTINGS" 2>/dev/null; then
-      echo "⚠️  Pathfinder already in settings.json"
-    else
-      echo "Add this to your skillPaths array in $SETTINGS:"
-      echo '  "~/.pathfinder/skills"'
-      echo ""
-      echo "(Manually edit the file — JSON merging is fragile in bash)"
-    fi
-  else
-    cat > "$SETTINGS" << SETTINGS
-{
-  "skillPaths": ["~/.pathfinder/skills"]
-}
-SETTINGS
-    echo "✅ Created $SETTINGS with Pathfinder skills"
-  fi
+When I say /map, /blaze, /scout, or /summit, read the matching file and follow it:
+- /map → Read ~/.pathfinder/skill/references/mapping.md
+- /blaze → Read ~/.pathfinder/skill/references/blazing.md
+- /scout → Read ~/.pathfinder/skill/references/scouting.md
+- /summit → Read ~/.pathfinder/skill/references/summiting.md
+
+Full overview: ~/.pathfinder/skill/SKILL.md
+Scripts: ~/.pathfinder/skill/scripts/ (Python 3 CLIs, JSON output)
+SNIPPET
+  echo "✅ Added Pathfinder to $TARGET"
 fi
 
-# Git hooks
 echo ""
-read -p "Enable git hooks in current project? (y/n): " hooks
+read -p "Enable Pathfinder git hooks? (y/n): " hooks
 if [ "$hooks" = "y" ]; then
   git config core.hooksPath "$PATHFINDER_HOME/.githooks"
   echo "✅ Git hooks enabled"
