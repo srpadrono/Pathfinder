@@ -24,39 +24,22 @@ If this file doesn't exist or `status` is not `"complete"` → **STOP. Run the S
 If `allTestsFail` is not `true` → **STOP. Tests should fail before building.**
 Read the checkpoint list and test file paths from this file.
 
-## Dependency Check (v0.4.0)
+## Dependency Check
 
-Before working on any checkpoint, run the dependency checker:
+Before working on any checkpoint, verify its dependencies are satisfied:
 
 ```bash
 bash scripts/pathfinder-check-deps.sh FEAT-01
 ```
 
-If it says "Blocked" → **skip this checkpoint** and move to the next unblocked one.
-Report which checkpoints were blocked and why. Work on unblocked checkpoints first.
+If it says "Blocked", skip this checkpoint and move to the next unblocked one.
 
-## Update Task Files (v0.4.0)
+## Update Task Files
 
-After clearing each checkpoint, update its task file from `red` → `green`:
+After clearing each checkpoint, update its task file from `red` to `green` and record evidence.
+See `references/task-tracking.md` for the update procedure.
 
-```bash
-python3 -c "
-import json
-t = json.load(open('.pathfinder/tasks/FEAT-01.json'))
-t['status'] = 'green'
-t['evidence']['green'] = {
-    'e2e': '<paste PASS output>',
-    'unit': '<paste PASS output>',
-    'fullSuite': '<paste full suite summary>',
-    'timestamp': __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-}
-t['builderNotes'] = '<implementation notes>'
-json.dump(t, open('.pathfinder/tasks/FEAT-01.json', 'w'), indent=2)
-"
-git add .pathfinder/tasks/FEAT-01.json
-```
-
-The post-commit hook will auto-update `state.json` checkpoint counts.
+The post-commit hook auto-updates `state.json` checkpoint counts.
 
 ## The Build Loop
 
@@ -149,8 +132,9 @@ the Reporting phase will verify they exist for every checkpoint.
 <!-- /EVIDENCE:FEAT-01 -->
 ```
 
-**Rule:** If you cannot produce an evidence block, the checkpoint is NOT cleared.
-"I'm confident it works" is not evidence. Test output is evidence.
+Write evidence blocks in the PR description or in `.pathfinder/tasks/FEAT-XX.json`
+(the `evidence.green` field). The Reporting phase verifies evidence exists for every
+checkpoint — without test output, the checkpoint isn't cleared.
 
 ## After All Checkpoints Cleared
 
@@ -185,11 +169,3 @@ git commit -m "Builder: All checkpoints cleared"
 
 Never blur the Scout/Builder boundary.
 
-## Anti-Rationalization
-
-| Rationalization | Counter |
-|----------------|---------|
-| "I'll implement multiple checkpoints at once" | One checkpoint at a time. Smaller commits = easier debugging. |
-| "The test assertion is wrong, I'll fix it" | You're not a Scout right now. Announce the mode switch. |
-| "I need to refactor first" | Refactor AFTER the test passes, not before. |
-| "This needs more than minimal code" | If the test passes with less, you're over-engineering. |

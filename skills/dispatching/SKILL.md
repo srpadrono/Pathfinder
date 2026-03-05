@@ -1,11 +1,11 @@
 ---
 name: dispatching
 description: >
-  Phase 5: Coordinate Scout and Builder agents efficiently.
+  Cross-cutting: Coordinate Scout and Builder agents efficiently.
   Fresh context dispatch with two-stage review.
 ---
 
-# Dispatching — Phase 5 (Optional)
+# Dispatching (Optional)
 
 **Goal:** Coordinate Scout and Builder agents efficiently.
 
@@ -16,7 +16,7 @@ Every dispatch includes EVERYTHING the agent needs.
 
 ### Hard Rules for Sub-Agent Dispatch
 
-0. **Create a feature branch BEFORE any dispatch** — `git checkout -b feat/expedition-name`.
+0. **Create a feature branch after Survey is approved and before any Scout work begins** — `git checkout -b feat/expedition-name`.
    ALL work happens on the branch. NEVER commit expedition work to main directly.
    The pre-push hook will block you if you forget.
 1. **Paste the FULL skill text** — not a summary, not "follow Pathfinder." Copy-paste the entire
@@ -27,8 +27,7 @@ Every dispatch includes EVERYTHING the agent needs.
    "For each checkpoint: run test → verify FAIL → implement → run test → verify PASS → commit."
 4. **Scout tasks MUST include both test layers** — "Write E2E tests AND unit tests" not just one.
 5. **Every dispatch must reference the gate file** — "Read `.pathfinder/plan.json` for checkpoint definitions."
-6. **Report phase is NOT optional** — after Build, you MUST run `verify-expedition.sh`, create
-   `.pathfinder/report.json`, and create a PR via `gh pr create`. No exceptions.
+6. **Report phase completes the expedition** — after Build, run `verify-expedition.sh` to compute the quality score, then create a PR via `gh pr create`. Skipping this means no one can verify your work.
 
 ## Scout Dispatch Template
 
@@ -125,21 +124,9 @@ Before working on any checkpoint, run:
 If it says "Blocked" → skip this checkpoint and move to the next unblocked one.
 Report which checkpoints were blocked and why.
 
-=== TASK FILE UPDATES (v0.4.0 — after each checkpoint) ===
+=== TASK FILE UPDATES (after each checkpoint) ===
 
-After clearing a checkpoint, update its task file:
-  python3 -c "
-  import json
-  t = json.load(open('.pathfinder/tasks/<ID>.json'))
-  t['status'] = 'green'
-  t['evidence']['green'] = {
-    'e2e': '<paste e2e pass output>',
-    'unit': '<paste unit pass output>',
-    'fullSuite': '<paste full suite summary>',
-    'timestamp': '<ISO timestamp>'
-  }
-  json.dump(t, open('.pathfinder/tasks/<ID>.json','w'), indent=2)
-  "
+After clearing a checkpoint, update its task file per references/task-tracking.md.
   git add .pathfinder/tasks/<ID>.json
 
 === EVIDENCE REQUIRED ===

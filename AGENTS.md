@@ -2,23 +2,16 @@
 
 **Universal agent instructions for Test-Driven Development using the Pathfinder methodology.**
 
-Works with any AI coding assistant: Claude Code, OpenClaw, OpenCode, Codex, Cursor, or direct LLM context.
+Works with Claude Code and Codex.
 
 ---
 
 ## Platform Support
 
-Pathfinder works with any AI coding assistant. Platform-specific adapters provide automatic bootstrap:
-
 | Platform | Adapter | Install |
 |----------|---------|---------|
 | Claude Code | `.claude-plugin/` (hooks + commands) | Automatic via SessionStart hook |
-| OpenClaw | Root `SKILL.md` + `.claude-plugin/` | Install via skill marketplace |
-| OpenCode | `.opencode/` (plugin + install) | See `.opencode/INSTALL.md` |
 | Codex | `.codex/` (install) | See `.codex/INSTALL.md` |
-| Other | Read `AGENTS.md` + `skills/` directly | Manual — load `skills/using-pathfinder/SKILL.md` first |
-
-Cross-platform tool mapping is in `skills/using-pathfinder/SKILL.md`.
 
 ---
 
@@ -29,6 +22,38 @@ Pathfinder is a TDD workflow using an expedition metaphor:
 - **Builders** implement features until tests pass (🔄 → ✅)
 
 **Core insight:** Role separation enforces true test-first development.
+
+---
+
+## Prerequisites
+
+Before using Pathfinder, ensure these are available:
+
+- **Node.js 18+** and npm
+- **Playwright**: `npm install && npx playwright install --with-deps chromium`
+- **Vitest**: included in devDependencies
+- **Git hooks**: `git config core.hooksPath .githooks`
+
+### Required npm Scripts
+
+These scripts are referenced throughout the skills:
+
+| Script | Purpose |
+|--------|---------|
+| `npm run test:all` | Run both Vitest unit tests and Playwright E2E tests |
+| `npm run test:unit` | Run Vitest unit tests only |
+| `npm run test:coverage` | Update coverage data |
+| `npm run test:generate-map` | Generate USER-JOURNEYS.md from test results |
+| `npm run validate` | Run docs validation, pathfinder validation, checkpoints, lint, and unit tests |
+| `npm run doctor` | Diagnose environment issues |
+
+### Required Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/verify-expedition.sh` | Compute quality score and generate report.json |
+| `scripts/pathfinder-check-deps.sh` | Check if a checkpoint's dependencies are satisfied |
+| `scripts/pathfinder-update-state.sh` | Sync state.json checkpoint counts from task files |
 
 **Philosophy:**
 - **Test-Driven** — Write tests first, always
@@ -44,10 +69,10 @@ Pathfinder is a TDD workflow using an expedition metaphor:
 Pathfinder uses composable skills (inspired by [obra/superpowers](https://github.com/obra/superpowers)).
 Each skill is a focused Markdown file in the `skills/` directory.
 
-### THE RULE
+### When to Use Skills
 
-If there is even a 1% chance a Pathfinder skill applies to your current task,
-you MUST invoke it. This is not optional.
+When you're about to write code, check if a Pathfinder skill applies. If you're
+unsure whether to invoke a skill, invoke it — the cost of checking is low.
 
 ### Available Skills
 
@@ -146,9 +171,7 @@ you MUST invoke it. This is not optional.
 | `skills/` | Composable skill definitions |
 | `.claude-plugin/hooks/hooks.json` | SessionStart hook configuration (Claude Code) |
 | `.claude-plugin/commands/` | Slash command definitions (Claude Code) |
-| `.opencode/` | OpenCode adapter (plugin + install) |
-| `.codex/` | Codex adapter (install) |
-| `SKILL.md` | OpenClaw marketplace metadata |
+| `.codex/INSTALL.md` | Installation instructions (Codex) |
 | `e2e/` | Playwright test files |
 | `e2e/fixtures/pathfinder.ts` | Checkpoint tracking fixture |
 | `e2e/reporters/pathfinder-reporter.ts` | Trail map update reporter |

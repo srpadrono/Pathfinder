@@ -229,14 +229,3 @@ git rebase origin/main
 # Squash commits if team prefers (optional)
 git rebase -i main  # interactive rebase
 ```
-
-## Anti-Rationalization
-
-| Rationalization | Counter |
-|----------------|---------|
-| "I'll just commit to main, it's a small change" | Small changes on main break CI for everyone. Use a branch. |
-| "I'll create the PR later" | Later means you'll forget evidence, context, and checkpoint details. Create it now. |
-| "Commit messages don't matter" | `git log` is your expedition journal. Future you will thank present you. |
-| "I'll push everything in one big commit" | One commit per checkpoint. Smaller = easier to review, bisect, and revert. |
-| "I don't need to run tests before committing" | Broken commits waste reviewer time and break CI. Verify first. |
-| "The branch name doesn't matter" | Branch names are how teams find, filter, and understand work in progress. Follow the convention. |

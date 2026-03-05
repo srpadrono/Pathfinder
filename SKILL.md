@@ -1,9 +1,12 @@
 ---
 name: pathfinder
 description: >
-  TDD workflow using expedition metaphor: scouts write tests, builders implement.
-  Maps user journeys with Mermaid diagrams and trail markers (❌→🔄→✅).
-  Composable skills architecture with Playwright CLI integration.
+  TDD workflow for AI coding agents. Use whenever the user wants to build a feature,
+  fix a bug with tests, or follow test-driven development. Enforces test-first discipline
+  using an expedition metaphor with scouts (tests) and builders (implementation).
+  Integrates with Playwright for E2E and Vitest for unit tests. Use this skill even if
+  the user doesn't explicitly mention TDD — any feature request, bug fix, or code change
+  benefits from the Pathfinder workflow.
 tags:
   - tdd
   - testing
@@ -56,11 +59,9 @@ Checkpoints are individual JSON files in `.pathfinder/tasks/`:
 ## Skills
 
 Individual skills in `skills/` provide focused instructions per phase.
-Cross-platform tool mapping is in `skills/using-pathfinder/SKILL.md`.
 
 **Platform adapters:**
-- Claude Code / OpenClaw: `.claude-plugin/hooks/hooks.json` auto-loads at session start
-- OpenCode: `.opencode/plugins/pathfinder.js` injects bootstrap context
+- Claude Code: `.claude-plugin/hooks/hooks.json` auto-loads at session start
 - Codex: `.codex/INSTALL.md` for native skill discovery
 
 ## Scripts

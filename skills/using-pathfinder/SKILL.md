@@ -9,14 +9,14 @@ description: >
 
 *Marks the trail before others follow.*
 
-## THE RULE
+## When to Use Pathfinder Skills
 
-If there is even a 1% chance a Pathfinder skill applies to your current task,
-you MUST invoke it. This is not optional. This is not a suggestion.
+Pathfinder skills exist because undisciplined development produces buggy, untested code.
+When you're about to write code, check if a Pathfinder skill applies. The cost of
+checking is low; the cost of skipping is high (rework, bugs, missing tests).
 
-Thinking "I already know how to do this"? Invoke the skill anyway.
-Thinking "It's just a small change"? Invoke the skill anyway.
-Thinking "I'll save time by skipping"? You won't. Invoke the skill.
+If you're unsure whether to invoke a skill, invoke it. It's cheaper to read a skill
+and decide it doesn't apply than to skip it and realize later you needed it.
 
 ## Skill Routing
 
@@ -99,17 +99,18 @@ the current phase MUST refuse to proceed. No exceptions. No "I'll create it retr
 | "I'll commit to main" | Small changes on main break CI for everyone. | Invoke `pathfinder:git-workflow` |
 | "Security doesn't apply here" | Every user input is an attack vector. | Invoke `pathfinder:security` |
 
+When in doubt, the cost of invoking a skill you don't need is a few seconds of reading.
+The cost of skipping a skill you did need is rework, bugs, and missing test coverage.
+
 ## Tool Mapping
 
 Skills reference tools by their canonical names. Map to your platform:
 
-| Canonical Tool       | Claude Code / OpenClaw | OpenCode          | Codex             |
-|----------------------|------------------------|-------------------|-------------------|
-| Load a skill         | `Skill` tool           | `skill` tool      | Read `skills/` file |
-| Track tasks          | `TodoWrite`            | `todowrite`       | Inline tracking   |
-| Launch subagent      | `Task` tool            | `task` tool       | N/A               |
-| Read file            | `Read`                 | `read`            | `read_file`       |
-| Edit file            | `Edit`                 | `edit`            | `edit_file`       |
-| Run command          | `Bash`                 | `bash`            | `shell`           |
+| Canonical Tool | Claude Code | Codex |
+|----------------|-------------|-------|
+| Load a skill | `Skill` tool | Read `skills/` file |
+| Read file | `Read` | `read_file` |
+| Edit file | `Edit` | `edit_file` |
+| Run command | `Bash` | `shell` |
 
 When a skill references a tool by name, use your platform's equivalent from this table.

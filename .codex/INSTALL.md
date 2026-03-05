@@ -42,16 +42,14 @@ The `using-pathfinder` meta-skill provides routing to all other skills.
 
 ### Tool Mapping
 
-When Pathfinder skills reference tools by canonical names, Codex equivalents are:
+When Pathfinder skills reference tools by canonical names, use Codex equivalents:
 
-| Canonical Tool       | Codex Equivalent       |
-|----------------------|------------------------|
-| `Skill` tool         | Read `skills/` file    |
-| `TodoWrite`          | Inline task tracking   |
-| `Task` tool          | N/A                    |
-| `Read`               | `read_file`            |
-| `Edit`               | `edit_file`            |
-| `Bash`               | `shell`                |
+| Canonical Tool | Codex Equivalent |
+|----------------|------------------|
+| `Read` | `read_file` |
+| `Edit` | `edit_file` |
+| `Bash` | `shell` |
+| `Skill` tool | Read `skills/` file directly |
 
 ### Key Commands
 

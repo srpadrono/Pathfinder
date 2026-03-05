@@ -119,13 +119,3 @@ grep -rE "dangerouslySetInnerHTML|eval\(|innerHTML\s*=" src/ || echo "None found
 # Search for hardcoded secrets
 grep -rn "password\s*=\s*['\"].*['\"]" src/ --include='*.ts' --include='*.tsx' || echo "None found"
 ```
-
-## Anti-Rationalization
-
-| Rationalization | Counter |
-|----------------|---------|
-| "This is an internal tool, security doesn't matter" | Internal tools get compromised too. Internal networks get breached. Validate input. |
-| "I'll add security later" | Security bugs are 10x harder to fix after the fact. Build it in now. |
-| "The framework handles security" | Frameworks provide tools, not guarantees. You still need to use them correctly. |
-| "Nobody would try to exploit this" | Automated scanners don't care about your assumptions. Protect the endpoint. |
-| "It's just a prototype" | Prototypes become production. Write it secure the first time. |

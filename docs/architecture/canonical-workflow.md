@@ -45,6 +45,17 @@ The canonical skills in this repository are:
 
 Each next phase must verify the previous gate exists and is approved/complete.
 
+## Cross-Cutting Skills
+
+These skills apply at any point in the workflow and are not tied to a specific phase:
+
+- `pathfinder:dispatching` — Multi-agent coordination (optional)
+- `pathfinder:git-workflow` — Branching, commits, and PRs
+- `pathfinder:code-review` — Structured code review
+- `pathfinder:security` — Security awareness
+- `pathfinder:systematic-debugging` — Root-cause debugging
+- `pathfinder:unit-testing` — Unit tests (complements E2E scouting)
+
 ## Trail Markers
 
 - ❌ Uncharted

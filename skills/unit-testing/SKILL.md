@@ -20,15 +20,7 @@ description: >
 
 The Scout writes BOTH types of tests before the Builder writes any code. The Builder must pass BOTH before claiming a checkpoint is cleared.
 
-## The Iron Law (Extended)
-
-```
-NO PRODUCTION CODE WITHOUT FAILING TESTS FIRST — BOTH UNIT AND E2E
-```
-
-- E2E tests verify the USER sees the right thing (Playwright)
-- Unit tests verify the CODE does the right thing (Vitest)
-- One does not replace the other. Both are mandatory.
+Both unit and E2E tests are written before implementation. Unit tests verify internal correctness; E2E tests verify user-facing behavior.
 
 ## When to Write Unit Tests
 
@@ -164,21 +156,3 @@ src/
 
 Co-location makes it obvious when a file is missing its tests. If you see a `.ts` file without a `.test.ts` beside it, that's a red flag.
 
-## Anti-Rationalization
-
-| Rationalization | Counter |
-|----------------|---------|
-| "E2E tests cover everything" | E2E tests are slow and coarse. A failing E2E test tells you SOMETHING broke — a failing unit test tells you WHAT broke. |
-| "This function is too simple to unit test" | Simple functions have edge cases. `validateEmail('')` — did you handle that? |
-| "Unit tests are redundant with E2E" | They test different things. E2E: user sees correct UI. Unit: function returns correct value. Both can pass while the other fails. |
-| "I'll add unit tests later" | Later never comes. The function is fresh in your mind NOW. Write it now. |
-| "Mocking is too complex" | If you need complex mocks, your code has too many dependencies. Simplify the code first. |
-| "The component is just a wrapper" | Wrappers have prop-passing bugs, default value bugs, and conditional rendering bugs. Test them. |
-
-## Red Flags — Unit Testing Abandoned
-
-- `src/` has `.ts` files without corresponding `.test.ts` files
-- Unit tests only test the happy path (no edge cases)
-- Unit tests mock everything (testing mocks, not code)
-- Unit tests were written AFTER implementation (biased)
-- `npm run test:unit` is not part of the verification loop

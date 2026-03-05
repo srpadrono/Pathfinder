@@ -1,11 +1,11 @@
 ---
 name: reporting
 description: >
-  Phase 6: Verify evidence, create PR, and close the expedition.
+  Phase 5: Verify evidence, create PR, and close the expedition.
   No self-certifying. Evidence over claims.
 ---
 
-# Reporting — Phase 6
+# Reporting — Phase 5
 
 **Goal:** Verify all claims with evidence, create PR, close the expedition.
 
@@ -85,31 +85,18 @@ npx playwright show-report
 **You MUST paste the full output** of `npm run test:all` showing pass/fail counts.
 A summary like "all tests pass" is NOT acceptable. Paste the actual output.
 
-### 4. Verification & Quality Score (v0.4.0)
+### 4. Verification & Quality Score
 
-Before creating the PR, run the v0.4.0 verification script which computes a quality score:
+Before creating the PR, run the verification script:
 
 ```bash
 bash scripts/verify-expedition.sh
 ```
 
-This produces `.pathfinder/report.json` with a 0-100 quality score:
+This produces `.pathfinder/report.json` with a 0-100 quality score.
+See `references/task-tracking.md` for scoring criteria and thresholds.
 
-| Criterion | Points | How to check |
-|-----------|--------|-------------|
-| All checkpoint tests pass | 25 | `npm run test:all` with 0 failures |
-| Evidence complete | 20 | Every task file has `evidence.green` filled |
-| No regressions | 20 | Full suite passes |
-| Branch hygiene | 15 | Not on main/master |
-| PR created | 10 | `gh pr list --head <branch>` returns a PR |
-| All verified | 10 | Every task has `status: "verified"` |
-
-**Thresholds:**
-- **90-100 🟢** — Excellent, merge-ready
-- **70-89 🟡** — Acceptable, review carefully
-- **Below 70 🔴** — Do not merge, fix issues first
-
-If score is below 70, the script exits with code 1. Fix the issues and re-run.
+If score is below 70, fix the issues and re-run.
 
 ## Pre-Review Checklist
 
@@ -175,11 +162,3 @@ Use the expedition report template (`.github/PULL_REQUEST_TEMPLATE.md`):
 
 Critical issues block progress. No exceptions.
 
-## Anti-Rationalization
-
-| Rationalization | Counter |
-|----------------|---------|
-| "I'm confident it works" | Confidence is not evidence. Run the test. |
-| "I tested it manually" | Manual is not automated. Run `npm run test:all`. |
-| "The CI will catch it" | CI is a safety net, not a substitute. Verify locally first. |
-| "It's just a small change" | Small changes cause big regressions. Run the suite. |

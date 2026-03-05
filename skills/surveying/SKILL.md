@@ -63,16 +63,3 @@ git commit -m "Survey: Approved — <summary>"
 ```
 
 **The Planning phase will refuse to proceed without this file.**
-
-## YAGNI Check
-
-Before finalizing survey results, ask: "Can any of these requirements be removed?"
-Strip everything that isn't essential for the current expedition.
-
-## Anti-Rationalization
-
-| Rationalization | Counter |
-|----------------|---------|
-| "The requirements are obvious" | Obvious requirements have hidden edge cases. Survey anyway. |
-| "I'll figure it out as I go" | Figuring-it-out-as-you-go produces 3x the rework. |
-| "The user didn't ask for a survey" | They asked for working software. Survey produces that. |

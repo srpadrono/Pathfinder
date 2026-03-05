@@ -90,12 +90,9 @@ npx vitest run src/utils/feature.test.ts --reporter=verbose
 
 ### Updating Task Files When Fixing Bugs
 
-If a bug fix changes checkpoint behavior, update the relevant task file in `.pathfinder/tasks/`:
-
-1. Re-run the checkpoint's tests to get fresh evidence
-2. Update `evidence.green` with new test output
-3. If status regressed, set `status` back to `"red"` until fixed, then `"green"`
-4. Commit task file changes alongside the bug fix
+If a bug fix changes checkpoint behavior, update the relevant task file.
+See `references/task-tracking.md` for the update procedure. If status regressed,
+set it back to `"red"` until fixed, then `"green"`.
 
 ## Anti-Patterns
 

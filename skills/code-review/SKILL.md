@@ -57,7 +57,8 @@ If they don't pass on your machine, the PR is not ready.
 | State file consistent? | `cat .pathfinder/state.json` — phase and counts match reality |
 | Evidence filled? | Each task file has `evidence.green` with test output |
 
-Cross-reference: See `pathfinder:dispatching` for the two-stage review process (Trail Compliance → Code Quality).
+For dispatched (multi-agent) work, reviews follow two stages: Trail Compliance first (above),
+then Code Quality (below). Both must pass before merge. See `pathfinder:dispatching` for details.
 
 ### 4. Code Quality Review
 
@@ -104,12 +105,3 @@ Description.
 | Nitpick style while ignoring logic | Style is minor. Logic bugs are critical. Prioritize. |
 | Rewrite the code in your review | Suggest changes, don't impose rewrites. The builder owns the code. |
 | Block on personal preference | If the tests pass and it matches the spec, preference is not a blocker. |
-
-## Anti-Rationalization
-
-| Rationalization | Counter |
-|----------------|---------|
-| "The tests pass, so the code is fine" | Tests don't catch everything. Review the logic, not just the green checkmarks. |
-| "I trust this developer/agent" | Trust is not a review strategy. Read the code. |
-| "This PR is too large to review properly" | Then it should have been smaller. Request it be split. |
-| "I'll do a thorough review later" | Later never comes. Review now or request changes. |
