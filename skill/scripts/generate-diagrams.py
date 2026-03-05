@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate Mermaid flowchart diagrams from journeys.json.
 
-Usage: python3 generate-diagrams.py .pathfinder/journeys.json [--output .pathfinder/blazes.md]
+Usage: python3 generate-diagrams.py [path/to/journeys.json] [--output path/to/blazes.md]
 """
 import json, sys, os, argparse, re
 
@@ -226,7 +226,7 @@ def build_decision_tree(journeys):
                         prev_id = sid
 
                     # Sub-decision point
-                    _sub_decision_label = ref_steps[common_len - 1].get("action", "Choice?") if common_len > 1 else "Choice?"
+                    sub_decision_label = ref_steps[common_len - 1].get("action", "Choice?") if common_len > 1 else "Choice?"
                     sub_decision_id = add_decision(prev_id, "User response?")
 
                     for bj in branch_journeys:
@@ -388,16 +388,21 @@ def compute_coverage(journeys):
 
 
 def main():
+    default_pathfinder_dir = os.environ.get("PATHFINDER_DIR", ".pathfinder")
     parser = argparse.ArgumentParser()
-    parser.add_argument("journeys_file", help="Path to journeys.json")
-    parser.add_argument("--output", default=".pathfinder/blazes.md")
+    parser.add_argument("journeys_file", nargs="?", default=os.path.join(default_pathfinder_dir, "journeys.json"),
+                        help="Path to journeys.json")
+    parser.add_argument("--output", default=None, help="Path to output markdown file")
     parser.add_argument("--save-baseline", action="store_true",
                         help="Force-save current state as the baseline snapshot")
     parser.add_argument("--clear-baseline", action="store_true",
                         help="Remove baseline to start fresh")
     args = parser.parse_args()
 
-    with open(args.journeys_file) as f:
+    journeys_file = args.journeys_file
+    output_file = args.output or os.path.join(os.path.dirname(journeys_file), "blazes.md")
+
+    with open(journeys_file) as f:
         data = json.load(f)
 
     journeys = data.get("journeys", [])
@@ -406,7 +411,7 @@ def main():
         sys.exit(1)
 
     # ── Baseline management ──
-    baseline_path = os.path.join(os.path.dirname(args.journeys_file), "journeys-baseline.json")
+    baseline_path = os.path.join(os.path.dirname(journeys_file), "journeys-baseline.json")
 
     if args.clear_baseline and os.path.exists(baseline_path):
         os.remove(baseline_path)
@@ -421,7 +426,7 @@ def main():
     if args.save_baseline or not os.path.exists(baseline_path):
         # Save current state as baseline
         import shutil
-        shutil.copy2(args.journeys_file, baseline_path)
+        shutil.copy2(journeys_file, baseline_path)
         print(f"Baseline saved: {baseline_path}")
 
     lines = ["# Pathfinder Coverage Map\n"]
@@ -520,11 +525,13 @@ def main():
 
     output = "\n".join(lines) + "\n"
 
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, "w") as f:
+    output_dir = os.path.dirname(output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    with open(output_file, "w") as f:
         f.write(output)
 
-    print(f"Generated: {args.output}")
+    print(f"Generated: {output_file}")
     print(f"Coverage: {total_tested}/{total_steps} ({overall}%)")
 
     summary = {

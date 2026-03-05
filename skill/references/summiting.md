@@ -6,7 +6,7 @@ Run all tests, update the journey map, regenerate diagrams with before/after com
 
 1. **Save baseline (if starting fresh):** If no baseline exists yet, one is auto-created on diagram generation. To explicitly reset the baseline before a test run:
 ```bash
-python3 scripts/generate-diagrams.py .pathfinder/journeys.json --save-baseline
+python3 scripts/generate-diagrams.py $PATHFINDER_DIR/journeys.json --save-baseline
 ```
 
 2. **Run the full UI test suite** using the detected framework. Read the matching framework reference in `references/` for commands.
@@ -15,14 +15,14 @@ python3 scripts/detect-ui-framework.py .
 # Then run the appropriate command (e.g., tuist test, xcodebuild test, npx playwright test)
 ```
 
-3. **For each test result**, update `.pathfinder/journeys.json`:
+3. **For each test result**, update `$PATHFINDER_DIR/journeys.json`:
    - Test passes → `"tested": true`
    - Test fails → `"tested": false` (regression or incomplete implementation)
    - Test disabled with comment → `"tested": "partial"` with `"note"` explaining why
 
 4. **Regenerate diagrams:**
 ```bash
-python3 scripts/generate-diagrams.py .pathfinder/journeys.json
+python3 scripts/generate-diagrams.py $PATHFINDER_DIR/journeys.json
 ```
 This produces:
    - **Legend** — symbol/colour reference
@@ -34,7 +34,7 @@ This produces:
 
 5. **Compute coverage score:**
 ```bash
-python3 scripts/coverage-score.py .pathfinder/journeys.json
+python3 scripts/coverage-score.py $PATHFINDER_DIR/journeys.json
 ```
 
 6. **Commit:**
@@ -43,7 +43,7 @@ git add .pathfinder/
 git commit -m "Verify: Coverage at X% (Y/Z steps tested)"
 ```
 
-7. **If creating a PR**, include the diagrams and coverage delta from `.pathfinder/blazes.md` in the PR body. The before/after comparison shows reviewers exactly what improved.
+7. **If creating a PR**, include the diagrams and coverage delta from `$PATHFINDER_DIR/blazes.md` in the PR body. The before/after comparison shows reviewers exactly what improved.
 
 ## Coverage Thresholds
 
@@ -57,7 +57,7 @@ git commit -m "Verify: Coverage at X% (Y/Z steps tested)"
 
 When a coverage sprint is done, reset the baseline for the next round:
 ```bash
-python3 scripts/generate-diagrams.py .pathfinder/journeys.json --save-baseline
+python3 scripts/generate-diagrams.py $PATHFINDER_DIR/journeys.json --save-baseline
 ```
 
 This makes the current coverage the new "before" for future comparison.

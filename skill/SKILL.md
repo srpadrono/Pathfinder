@@ -77,21 +77,21 @@ All scripts are Python 3 CLIs. They output JSON to stdout, errors to stderr.
 | `scripts/generate-diagrams.py journeys.json` | Generate flowcharts, decision tree, and delta |
 | `scripts/generate-diagrams.py journeys.json --save-baseline` | Reset baseline to current state |
 | `scripts/generate-diagrams.py journeys.json --clear-baseline` | Remove baseline (next run creates fresh one) |
-| `scripts/coverage-score.py .pathfinder/journeys.json` | Compute coverage percentage |
+| `scripts/coverage-score.py [journeys.json]` | Compute coverage percentage |
 | `scripts/snapshot-compare.py capture\|compare name image` | Visual regression |
 
 ## Project Files
 
 | File | Purpose |
 |------|---------|
-| `.pathfinder/config.json` | Project config (framework, test directory, auth) |
-| `.pathfinder/journeys.json` | Journey map — source of truth |
-| `.pathfinder/journeys-baseline.json` | Baseline snapshot for before/after comparison (auto-created) |
-| `.pathfinder/blazes.md` | Mermaid coverage diagrams (auto-generated) |
+| `$PATHFINDER_DIR/config.json` | Project config (framework, test directory, auth) |
+| `$PATHFINDER_DIR/journeys.json` | Journey map — source of truth |
+| `$PATHFINDER_DIR/journeys-baseline.json` | Baseline snapshot for before/after comparison (auto-created) |
+| `$PATHFINDER_DIR/blazes.md` | Mermaid coverage diagrams (auto-generated) |
 
 ## Configuration
 
-Optional `.pathfinder/config.json`:
+Optional `$PATHFINDER_DIR/config.json`:
 
 ```json
 {
@@ -103,10 +103,11 @@ Optional `.pathfinder/config.json`:
 ```
 
 If absent, Pathfinder auto-detects from framework config files.
+`PATHFINDER_DIR` defaults to `.pathfinder` and can point to a module-level folder.
 
 ## Error Handling
 
-- No UI framework detected → specify in `.pathfinder/config.json` or install one.
+- No UI framework detected → specify in `$PATHFINDER_DIR/config.json` or install one.
 - Journey map missing → run `/map` first.
 - Coverage drops after code changes → new untested routes. Re-run `/map`.
 - Mermaid parse errors → labels with parentheses `()` are auto-escaped to `[]`; all labels are double-quoted.
