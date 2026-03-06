@@ -6,24 +6,21 @@
 - Git
 - Pillow *(optional, for visual regression)* — `pip install Pillow`
 
-## Claude Code Plugin (recommended)
-
-```bash
-claude plugin marketplace add srpadrono/Pathfinder
-claude plugin install pathfinder
-```
-
-That's it. The plugin handles skills, hooks, and agent configuration automatically.
-
-## One-liner (Codex, Gemini CLI, Cursor, etc.)
+## Install
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-This clones the repo to `~/.agents/pathfinder`, symlinks skills into `~/.agents/skills/`, and registers the Claude Code plugin if the CLI is available. Existing `~/.pathfinder` installs are migrated automatically.
+This single command:
+- Clones the repo to `~/.agents/pathfinder`
+- Symlinks skills into `~/.agents/skills/`
+- Registers and installs the Claude Code plugin (if `claude` CLI is available)
+- Migrates existing `~/.pathfinder` installs automatically
 
-After installing, add this snippet to your project's `CLAUDE.md` (or `AGENTS.md` for Codex):
+For **Claude Code** users, that's it — the plugin handles everything.
+
+For **Codex, Gemini CLI, Cursor**, add this snippet to your project's `CLAUDE.md` or `AGENTS.md`:
 
 ```markdown
 ## Pathfinder — UI Test Coverage Mapping
