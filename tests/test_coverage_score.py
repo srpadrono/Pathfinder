@@ -49,8 +49,27 @@ def test_partial_status():
         assert out["partial"] == 1
     print("✅ test_partial_status")
 
+
+def test_auto_detects_canonical_journeys_path():
+    with tempfile.TemporaryDirectory() as d:
+        pdir = os.path.join(d, "e2e", "tests", "pathfinder")
+        os.makedirs(pdir)
+        with open(os.path.join(pdir, "config.json"), "w") as f:
+            json.dump({"testDir": "e2e/tests"}, f)
+        with open(os.path.join(pdir, "journeys.json"), "w") as f:
+            json.dump({"journeys": [{"id": "A", "name": "Flow", "steps": [
+                {"id": "A-01", "action": "S1", "tested": True},
+            ]}]}, f)
+
+        r = subprocess.run(["python3", SCRIPT], cwd=d, capture_output=True, text=True)
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+        out = json.loads(r.stdout)
+        assert out["coverage"] == 100.0
+    print("✅ test_auto_detects_canonical_journeys_path")
+
 if __name__ == "__main__":
     test_high_coverage()
     test_low_coverage_exits_1()
     test_partial_status()
+    test_auto_detects_canonical_journeys_path()
     print("\nAll coverage-score tests passed")

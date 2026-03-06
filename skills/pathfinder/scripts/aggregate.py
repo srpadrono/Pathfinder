@@ -6,7 +6,7 @@ Usage: python3 aggregate.py [root-dir] [--output pathfinder/blazes.md]
 Discovers all **/pathfinder/journeys.json files, merges them into a
 combined summary, and optionally generates an aggregated blazes.md.
 """
-import argparse, json, os, sys, subprocess
+import argparse, copy, json, os, re, sys, subprocess
 
 
 def find_journey_files(root):
@@ -18,6 +18,27 @@ def find_journey_files(root):
         if os.path.basename(dirpath) == "pathfinder" and "journeys.json" in filenames:
             found.append(os.path.join(dirpath, "journeys.json"))
     return sorted(found)
+
+
+def namespace_module_name(module_name):
+    token = re.sub(r"[^A-Za-z0-9]+", "_", module_name).strip("_").upper()
+    return token or "ROOT"
+
+
+def namespace_journey(journey, module_name):
+    prefix = namespace_module_name(module_name)
+    namespaced = copy.deepcopy(journey)
+    original_journey_id = namespaced.get("id", "JOURNEY")
+    namespaced["_module"] = module_name
+    namespaced["_sourceId"] = original_journey_id
+    namespaced["id"] = f"{prefix}__{original_journey_id}"
+
+    for step in namespaced.get("steps", []):
+        original_step_id = step.get("id", "STEP")
+        step["_sourceId"] = original_step_id
+        step["id"] = f"{prefix}__{original_step_id}"
+
+    return namespaced
 
 
 def main():
@@ -57,10 +78,9 @@ def main():
             "coverage": coverage,
         })
 
-        # Prefix journey IDs with module name to avoid collisions
+        # Prefix journey and step IDs with module name to avoid collisions.
         for j in journeys:
-            j["_module"] = module_name
-            all_journeys.append(j)
+            all_journeys.append(namespace_journey(j, module_name))
 
     # Summary
     total_steps = sum(m["steps"] for m in modules)

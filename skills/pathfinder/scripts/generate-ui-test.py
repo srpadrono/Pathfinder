@@ -21,6 +21,8 @@ Options:
 """
 import argparse, sys, os, json, re, glob
 
+from pathfinder_paths import find_pathfinder_config
+
 # --- Templates ---
 
 PLAYWRIGHT_NEW_FILE = '''import {{ test, expect }} from '@playwright/test'
@@ -225,28 +227,15 @@ TEMPLATES_APPEND = {
     "flutter-test": FLUTTER_APPEND,
 }
 
-# --- Path detection ---
-
-def find_pathfinder_config():
-    """Find pathfinder config.json in common locations."""
-    for root, dirs, files in os.walk("."):
-        dirs[:] = [d for d in dirs if d not in (".git", "node_modules", ".build", "build")]
-        if "config.json" in files:
-            candidate = os.path.join(root, "config.json")
-            if os.path.basename(os.path.dirname(candidate)) == "pathfinder":
-                return candidate
-    return None
-
-
 def find_test_dir():
     """Auto-detect test directory from project config."""
-    # Check <testDir>/pathfinder/config.json (anywhere in project)
     config_path = find_pathfinder_config()
     if config_path:
         with open(config_path) as f:
             cfg = json.load(f)
             if "testDir" in cfg:
                 return cfg["testDir"]
+        return os.path.dirname(os.path.dirname(config_path))
 
     # Check playwright config for testDir
     for cfg_path in ["e2e/playwright.config.ts", "playwright.config.ts", "e2e/playwright.config.js", "playwright.config.js"]:
@@ -316,10 +305,10 @@ def append_to_file(filepath, content, framework):
         # Look for the last })\n pattern that closes a describe
         lines = existing.rstrip().split('\n')
 
-        # Find the last line that is just })
+        # Find the last line that closes the surrounding block.
         insert_idx = None
         for i in range(len(lines) - 1, -1, -1):
-            if lines[i].strip() == '})':
+            if lines[i].strip() in ('})', '});'):
                 insert_idx = i
                 break
 

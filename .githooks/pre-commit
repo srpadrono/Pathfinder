@@ -1,20 +1,16 @@
 #!/usr/bin/env bash
-# Pathfinder: Ensure all journeys.json files stay valid
+# Pathfinder: Ensure staged journeys.json files stay valid
 set -euo pipefail
 
-# Find all pathfinder/journeys.json files in the project
-journeys_files=$(find . -path "*/pathfinder/journeys.json" -not -path "./.git/*" 2>/dev/null || true)
+FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '(^|/)(\.pathfinder|pathfinder)/journeys\.json$' || true)
+[ -n "$FILES" ] || exit 0
 
-[ -n "$journeys_files" ] || exit 0
-
-# Validate each one
-failed=0
-for jfile in $journeys_files; do
-  python3 -c "import json; json.load(open('$jfile'))" 2>/dev/null || {
-    echo "✘ Pathfinder: $jfile is invalid JSON."
-    failed=1
+status=0
+for file in $FILES; do
+  python3 -c "import json, sys; json.load(open(sys.argv[1]))" "$file" 2>/dev/null || {
+    echo "✘ Pathfinder: $file is invalid JSON."
+    status=1
   }
 done
 
-[ $failed -eq 0 ] || exit 1
-exit 0
+exit $status

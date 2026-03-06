@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Generate Mermaid flowchart diagrams from journeys.json.
 
-Usage: python3 generate-diagrams.py <testDir>/pathfinder/journeys.json [--output <testDir>/pathfinder/blazes.md]
+Usage: python3 generate-diagrams.py [<testDir>/pathfinder/journeys.json] [--output <testDir>/pathfinder/blazes.md]
 """
 import json, sys, os, argparse, re
+from collections import defaultdict
+
+from pathfinder_paths import find_journeys_file
 
 
 JOURNEY_ICONS = {
@@ -68,234 +71,102 @@ def node_declaration(node_id, label, is_tested, is_partial):
 
 
 def build_decision_tree(journeys):
-    """Build a single Mermaid flowchart showing all journeys as a decision tree.
-
-    Merges journeys that share common screens/actions into branch points
-    rendered as diamond decision nodes.
-    """
+    """Build a single Mermaid flowchart showing all journeys as a graph."""
     lines = ["flowchart TD"]
     styles = []
-    declared = set()
+    declared_nodes = set()
+    declared_decisions = set()
+    declared_edges = set()
+    nodes = {}
+    roots = []
+    incoming = defaultdict(set)
+    outgoing = defaultdict(list)
+    edge_meta = {}
 
-    # Collect all steps with unique node IDs
-    all_steps = {}
-    for journey in journeys:
-        for step in journey.get("steps", []):
-            sid = sanitize_id(step["id"])
-            all_steps[sid] = step
-
-    # ── Build a tree structure by analysing the journeys ──
-    # We look for shared first-step screens and merge them.
-    # Group journeys by first screen to find the root.
-    screen_groups = {}
     for journey in journeys:
         steps = journey.get("steps", [])
-        if not steps:
-            continue
-        first_screen = steps[0].get("screen", "Main")
-        screen_groups.setdefault(first_screen, []).append(journey)
+        prev_id = None
+        prev_screen = None
+        for index, step in enumerate(steps):
+            node_id = sanitize_id(step["id"])
+            if node_id not in nodes:
+                nodes[node_id] = step
+            if index == 0 and node_id not in roots:
+                roots.append(node_id)
 
-    def declare_step(step, prefix=""):
-        """Declare a step node if not already declared."""
-        sid = sanitize_id(step["id"])
-        if sid in declared:
-            return sid
-        declared.add(sid)
+            if prev_id:
+                if node_id not in outgoing[prev_id]:
+                    outgoing[prev_id].append(node_id)
+                incoming[node_id].add(prev_id)
+                edge_meta.setdefault(
+                    (prev_id, node_id),
+                    {
+                        "label": step.get("action", step["id"]),
+                        "cross_screen": prev_screen != step.get("screen", "Main"),
+                    },
+                )
+
+            prev_id = node_id
+            prev_screen = step.get("screen", "Main")
+
+    def declare_step(node_id):
+        if node_id in declared_nodes:
+            return
+        step = nodes[node_id]
         is_tested, is_partial, marker = step_status(step)
-        label = sanitize_label(f"{marker} {step.get('action', sid)}")
-        lines.append(node_declaration(sid, label, is_tested, is_partial))
-        styles.append(style_line(sid, step))
-        return sid
+        label = sanitize_label(f"{marker} {step.get('action', node_id)}")
+        lines.append(node_declaration(node_id, label, is_tested, is_partial))
+        styles.append(style_line(node_id, step))
+        declared_nodes.add(node_id)
 
-    def add_decision(parent_id, label):
-        """Add a diamond decision node with labelled branches."""
-        decision_id = f"{parent_id}_decision"
-        if decision_id not in declared:
-            declared.add(decision_id)
-            safe_label = sanitize_label(label)
-            lines.append(f'    {decision_id}{{{{"🔀 {safe_label}"}}}}')
+    def declare_decision(source_id):
+        decision_id = f"{source_id}_decision"
+        if decision_id not in declared_decisions:
+            declared_decisions.add(decision_id)
+            lines.append(f'    {decision_id}{{{{"🔀 User action?"}}}}')
             styles.append(f"    style {decision_id} fill:#1f6feb,stroke:#1158c7,color:#fff")
-        lines.append(f"    {parent_id} --> {decision_id}")
+        edge = f"    {source_id} --> {decision_id}"
+        if edge not in declared_edges:
+            lines.append(edge)
+            declared_edges.add(edge)
         return decision_id
 
-    def emit_chain(steps, start_idx=0):
-        """Emit a linear chain of steps, returning the last node id."""
-        prev_id = None
-        for i in range(start_idx, len(steps)):
-            step = steps[i]
-            sid = declare_step(step)
-            if prev_id and sid not in declared_edges:
-                prev_screen = steps[i - 1].get("screen", "Main") if i > start_idx else ""
-                curr_screen = step.get("screen", "Main")
-                arrow = " -.-> " if prev_screen != curr_screen else " --> "
-                edge = f"    {prev_id}{arrow}{sid}"
+    walked = set()
+
+    def walk(node_id):
+        if node_id in walked:
+            return
+        walked.add(node_id)
+        declare_step(node_id)
+
+        children = outgoing.get(node_id, [])
+        if len(children) > 1:
+            decision_id = declare_decision(node_id)
+            for child_id in children:
+                declare_step(child_id)
+                label = sanitize_label(edge_meta[(node_id, child_id)]["label"])
+                edge = f'    {decision_id} -->|"{label}"| {child_id}'
                 if edge not in declared_edges:
                     lines.append(edge)
                     declared_edges.add(edge)
-            prev_id = sid
-        return prev_id
+                walk(child_id)
+            return
 
-    declared_edges = set()
+        if len(children) == 1:
+            child_id = children[0]
+            declare_step(child_id)
+            arrow = " -.-> " if edge_meta[(node_id, child_id)]["cross_screen"] else " --> "
+            edge = f"    {node_id}{arrow}{child_id}"
+            if edge not in declared_edges:
+                lines.append(edge)
+                declared_edges.add(edge)
+            walk(child_id)
 
-    # ── Identify the main happy-path journeys (non-error) and error journeys ──
-    main_journeys = [j for j in journeys if j.get("id", "").upper() != "ERROR"]
-    error_journeys = [j for j in journeys if j.get("id", "").upper() == "ERROR"]
-
-    # ── Find shared prefix among main journeys ──
-    # Step 1: Declare the shared entry point
-    if main_journeys:
-        # All main journeys start with "User sees transaction details" on the same screen
-        first_step = main_journeys[0]["steps"][0]
-        root_id = declare_step(first_step)
-
-        # ── Group by the second step action (the user's first decision) ──
-        # Find branches: steps that diverge from the shared root
-        branch_groups = {}
-        for journey in main_journeys:
-            steps = journey.get("steps", [])
-            if len(steps) < 2:
-                continue
-            # Group by action text to merge journeys with same user action
-            branch_key = steps[1].get("action", steps[1]["id"])
-            branch_groups.setdefault(branch_key, []).append(journey)
-
-        if len(branch_groups) > 1:
-            # Multiple branches from root → decision point
-            decision_id = add_decision(root_id, "User action?")
-
-            for branch_key, branch_journeys in branch_groups.items():
-                first_branch_step = branch_journeys[0]["steps"][1]
-                branch_label = first_branch_step.get("action", branch_key)
-
-                # Find where these sub-branches diverge
-                if len(branch_journeys) == 1:
-                    # Single path from here
-                    journey = branch_journeys[0]
-                    steps = journey["steps"]
-                    first_sid = declare_step(steps[1])
-                    edge = f'    {decision_id} -->|"{sanitize_label(branch_label)}"| {first_sid}'
-                    if edge not in declared_edges:
-                        lines.append(edge)
-                        declared_edges.add(edge)
-                    # Emit rest of chain
-                    prev_id = first_sid
-                    for k in range(2, len(steps)):
-                        step = steps[k]
-                        sid = declare_step(step)
-                        prev_screen = steps[k - 1].get("screen", "Main")
-                        curr_screen = step.get("screen", "Main")
-                        arrow = " -.-> " if prev_screen != curr_screen else " --> "
-                        edge = f"    {prev_id}{arrow}{sid}"
-                        if edge not in declared_edges:
-                            lines.append(edge)
-                            declared_edges.add(edge)
-                        prev_id = sid
-                else:
-                    # Multiple journeys share this branch → find their shared prefix
-                    # then add another decision point
-                    # Find common prefix length by comparing step actions
-                    ref_steps = branch_journeys[0]["steps"]
-                    common_len = len(ref_steps)
-                    for bj in branch_journeys[1:]:
-                        bj_steps = bj["steps"]
-                        prefix_end = min(len(ref_steps), len(bj_steps))
-                        for ci in range(1, prefix_end):
-                            if ref_steps[ci].get("action") != bj_steps[ci].get("action"):
-                                common_len = min(common_len, ci)
-                                break
-
-                    # Emit shared prefix
-                    shared_step = ref_steps[1]
-                    first_sid = declare_step(shared_step)
-                    edge = f'    {decision_id} -->|"{sanitize_label(branch_label)}"| {first_sid}'
-                    if edge not in declared_edges:
-                        lines.append(edge)
-                        declared_edges.add(edge)
-
-                    prev_id = first_sid
-                    for ci in range(2, common_len):
-                        step = ref_steps[ci]
-                        sid = declare_step(step)
-                        prev_screen = ref_steps[ci - 1].get("screen", "Main")
-                        curr_screen = step.get("screen", "Main")
-                        arrow = " -.-> " if prev_screen != curr_screen else " --> "
-                        edge = f"    {prev_id}{arrow}{sid}"
-                        if edge not in declared_edges:
-                            lines.append(edge)
-                            declared_edges.add(edge)
-                        prev_id = sid
-
-                    # Sub-decision point
-                    _sub_decision_label = ref_steps[common_len - 1].get("action", "Choice?") if common_len > 1 else "Choice?"
-                    sub_decision_id = add_decision(prev_id, "User response?")
-
-                    for bj in branch_journeys:
-                        bj_steps = bj["steps"]
-                        if common_len < len(bj_steps):
-                            sub_step = bj_steps[common_len]
-                            sub_sid = declare_step(sub_step)
-                            sub_label = sub_step.get("action", sub_step["id"])
-                            edge = f'    {sub_decision_id} -->|"{sanitize_label(sub_label)}"| {sub_sid}'
-                            if edge not in declared_edges:
-                                lines.append(edge)
-                                declared_edges.add(edge)
-                            sub_prev = sub_sid
-                            for si in range(common_len + 1, len(bj_steps)):
-                                step = bj_steps[si]
-                                sid = declare_step(step)
-                                prev_screen = bj_steps[si - 1].get("screen", "Main")
-                                curr_screen = step.get("screen", "Main")
-                                arrow = " -.-> " if prev_screen != curr_screen else " --> "
-                                edge = f"    {sub_prev}{arrow}{sid}"
-                                if edge not in declared_edges:
-                                    lines.append(edge)
-                                    declared_edges.add(edge)
-                                sub_prev = sid
-        else:
-            # Single path, no branching
-            journey = main_journeys[0]
-            emit_chain(journey["steps"])
-
-    # ── Error journeys: attach error steps to the loading/API steps they branch from ──
-    for ej in error_journeys:
-        steps = ej.get("steps", [])
-        if not steps:
-            continue
-        # Group error steps by screen, then attach each group to
-        # the matching loading/API step on that screen
-        screen_groups_err = {}
-        for step in steps:
-            screen = step.get("screen", "Main")
-            screen_groups_err.setdefault(screen, []).append(step)
-
-        for screen, err_steps in screen_groups_err.items():
-            # Find the loading/API step on this screen to branch from
-            parent_id = None
-            for mj in main_journeys:
-                for ms in mj.get("steps", []):
-                    ms_screen = ms.get("screen", "Main")
-                    ms_action = ms.get("action", "").lower()
-                    if ms_screen == screen and ("loading" in ms_action or "api" in ms_action):
-                        candidate = sanitize_id(ms["id"])
-                        if candidate in declared:
-                            parent_id = candidate
-                            break
-                if parent_id:
-                    break
-
-            # Chain error steps for this screen
-            prev_id = parent_id
-            for step in err_steps:
-                sid = declare_step(step)
-                if prev_id:
-                    if prev_id == parent_id:
-                        edge = f'    {prev_id} -.->|"⚡ API Error"| {sid}'
-                    else:
-                        edge = f"    {prev_id} --> {sid}"
-                    if edge not in declared_edges:
-                        lines.append(edge)
-                        declared_edges.add(edge)
-                prev_id = sid
+    ordered_roots = roots + [node_id for node_id in nodes if not incoming.get(node_id) and node_id not in roots]
+    for root_id in ordered_roots:
+        walk(root_id)
+    for node_id in nodes:
+        walk(node_id)
 
     lines.extend(styles)
     return lines
@@ -389,13 +260,15 @@ def compute_coverage(journeys):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("journeys_file", help="Path to journeys.json")
+    parser.add_argument("journeys_file", nargs="?", help="Path to journeys.json (auto-detected if omitted)")
     parser.add_argument("--output", default=None)
     parser.add_argument("--save-baseline", action="store_true",
                         help="Force-save current state as the baseline snapshot")
     parser.add_argument("--clear-baseline", action="store_true",
                         help="Remove baseline to start fresh")
     args = parser.parse_args()
+
+    args.journeys_file = args.journeys_file or find_journeys_file() or "pathfinder/journeys.json"
 
     # Default output: same directory as journeys file
     if args.output is None:
@@ -537,7 +410,7 @@ def main():
 
     output = "\n".join(lines) + "\n"
 
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
     with open(args.output, "w") as f:
         f.write(output)
 

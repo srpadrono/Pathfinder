@@ -7,15 +7,17 @@ Thanks for your interest in contributing! Here's how to get started.
 1. **Fork** the repository
 2. **Create a branch** from `main` (`git checkout -b feature/my-feature`)
 3. **Make your changes** and add tests if applicable
-4. **Run the tests** (`python3 -m pytest tests/ -v`)
-5. **Commit** with a clear message
-6. **Open a Pull Request** against `main`
+4. **Install dev dependencies** (`python3 -m pip install -r requirements-dev.txt`)
+5. **Run the tests** (`python3 -m pytest tests/ -v`)
+6. **Commit** with a clear message
+7. **Open a Pull Request** against `main`
 
 ## Development Setup
 
 ```bash
 git clone https://github.com/srpadrono/Pathfinder.git
 cd Pathfinder
+python3 -m pip install -r requirements-dev.txt
 python3 -m pytest tests/ -v
 ```
 

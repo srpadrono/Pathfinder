@@ -4,6 +4,13 @@ import subprocess, json, tempfile, os
 
 SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "generate-diagrams.py")
 
+
+def _decision_tree_section(content):
+    marker = "## 🌳 Decision Tree — All Paths\n"
+    assert marker in content, content
+    section = content.split(marker, 1)[1]
+    return section.split("\n## ", 1)[0]
+
 def test_basic_diagram():
     with tempfile.TemporaryDirectory() as d:
         journeys = {
@@ -59,8 +66,59 @@ def test_all_tested():
         assert "100.0%" in open(opath).read()
     print("✅ test_all_tested")
 
+
+def test_decision_tree_keeps_independent_roots():
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [
+                {"id": "AUTH", "name": "Auth", "steps": [
+                    {"id": "AUTH-01", "action": "Open login", "screen": "/login", "tested": True},
+                    {"id": "AUTH-02", "action": "Submit", "screen": "/login", "tested": False},
+                ]},
+                {"id": "SETTINGS", "name": "Settings", "steps": [
+                    {"id": "SET-01", "action": "Open settings", "screen": "/settings", "tested": True},
+                    {"id": "SET-02", "action": "Save", "screen": "/settings", "tested": False},
+                ]},
+            ]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        opath = os.path.join(d, "out.md")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+
+        r = subprocess.run(["python3", SCRIPT, jpath, "--output", opath], capture_output=True, text=True)
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+        decision_tree = _decision_tree_section(open(opath).read())
+        assert "Open login" in decision_tree
+        assert "Open settings" in decision_tree, decision_tree
+    print("✅ test_decision_tree_keeps_independent_roots")
+
+
+def test_output_filename_without_directory():
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [{"id": "AUTH", "name": "Auth", "steps": [
+                {"id": "AUTH-01", "action": "Login", "screen": "/login", "tested": True},
+            ]}]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+
+        r = subprocess.run(
+            ["python3", SCRIPT, "journeys.json", "--output", "blazes.md"],
+            cwd=d,
+            capture_output=True,
+            text=True,
+        )
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+        assert os.path.exists(os.path.join(d, "blazes.md"))
+    print("✅ test_output_filename_without_directory")
+
 if __name__ == "__main__":
     test_basic_diagram()
     test_empty_journeys()
     test_all_tested()
+    test_decision_tree_keeps_independent_roots()
+    test_output_filename_without_directory()
     print("\nAll generate-diagrams tests passed")

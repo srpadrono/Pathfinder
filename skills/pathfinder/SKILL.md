@@ -94,7 +94,7 @@ All scripts are Python 3 CLIs in the `scripts/` directory of this skill. They ou
 | `scripts/generate-diagrams.py journeys.json` | Generate flowcharts, decision tree, and delta |
 | `scripts/generate-diagrams.py journeys.json --save-baseline` | Reset baseline to current state |
 | `scripts/generate-diagrams.py journeys.json --clear-baseline` | Remove baseline (next run creates fresh one) |
-| `scripts/coverage-score.py <testDir>/pathfinder/journeys.json` | Compute coverage percentage |
+| `scripts/coverage-score.py [<testDir>/pathfinder/journeys.json]` | Compute coverage percentage (auto-detects when omitted) |
 | `scripts/snapshot-compare.py capture\|compare name image` | Visual regression |
 | `scripts/aggregate.py [root]` | Discover all modules, merge coverage summary |
 | `scripts/validate-journeys.py <path>` | Validate journeys.json structure and fields |
