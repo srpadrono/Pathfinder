@@ -6,18 +6,16 @@
 - Git
 - Pillow *(optional, for visual regression)* — `pip install Pillow`
 
-## Install
-
-**Claude Code (recommended):**
+## Claude Code Plugin (recommended)
 
 ```bash
 claude plugin marketplace add srpadrono/Pathfinder
 claude plugin install pathfinder
 ```
 
-Plugin install handles everything — skills, hooks, and agent configuration. No manual steps.
+That's it. The plugin handles skills, hooks, and agent configuration automatically.
 
-**One-liner (all agents):**
+## One-liner (Codex, Gemini CLI, Cursor, etc.)
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
@@ -37,13 +35,6 @@ Commands: /map, /blaze, /scout, /summit — each is a skill that activates autom
 
 Full overview: ~/.agents/skills/pathfinder/SKILL.md
 Scripts: ~/.agents/skills/pathfinder/scripts/ (Python 3 CLIs, JSON output)
-```
-
-Then initialize in your project:
-
-```bash
-cd your-project
-python3 ~/.agents/skills/pathfinder/scripts/pathfinder-init.py
 ```
 
 ## Git Hooks (optional)
@@ -73,5 +64,5 @@ rm ~/.agents/skills/{pathfinder,map,blaze,scout,summit}
 |---------|-----|
 | `python3: command not found` | `brew install python` (macOS) or `sudo apt install python3` |
 | Agent ignores `/map` | Check instruction file contains the Pathfinder snippet |
-| `journeys.json` not found | Run `pathfinder-init.py` first |
+| `journeys.json` not found | Run `/map` first |
 | Git hooks not firing | `git config core.hooksPath` should show `~/.agents/pathfinder/.githooks` |
