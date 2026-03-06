@@ -141,6 +141,49 @@ unregister_plugin() {
   fi
 }
 
+PATHFINDER_SNIPPET='## Pathfinder — UI Test Coverage Mapping
+
+Pathfinder is installed at ~/.agents/skills/pathfinder. It maps user journeys,
+visualizes test coverage with Mermaid flowcharts, and generates framework-correct UI tests.
+
+Commands: /map, /blaze, /scout, /summit — each is a skill that activates automatically.
+
+Full overview: ~/.agents/skills/pathfinder/SKILL.md
+Scripts: ~/.agents/skills/pathfinder/scripts/ (Python 3 CLIs, JSON output)'
+
+inject_agent_instructions() {
+  local files=(
+    "${HOME}/.claude/CLAUDE.md"
+    "${HOME}/.codex/AGENTS.md"
+  )
+  for file in "${files[@]}"; do
+    [ -d "$(dirname "$file")" ] || continue
+    if [ -f "$file" ] && grep -q "Pathfinder — UI Test Coverage Mapping" "$file" 2>/dev/null; then
+      continue  # already present
+    fi
+    printf '\n\n%s\n' "$PATHFINDER_SNIPPET" >> "$file"
+    success "Added Pathfinder snippet to $file"
+  done
+}
+
+remove_agent_instructions() {
+  local files=(
+    "${HOME}/.claude/CLAUDE.md"
+    "${HOME}/.codex/AGENTS.md"
+  )
+  for file in "${files[@]}"; do
+    [ -f "$file" ] || continue
+    if grep -q "Pathfinder — UI Test Coverage Mapping" "$file" 2>/dev/null; then
+      # Remove the snippet block (from ## Pathfinder header to Scripts: line)
+      sed -i.bak '/## Pathfinder — UI Test Coverage Mapping/,/Scripts:.*JSON output)/d' "$file"
+      # Clean up trailing blank lines left behind
+      sed -i.bak -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$file"
+      rm -f "${file}.bak"
+      success "Removed Pathfinder snippet from $file"
+    fi
+  done
+}
+
 checkout_version() {
   local version="$1"
   if ! git -C "$REPO_HOME" rev-parse "$version" &>/dev/null; then
@@ -207,6 +250,10 @@ cmd_install() {
   echo ""
   register_plugin
 
+  # Inject agent instructions into global config files
+  echo ""
+  inject_agent_instructions
+
   # Done
   CLEANUP_ACTION=""
   echo ""
@@ -265,6 +312,9 @@ cmd_uninstall() {
     warn "Pathfinder is not installed."
     exit 0
   fi
+
+  # Remove agent instructions
+  remove_agent_instructions
 
   # Remove plugin
   unregister_plugin
