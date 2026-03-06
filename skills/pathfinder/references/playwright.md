@@ -21,7 +21,7 @@ page.locator('#submit')       // implementation detail
 
 ## Waits
 ```typescript
-await page.waitForLoadState('networkidle')
+await page.waitForLoadState('networkidle')  // unreliable -- prefer condition-based waits below
 await expect(page.getByText('Loaded')).toBeVisible()
 await page.waitForResponse(resp => resp.url().includes('/api/data'))
 // NEVER: await page.waitForTimeout(3000)

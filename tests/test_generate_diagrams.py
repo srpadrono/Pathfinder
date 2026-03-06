@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Tests for generate-diagrams.py"""
-import subprocess, json, tempfile, os
+import json
+import os
+import subprocess
+import tempfile
 
 SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "generate-diagrams.py")
 
@@ -46,7 +49,11 @@ def test_empty_journeys():
         jpath = os.path.join(d, "journeys.json")
         with open(jpath, "w") as f:
             json.dump({"journeys": []}, f)
-        r = subprocess.run(["python3", SCRIPT, jpath, "--output", os.path.join(d, "out.md")], capture_output=True, text=True)
+        r = subprocess.run(
+            ["python3", SCRIPT, jpath, "--output",
+             os.path.join(d, "out.md")],
+            capture_output=True, text=True,
+        )
         assert r.returncode == 1, "Should fail on empty journeys"
     print("✅ test_empty_journeys")
 
@@ -142,6 +149,98 @@ def test_error_journey_attaches_to_loading_step():
         assert 'CHECKOUT_02 -.->|"⚡ API Error"| ERROR_01' in decision_tree, decision_tree
     print("✅ test_error_journey_attaches_to_loading_step")
 
+def test_journey_missing_steps_field():
+    """Journey dict without a 'steps' key should be rejected by validation."""
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [{"id": "AUTH", "name": "Authentication"}]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        opath = os.path.join(d, "out.md")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+        r = subprocess.run(["python3", SCRIPT, jpath, "--output", opath], capture_output=True, text=True)
+        assert r.returncode == 1, "Should fail on journey missing 'steps'"
+        assert "steps" in r.stderr.lower()
+    print("pass: test_journey_missing_steps_field")
+
+
+def test_journey_missing_id_field():
+    """Journey dict without an 'id' key should be rejected by validation."""
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [{"name": "No ID Journey", "steps": [
+                {"id": "X-01", "action": "Step one", "screen": "/main", "tested": True},
+            ]}]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        opath = os.path.join(d, "out.md")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+        r = subprocess.run(["python3", SCRIPT, jpath, "--output", opath], capture_output=True, text=True)
+        assert r.returncode == 1, "Should fail on journey missing 'id'"
+        assert "id" in r.stderr.lower()
+    print("pass: test_journey_missing_id_field")
+
+
+def test_step_missing_tested_field():
+    """Step without 'tested' field should be rejected by validation."""
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [{"id": "AUTH", "name": "Auth", "steps": [
+                {"id": "AUTH-01", "action": "Login", "screen": "/login"},
+            ]}]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        opath = os.path.join(d, "out.md")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+        r = subprocess.run(["python3", SCRIPT, jpath, "--output", opath], capture_output=True, text=True)
+        assert r.returncode == 1, "Should fail on step missing 'tested'"
+        assert "tested" in r.stderr.lower()
+    print("pass: test_step_missing_tested_field")
+
+
+def test_tested_as_string_instead_of_boolean():
+    """tested='true' (string) should be rejected by validation."""
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [{"id": "AUTH", "name": "Auth", "steps": [
+                {"id": "AUTH-01", "action": "Login", "screen": "/login", "tested": "true"},
+            ]}]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        opath = os.path.join(d, "out.md")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+        r = subprocess.run(["python3", SCRIPT, jpath, "--output", opath], capture_output=True, text=True)
+        assert r.returncode == 1, "Should fail on tested='true' (string instead of boolean)"
+        assert "tested" in r.stderr.lower()
+    print("pass: test_tested_as_string_instead_of_boolean")
+
+
+def test_journey_with_zero_steps():
+    """Journey with an empty steps array should not crash."""
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [
+                {"id": "EMPTY", "name": "Empty Journey", "steps": []},
+                {"id": "REAL", "name": "Real Journey", "steps": [
+                    {"id": "R-01", "action": "Do thing", "screen": "/main", "tested": True},
+                ]},
+            ]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        opath = os.path.join(d, "out.md")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+        r = subprocess.run(["python3", SCRIPT, jpath, "--output", opath], capture_output=True, text=True)
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+        content = open(opath).read()
+        assert "Real Journey" in content
+    print("pass: test_journey_with_zero_steps")
+
+
 if __name__ == "__main__":
     test_basic_diagram()
     test_empty_journeys()
@@ -149,4 +248,9 @@ if __name__ == "__main__":
     test_decision_tree_keeps_independent_roots()
     test_output_filename_without_directory()
     test_error_journey_attaches_to_loading_step()
+    test_journey_missing_steps_field()
+    test_journey_missing_id_field()
+    test_step_missing_tested_field()
+    test_tested_as_string_instead_of_boolean()
+    test_journey_with_zero_steps()
     print("\nAll generate-diagrams tests passed")

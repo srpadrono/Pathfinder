@@ -1,6 +1,6 @@
 ---
 name: pathfinder
-description: "Discovers user journeys in any codebase, visualizes UI/E2E test coverage with Mermaid flowcharts showing tested and untested steps, and generates framework-correct tests to fill gaps. Triggers on test coverage analysis, journey mapping, UI testing gaps, coverage visualization, or E2E test generation for Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, or Flutter projects. Not for unit tests, API tests, or backend-only projects."
+description: "Maps user journeys in any codebase, visualizes UI test coverage with color-coded Mermaid diagrams, and generates framework-correct E2E tests to fill gaps. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, and Flutter. Not for unit tests, API tests, or backend-only projects."
 ---
 
 # Pathfinder

@@ -8,26 +8,34 @@ Usage:
 Baselines stored in <testDir>/pathfinder/baselines/ when Pathfinder is initialized.
 Requires Pillow for pixel-level comparison. Falls back to hash comparison if unavailable.
 """
-import argparse, os, sys, json, shutil, hashlib
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import shutil
+import sys
 
 from pathfinder_paths import find_pathfinder_dir
 
 
-def baselines_dir():
+def baselines_dir() -> str:
     return os.path.join(find_pathfinder_dir(), "baselines")
 
-def file_hash(path):
+def file_hash(path: str) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
 
-def pixel_diff(baseline_path, current_path):
+def pixel_diff(baseline_path: str, current_path: str) -> float | None:
     """Compare two images pixel-by-pixel. Returns diff percentage (0-100)."""
     try:
-        from PIL import Image
         import math  # noqa: F401
+
+        from PIL import Image
     except ImportError:
         return None  # Pillow not available
 
@@ -53,7 +61,7 @@ def pixel_diff(baseline_path, current_path):
 
     return round(diff_pixels / total * 100, 2)
 
-def capture(name, image_path):
+def capture(name: str, image_path: str) -> None:
     if not os.path.exists(image_path):
         print(f"ERROR: Image not found: {image_path}", file=sys.stderr)
         sys.exit(1)
@@ -65,13 +73,13 @@ def capture(name, image_path):
     shutil.copy2(image_path, baseline)
     print(json.dumps({"action": "capture", "name": name, "baseline": baseline, "hash": file_hash(baseline)}))
 
-def compare(name, image_path, threshold):
+def compare(name: str, image_path: str, threshold: float) -> None:
     if not os.path.exists(image_path):
         print(f"ERROR: Image not found: {image_path}", file=sys.stderr)
         sys.exit(1)
 
     # Find baseline (try common extensions)
-    baseline = None
+    baseline: str | None = None
     baseline_dir = baselines_dir()
     for ext in [".png", ".jpg", ".jpeg", ".webp"]:
         candidate = os.path.join(baseline_dir, f"{name}{ext}")
@@ -119,7 +127,7 @@ def compare(name, image_path, threshold):
         print(f"Update baseline: python3 snapshot-compare.py capture {name} {image_path}", file=sys.stderr)
         sys.exit(1)
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd")
 

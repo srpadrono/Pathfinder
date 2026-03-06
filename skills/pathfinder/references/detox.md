@@ -49,7 +49,7 @@ describe('<CHECKPOINT_ID>: <description>', () => {
 
 ## Screenshots
 ```typescript
-await device.takeScreenshot('<checkpoint-id>')
+await device.takeScreenshot('<checkpoint-id>.png')
 ```
 
 ## Common Commands

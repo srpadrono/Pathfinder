@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 """Helpers for locating Pathfinder artifacts in a project tree."""
+from __future__ import annotations
+
 import json
 import os
-
 
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv"}
 
 
-def _candidate_rank(path):
+def _candidate_rank(path: str) -> tuple[int, int, str]:
     normalized = os.path.normpath(path).replace("\\", "/")
     depth = normalized.count("/")
     is_legacy = "/.pathfinder/" in normalized
     return (1 if is_legacy else 0, depth, normalized)
 
 
-def _walk_pathfinder_files(root, filename):
+def _walk_pathfinder_files(root: str, filename: str) -> list[str]:
     root = os.path.abspath(root)
-    candidates = []
+    candidates: list[str] = []
 
     legacy = os.path.join(root, ".pathfinder", filename)
     if os.path.exists(legacy):
@@ -30,7 +31,7 @@ def _walk_pathfinder_files(root, filename):
     return sorted(set(candidates), key=_candidate_rank)
 
 
-def _load_json(path):
+def _load_json(path: str) -> dict | None:
     try:
         with open(path) as fh:
             return json.load(fh)
@@ -38,12 +39,12 @@ def _load_json(path):
         return None
 
 
-def find_pathfinder_config(root="."):
+def find_pathfinder_config(root: str = ".") -> str | None:
     candidates = _walk_pathfinder_files(root, "config.json")
     return candidates[0] if candidates else None
 
 
-def find_journeys_file(root="."):
+def find_journeys_file(root: str = ".") -> str | None:
     root = os.path.abspath(root)
     config_path = find_pathfinder_config(root)
 
@@ -63,7 +64,7 @@ def find_journeys_file(root="."):
     return candidates[0] if candidates else None
 
 
-def find_pathfinder_dir(root="."):
+def find_pathfinder_dir(root: str = ".") -> str:
     root = os.path.abspath(root)
     config_path = find_pathfinder_config(root)
 

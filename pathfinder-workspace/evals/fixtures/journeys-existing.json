@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "project": "sample-app",
+  "framework": "playwright",
+  "journeys": [
+    {
+      "id": "j1",
+      "name": "User Login",
+      "steps": [
+        { "id": "s1", "screen": "login", "action": "enter credentials", "tested": true },
+        { "id": "s2", "screen": "login", "action": "click submit", "tested": true },
+        { "id": "s3", "screen": "dashboard", "action": "verify redirect", "tested": false }
+      ]
+    },
+    {
+      "id": "j2",
+      "name": "Create Report",
+      "steps": [
+        { "id": "s4", "screen": "dashboard", "action": "click create report", "tested": false },
+        { "id": "s5", "screen": "report-form", "action": "fill fields", "tested": false },
+        { "id": "s6", "screen": "report-form", "action": "submit", "tested": false }
+      ]
+    }
+  ]
+}

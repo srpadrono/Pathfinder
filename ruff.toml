@@ -2,8 +2,8 @@ line-length = 120
 target-version = "py39"
 
 [lint]
-select = ["E", "F", "W"]
-ignore = ["E501", "E401"]
+select = ["E", "F", "W", "I", "B"]
+ignore = []
 
 [lint.per-file-ignores]
 "skill/scripts/generate-ui-test.py" = ["E999", "F401"]

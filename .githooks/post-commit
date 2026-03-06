@@ -15,8 +15,11 @@ if [ -n "$CHANGED" ]; then
   for jfile in $CHANGED; do
     if [ -f "$jfile" ]; then
       echo "🔥 Regenerating diagrams for $jfile..."
-      python3 "$SCRIPT_DIR/generate-diagrams.py" "$jfile" 2>/dev/null && \
-        git add "$(dirname "$jfile")/blazes.md" 2>/dev/null || true
+      LOGFILE="$HOME/.agents/pathfinder/.diagram-regen.log"
+      mkdir -p "$(dirname "$LOGFILE")"
+      python3 "$SCRIPT_DIR/generate-diagrams.py" "$jfile" 2>>"$LOGFILE" && \
+        git add "$(dirname "$jfile")/blazes.md" 2>>"$LOGFILE" || \
+        echo "warning: diagram regeneration failed, see ~/.agents/pathfinder/.diagram-regen.log"
     fi
   done
 fi

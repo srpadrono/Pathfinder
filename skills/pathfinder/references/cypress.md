@@ -45,7 +45,7 @@ describe('<CHECKPOINT_ID>: <description>', () => {
 ## Visual Regression
 ```typescript
 // With cypress-image-snapshot
-cy.matchImageSnapshot('<checkpoint-id>')
+cy.matchImageSnapshot('<checkpoint-id>.png')
 ```
 
 ## Common Commands

@@ -48,7 +48,7 @@ class CHECKPOINT_IDTest {
 ## Screenshots
 ```kotlin
 val screenshot = Screenshot.capture(activityRule.scenario)
-screenshot.name = "<checkpoint-id>"
+screenshot.name = "<checkpoint-id>.png"
 screenshot.process()
 ```
 

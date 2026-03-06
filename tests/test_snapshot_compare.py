@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Tests for snapshot-compare.py"""
-import base64, subprocess, json, tempfile, os
+import base64
+import json
+import os
+import subprocess
+import tempfile
 
 SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "snapshot-compare.py")
 

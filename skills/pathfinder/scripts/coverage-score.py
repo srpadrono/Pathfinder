@@ -3,12 +3,15 @@
 
 Usage: python3 coverage-score.py [<testDir>/pathfinder/journeys.json]
 """
-import json, sys
+from __future__ import annotations
+
+import json
+import sys
 
 from pathfinder_paths import find_journeys_file
 
 
-def main():
+def main() -> None:
     path = sys.argv[1] if len(sys.argv) > 1 else find_journeys_file() or "pathfinder/journeys.json"
 
     with open(path) as f:
@@ -18,7 +21,7 @@ def main():
     total = 0
     tested = 0
     partial = 0
-    per_journey = []
+    per_journey: list[dict] = []
 
     for j in journeys:
         steps = j.get("steps", [])
@@ -45,11 +48,11 @@ def main():
     print(json.dumps(result, indent=2))
 
     if overall >= 80:
-        print(f"🟢 EXCELLENT: {overall}% coverage", file=sys.stderr)
+        print(f"EXCELLENT: {overall}% coverage", file=sys.stderr)
     elif overall >= 50:
-        print(f"🟡 ACCEPTABLE: {overall}% coverage", file=sys.stderr)
+        print(f"ACCEPTABLE: {overall}% coverage", file=sys.stderr)
     else:
-        print(f"🔴 INSUFFICIENT: {overall}% coverage — continue scouting", file=sys.stderr)
+        print(f"INSUFFICIENT: {overall}% coverage — continue scouting", file=sys.stderr)
         sys.exit(1)
 
 
