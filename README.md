@@ -323,20 +323,11 @@ python3 ~/.agents/skills/pathfinder/scripts/generate-ui-test.py \
 
 ## Installation
 
-**Claude Code (recommended):**
-
-```bash
-claude plugin marketplace add srpadrono/Pathfinder
-claude plugin install pathfinder
-```
-
-**One-liner (all agents):**
-
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-Or manually — see **[docs/installation.md](docs/installation.md)** for all setup options.
+One command — installs the repo, symlinks skills, and registers the Claude Code plugin. Supports `update`, `uninstall`, and `--version` flags. See **[docs/installation.md](docs/installation.md)** for details.
 
 ---
 
