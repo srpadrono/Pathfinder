@@ -5,12 +5,16 @@ Usage:
   python3 snapshot-compare.py capture <name> <image-path>
   python3 snapshot-compare.py compare <name> <image-path> [--threshold 5]
 
-Baselines stored in pathfinder/baselines/
+Baselines stored in <testDir>/pathfinder/baselines/ when Pathfinder is initialized.
 Requires Pillow for pixel-level comparison. Falls back to hash comparison if unavailable.
 """
 import argparse, os, sys, json, shutil, hashlib
 
-BASELINES_DIR = "pathfinder/baselines"
+from pathfinder_paths import find_pathfinder_dir
+
+
+def baselines_dir():
+    return os.path.join(find_pathfinder_dir(), "baselines")
 
 def file_hash(path):
     h = hashlib.sha256()
@@ -54,9 +58,10 @@ def capture(name, image_path):
         print(f"ERROR: Image not found: {image_path}", file=sys.stderr)
         sys.exit(1)
 
-    os.makedirs(BASELINES_DIR, exist_ok=True)
+    baseline_dir = baselines_dir()
+    os.makedirs(baseline_dir, exist_ok=True)
     ext = os.path.splitext(image_path)[1] or ".png"
-    baseline = os.path.join(BASELINES_DIR, f"{name}{ext}")
+    baseline = os.path.join(baseline_dir, f"{name}{ext}")
     shutil.copy2(image_path, baseline)
     print(json.dumps({"action": "capture", "name": name, "baseline": baseline, "hash": file_hash(baseline)}))
 
@@ -67,8 +72,9 @@ def compare(name, image_path, threshold):
 
     # Find baseline (try common extensions)
     baseline = None
+    baseline_dir = baselines_dir()
     for ext in [".png", ".jpg", ".jpeg", ".webp"]:
-        candidate = os.path.join(BASELINES_DIR, f"{name}{ext}")
+        candidate = os.path.join(baseline_dir, f"{name}{ext}")
         if os.path.exists(candidate):
             baseline = candidate
             break

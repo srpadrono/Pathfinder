@@ -16,13 +16,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install dev dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements-dev.txt
       - name: Run tests
         run: |
-          for t in tests/test_*.py; do
-            echo "--- $(basename $t) ---"
-            python3 "$t"
-          done
+          python3 -m pytest tests/ -v
       - name: Lint
         run: |
-          pip install ruff
           ruff check skills/pathfinder/scripts/ tests/

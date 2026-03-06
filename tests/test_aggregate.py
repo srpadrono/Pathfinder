@@ -52,8 +52,48 @@ def test_json_output():
         print("✅ test_json_output passed")
 
 
+def test_namespaces_duplicate_ids_in_aggregate_output():
+    """Should preserve both modules when IDs overlap."""
+    with tempfile.TemporaryDirectory() as d:
+        fixtures = {
+            "app1": {"id": "AUTH", "name": "Auth A", "steps": [
+                {"id": "AUTH-01", "action": "Open A", "screen": "/a", "tested": True},
+                {"id": "AUTH-02", "action": "Done A", "screen": "/a", "tested": False},
+            ]},
+            "app2": {"id": "AUTH", "name": "Auth B", "steps": [
+                {"id": "AUTH-01", "action": "Open B", "screen": "/b", "tested": True},
+                {"id": "AUTH-02", "action": "Done B", "screen": "/b", "tested": False},
+            ]},
+        }
+
+        for module, journey in fixtures.items():
+            pdir = os.path.join(d, module, "e2e", "tests", "pathfinder")
+            os.makedirs(pdir)
+            with open(os.path.join(pdir, "journeys.json"), "w") as f:
+                json.dump({"journeys": [journey]}, f)
+
+        md_path = os.path.join(d, "blazes.md")
+        r = subprocess.run(["python3", SCRIPT, d, "--output", md_path], capture_output=True, text=True)
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+
+        diagrams = open(md_path).read()
+        decision_tree = diagrams.split("## 🌳 Decision Tree — All Paths\n", 1)[1].split("\n## ", 1)[0]
+        assert "Open A" in decision_tree
+        assert "Open B" in decision_tree, decision_tree
+
+        r_json = subprocess.run(["python3", SCRIPT, d, "--json"], capture_output=True, text=True)
+        assert r_json.returncode == 0, f"JSON failed: {r_json.stderr}"
+        merged = json.loads(r_json.stdout)
+        journey_ids = [journey["id"] for journey in merged["journeys"]]
+        step_ids = [step["id"] for journey in merged["journeys"] for step in journey["steps"]]
+        assert len(set(journey_ids)) == len(journey_ids), journey_ids
+        assert len(set(step_ids)) == len(step_ids), step_ids
+        print("✅ test_namespaces_duplicate_ids_in_aggregate_output passed")
+
+
 if __name__ == "__main__":
     test_discover_modules()
     test_no_modules()
     test_json_output()
+    test_namespaces_duplicate_ids_in_aggregate_output()
     print("\nAll aggregate tests passed")

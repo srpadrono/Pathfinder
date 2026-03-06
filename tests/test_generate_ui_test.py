@@ -59,9 +59,56 @@ def test_auto_creates_when_no_match():
         assert os.path.exists(out["file"])
     print("✅ test_auto_creates_when_no_match")
 
+
+def test_auto_uses_initialized_pathfinder_config():
+    with tempfile.TemporaryDirectory() as d:
+        config_dir = os.path.join(d, "custom", "tests", "pathfinder")
+        os.makedirs(config_dir)
+        with open(os.path.join(config_dir, "config.json"), "w") as f:
+            json.dump({"testDir": "custom/tests"}, f)
+
+        r = subprocess.run(
+            ["python3", SCRIPT, "AUTH-01", "Login", "playwright", "--auto"],
+            cwd=d,
+            capture_output=True,
+            text=True,
+        )
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+        out = json.loads(r.stdout)
+        assert out["file"].endswith(os.path.join("custom", "tests", "auth.spec.ts")), out
+        assert os.path.exists(os.path.join(d, "custom", "tests", "auth.spec.ts"))
+    print("✅ test_auto_uses_initialized_pathfinder_config")
+
+
+def test_append_playwright_with_semicolons_stays_in_describe():
+    with tempfile.TemporaryDirectory() as d:
+        existing = os.path.join(d, "auth.spec.ts")
+        with open(existing, "w") as f:
+            f.write("""import { test, expect } from '@playwright/test';
+
+test.describe('Auth', () => {
+  test('existing test', async ({ page }) => {
+    await page.goto('/login');
+  });
+});
+""")
+        r = subprocess.run(
+            ["python3", SCRIPT, "AUTH-02", "Logout works", "playwright",
+             "--route", "/dashboard", "--append", existing],
+            capture_output=True,
+            text=True,
+        )
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+        content = open(existing).read()
+        assert "Logout works" in content
+        assert content.find("test('Logout works'") < content.rfind("});"), content
+    print("✅ test_append_playwright_with_semicolons_stays_in_describe")
+
 if __name__ == "__main__":
     test_create_playwright()
     test_create_maestro()
     test_append_playwright()
     test_auto_creates_when_no_match()
+    test_auto_uses_initialized_pathfinder_config()
+    test_append_playwright_with_semicolons_stays_in_describe()
     print("\nAll generate-ui-test tests passed")
