@@ -288,12 +288,23 @@ cmd_update() {
   echo ""
 
   info "Pulling latest..."
-  git -C "$REPO_HOME" fetch origin --quiet
-  git -C "$REPO_HOME" reset --hard origin/main --quiet
-  success "Updated to latest."
+  git -C "$REPO_HOME" fetch origin --tags --quiet
+
+  # Validate version tag exists before changing anything
+  if [ -n "$pin_version" ]; then
+    if ! git -C "$REPO_HOME" rev-parse "$pin_version" &>/dev/null; then
+      error "Version $pin_version not found. Available tags:"
+      git -C "$REPO_HOME" tag -l | sed 's/^/  /'
+      exit 1
+    fi
+  fi
 
   if [ -n "$pin_version" ]; then
-    checkout_version "$pin_version"
+    git -C "$REPO_HOME" checkout --quiet "$pin_version"
+    success "Pinned to $pin_version"
+  else
+    git -C "$REPO_HOME" reset --hard origin/main --quiet
+    success "Updated to latest."
   fi
 
   create_symlinks
@@ -319,11 +330,19 @@ cmd_uninstall() {
   # Remove plugin
   unregister_plugin
 
-  # Remove symlinks
+  # Remove symlinks (works even if repo was manually deleted)
   if [ -d "$REPO_HOME" ]; then
     remove_symlinks
-    success "Symlinks removed."
+  else
+    # Repo missing — clean up by known skill names
+    for name in pathfinder map blaze scout summit; do
+      local link="$SKILLS_HOME/$name"
+      if [ -L "$link" ]; then
+        rm "$link"
+      fi
+    done
   fi
+  success "Symlinks removed."
 
   # Remove repo
   if [ -d "$REPO_HOME" ]; then
