@@ -75,17 +75,32 @@ Runs all tests, reconciles results, updates the diagrams, and computes a coverag
 </tr>
 </table>
 
-```
-/map  ──→  /blaze  ──→  /scout  ──→  /summit
-  │           │            │            │
-  ▼           ▼            ▼            ▼
-Crawl      Mermaid      Write        Run all
-code       ✅ / ❌      tests        Update ❌→✅
-  │           │            │            │
-  └───────────┴────────────┴────────────┘
-                     │
-              journeys.json
-            (source of truth)
+```mermaid
+flowchart LR
+    MAP["**/map**\nDiscover journeys"]
+    BLAZE["**/blaze**\nVisualize coverage"]
+    SCOUT["**/scout**\nWrite tests"]
+    SUMMIT["**/ summit**\nRun & verify"]
+    J[("journeys.json\n\nSource of truth")]
+
+    MAP ==> BLAZE ==> SCOUT ==> SUMMIT
+    SUMMIT -.->|"Repeat"| MAP
+
+    MAP --- J
+    BLAZE --- J
+    SCOUT --- J
+    SUMMIT --- J
+
+    style MAP fill:#1f6feb,stroke:#1158c7,color:#fff,stroke-width:2px
+    style BLAZE fill:#e3b341,stroke:#b8860b,color:#000,stroke-width:2px
+    style SCOUT fill:#2ea043,stroke:#1a7f37,color:#fff,stroke-width:2px
+    style SUMMIT fill:#8957e5,stroke:#6e40c9,color:#fff,stroke-width:2px
+    style J fill:#161b22,stroke:#30363d,color:#c9d1d9,stroke-width:2px
+
+    linkStyle 4 stroke:#1f6feb,stroke-width:1px,stroke-dasharray:4
+    linkStyle 5 stroke:#e3b341,stroke-width:1px,stroke-dasharray:4
+    linkStyle 6 stroke:#2ea043,stroke-width:1px,stroke-dasharray:4
+    linkStyle 7 stroke:#8957e5,stroke-width:1px,stroke-dasharray:4
 ```
 
 The cycle repeats. New code → `/map` → new ❌ steps → `/scout` → `/summit`. The diagram always reflects reality.
@@ -346,34 +361,31 @@ One command — installs the repo, symlinks skills, and registers the Claude Cod
 
 ## 📁 Project Structure
 
-```
-~/.agents/pathfinder/                    Repo clone
-├── .claude-plugin/                      Plugin + marketplace manifest
-│   ├── plugin.json
-│   └── marketplace.json
-├── skills/                              Skills (symlinked into ~/.agents/skills/)
-│   ├── pathfinder/                      Main skill — auto-triggers on coverage questions
-│   │   ├── SKILL.md                     Entry point
-│   │   ├── references/                  8 framework + testing reference docs
-│   │   ├── scripts/                     9 Python CLI tools
-│   │   └── assets/                      Starter templates
-│   ├── map/                             /map command skill
-│   ├── blaze/                           /blaze command skill
-│   ├── scout/                           /scout command skill
-│   └── summit/                          /summit command skill
-├── hooks/                               SessionStart hook
-├── install/                             Installer
-├── tests/                               27 self-tests
-├── .githooks/                           pre-commit, post-commit, pre-push
-└── README.md                            Documentation
+**`~/.agents/pathfinder/`** (repo clone)
 
-~/.agents/skills/                        Shared skills directory
-├── pathfinder -> ../pathfinder/skills/pathfinder
-├── map -> ../pathfinder/skills/map
-├── blaze -> ../pathfinder/skills/blaze
-├── scout -> ../pathfinder/skills/scout
-└── summit -> ../pathfinder/skills/summit
-```
+| Path | Purpose |
+|------|---------|
+| `.claude-plugin/` | Plugin + marketplace manifest (`plugin.json`, `marketplace.json`) |
+| `skills/pathfinder/` | Main skill — auto-triggers on coverage questions |
+| `skills/pathfinder/SKILL.md` | Entry point |
+| `skills/pathfinder/references/` | 8 framework + testing reference docs |
+| `skills/pathfinder/scripts/` | 10 Python CLI tools |
+| `skills/pathfinder/assets/` | Starter templates |
+| `skills/map/`, `blaze/`, `scout/`, `summit/` | `/map`, `/blaze`, `/scout`, `/summit` command skills |
+| `hooks/` | SessionStart hook |
+| `install/` | Installer |
+| `tests/` | 55 self-tests |
+| `.githooks/` | pre-commit, post-commit, pre-push |
+
+**`~/.agents/skills/`** (symlinks)
+
+| Symlink | Target |
+|---------|--------|
+| `pathfinder` | `~/.agents/pathfinder/skills/pathfinder` |
+| `map` | `~/.agents/pathfinder/skills/map` |
+| `blaze` | `~/.agents/pathfinder/skills/blaze` |
+| `scout` | `~/.agents/pathfinder/skills/scout` |
+| `summit` | `~/.agents/pathfinder/skills/summit` |
 
 ---
 
