@@ -82,18 +82,50 @@ def build_decision_tree(journeys):
     incoming = defaultdict(set)
     outgoing = defaultdict(list)
     edge_meta = {}
+    error_anchor_candidates = defaultdict(list)
+
+    for journey in journeys:
+        steps = journey.get("steps", [])
+        is_error_journey = journey.get("id", "").upper() == "ERROR"
+        for step in steps:
+            node_id = sanitize_id(step["id"])
+            if node_id not in nodes:
+                nodes[node_id] = step
+            if not is_error_journey:
+                action = step.get("action", "").lower()
+                if "loading" in action or "api" in action:
+                    screen = step.get("screen", "Main")
+                    if node_id not in error_anchor_candidates[screen]:
+                        error_anchor_candidates[screen].append(node_id)
 
     for journey in journeys:
         steps = journey.get("steps", [])
         prev_id = None
         prev_screen = None
+        is_error_journey = journey.get("id", "").upper() == "ERROR"
         for index, step in enumerate(steps):
             node_id = sanitize_id(step["id"])
-            if node_id not in nodes:
-                nodes[node_id] = step
-            if index == 0 and node_id not in roots:
-                roots.append(node_id)
-
+            if index == 0:
+                attached_to_error_anchor = False
+                if is_error_journey:
+                    screen = step.get("screen", "Main")
+                    anchors = error_anchor_candidates.get(screen, [])
+                    if anchors:
+                        anchor_id = anchors[-1]
+                        if node_id not in outgoing[anchor_id]:
+                            outgoing[anchor_id].append(node_id)
+                        incoming[node_id].add(anchor_id)
+                        edge_meta.setdefault(
+                            (anchor_id, node_id),
+                            {
+                                "label": "⚡ API Error",
+                                "cross_screen": True,
+                                "kind": "error",
+                            },
+                        )
+                        attached_to_error_anchor = True
+                if not attached_to_error_anchor and node_id not in roots:
+                    roots.append(node_id)
             if prev_id:
                 if node_id not in outgoing[prev_id]:
                     outgoing[prev_id].append(node_id)
@@ -103,6 +135,7 @@ def build_decision_tree(journeys):
                     {
                         "label": step.get("action", step["id"]),
                         "cross_screen": prev_screen != step.get("screen", "Main"),
+                        "kind": "normal",
                     },
                 )
 
@@ -140,9 +173,20 @@ def build_decision_tree(journeys):
         declare_step(node_id)
 
         children = outgoing.get(node_id, [])
-        if len(children) > 1:
+        error_children = [child_id for child_id in children if edge_meta[(node_id, child_id)].get("kind") == "error"]
+        normal_children = [child_id for child_id in children if edge_meta[(node_id, child_id)].get("kind") != "error"]
+
+        for child_id in error_children:
+            declare_step(child_id)
+            edge = f'    {node_id} -.->|"⚡ API Error"| {child_id}'
+            if edge not in declared_edges:
+                lines.append(edge)
+                declared_edges.add(edge)
+            walk(child_id)
+
+        if len(normal_children) > 1:
             decision_id = declare_decision(node_id)
-            for child_id in children:
+            for child_id in normal_children:
                 declare_step(child_id)
                 label = sanitize_label(edge_meta[(node_id, child_id)]["label"])
                 edge = f'    {decision_id} -->|"{label}"| {child_id}'
@@ -152,8 +196,8 @@ def build_decision_tree(journeys):
                 walk(child_id)
             return
 
-        if len(children) == 1:
-            child_id = children[0]
+        if len(normal_children) == 1:
+            child_id = normal_children[0]
             declare_step(child_id)
             arrow = " -.-> " if edge_meta[(node_id, child_id)]["cross_screen"] else " --> "
             edge = f"    {node_id}{arrow}{child_id}"
