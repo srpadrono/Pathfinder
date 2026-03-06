@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PATHFINDER_HOME="${HOME}/.pathfinder"
+PATHFINDER_HOME="${PATHFINDER_HOME:-${HOME}/.agents/skills/pathfinder}"
+LEGACY_HOME="${HOME}/.pathfinder"
 REPO="https://github.com/srpadrono/Pathfinder.git"
 
 echo "Pathfinder Installer"
 echo ""
+
+# Step 0: Migrate from legacy ~/.pathfinder if present
+if [ -d "$LEGACY_HOME/.git" ] && [ "$PATHFINDER_HOME" != "$LEGACY_HOME" ]; then
+  echo "Migrating from ~/.pathfinder to $PATHFINDER_HOME..."
+  mkdir -p "$(dirname "$PATHFINDER_HOME")"
+  mv "$LEGACY_HOME" "$PATHFINDER_HOME"
+  echo "Migration complete."
+fi
 
 # Step 1: Install or update
 if [ -d "$PATHFINDER_HOME/.git" ]; then
@@ -16,6 +25,7 @@ else
     echo "Removing non-git directory at $PATHFINDER_HOME..."
     rm -rf "$PATHFINDER_HOME"
   fi
+  mkdir -p "$(dirname "$PATHFINDER_HOME")"
   echo "Installing..."
   git clone --quiet "$REPO" "$PATHFINDER_HOME"
 fi
@@ -53,5 +63,5 @@ fi
 echo ""
 echo "Done! Next steps:"
 echo "  cd your-project"
-echo "  python3 ~/.pathfinder/skills/pathfinder/scripts/pathfinder-init.py"
+echo "  python3 $PATHFINDER_HOME/skills/pathfinder/scripts/pathfinder-init.py"
 echo "  Then use /map to start"

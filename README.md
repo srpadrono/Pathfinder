@@ -305,7 +305,7 @@ The test generator adapts to **your project's existing patterns**:
 
 ```bash
 # Auto-detect: appends to existing auth.spec.ts or creates new file
-python3 ~/.pathfinder/skills/pathfinder/scripts/generate-ui-test.py \
+python3 ~/.agents/skills/pathfinder/skills/pathfinder/scripts/generate-ui-test.py \
   AUTH-05 "Logout redirects to login" playwright --route /dashboard --auto
 ```
 
@@ -356,7 +356,7 @@ Or manually — see **[docs/installation.md](docs/installation.md)** for all set
 ## 📁 Project Structure
 
 ```
-~/.pathfinder/ (or installed as Claude Code plugin)
+~/.agents/skills/pathfinder/ (or installed as Claude Code plugin)
 ├── .claude-plugin/              Plugin + marketplace manifest
 │   ├── plugin.json
 │   └── marketplace.json
@@ -381,7 +381,7 @@ Or manually — see **[docs/installation.md](docs/installation.md)** for all set
 
 ## 🔗 Git Hooks
 
-Enable with: `git config core.hooksPath ~/.pathfinder/.githooks`
+Enable with: `git config core.hooksPath ~/.agents/skills/pathfinder/.githooks`
 
 | Hook | What it does |
 |------|-------------|
