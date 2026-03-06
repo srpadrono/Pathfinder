@@ -305,7 +305,7 @@ The test generator adapts to **your project's existing patterns**:
 
 ```bash
 # Auto-detect: appends to existing auth.spec.ts or creates new file
-python3 ~/.pathfinder/skills/pathfinder/scripts/generate-ui-test.py \
+python3 ~/.agents/skills/pathfinder/scripts/generate-ui-test.py \
   AUTH-05 "Logout redirects to login" playwright --route /dashboard --auto
 ```
 
@@ -356,32 +356,39 @@ Or manually — see **[docs/installation.md](docs/installation.md)** for all set
 ## 📁 Project Structure
 
 ```
-~/.pathfinder/ (or installed as Claude Code plugin)
-├── .claude-plugin/              Plugin + marketplace manifest
+~/.agents/pathfinder/                    Repo clone
+├── .claude-plugin/                      Plugin + marketplace manifest
 │   ├── plugin.json
 │   └── marketplace.json
-├── skills/                      Skills (what agents load)
-│   ├── pathfinder/              Main skill — auto-triggers on coverage questions
-│   │   ├── SKILL.md             Entry point
-│   │   ├── references/          8 framework + testing reference docs
-│   │   ├── scripts/             9 Python CLI tools
-│   │   └── assets/              Starter templates
-│   ├── map/                     /map command skill
-│   ├── blaze/                   /blaze command skill
-│   ├── scout/                   /scout command skill
-│   └── summit/                  /summit command skill
-├── hooks/                       SessionStart hook
-├── install/                     Legacy installer (for Codex)
-├── tests/                       27 self-tests
-├── .githooks/                   pre-commit, post-commit, pre-push
-└── README.md                    Documentation
+├── skills/                              Skills (symlinked into ~/.agents/skills/)
+│   ├── pathfinder/                      Main skill — auto-triggers on coverage questions
+│   │   ├── SKILL.md                     Entry point
+│   │   ├── references/                  8 framework + testing reference docs
+│   │   ├── scripts/                     9 Python CLI tools
+│   │   └── assets/                      Starter templates
+│   ├── map/                             /map command skill
+│   ├── blaze/                           /blaze command skill
+│   ├── scout/                           /scout command skill
+│   └── summit/                          /summit command skill
+├── hooks/                               SessionStart hook
+├── install/                             Installer
+├── tests/                               27 self-tests
+├── .githooks/                           pre-commit, post-commit, pre-push
+└── README.md                            Documentation
+
+~/.agents/skills/                        Shared skills directory
+├── pathfinder -> ../pathfinder/skills/pathfinder
+├── map -> ../pathfinder/skills/map
+├── blaze -> ../pathfinder/skills/blaze
+├── scout -> ../pathfinder/skills/scout
+└── summit -> ../pathfinder/skills/summit
 ```
 
 ---
 
 ## 🔗 Git Hooks
 
-Enable with: `git config core.hooksPath ~/.pathfinder/.githooks`
+Enable with: `git config core.hooksPath ~/.agents/pathfinder/.githooks`
 
 | Hook | What it does |
 |------|-------------|
