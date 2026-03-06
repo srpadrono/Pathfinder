@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "project": "broken-app",
+  "journeys": [
+    {
+      "id": "j1",
+      "name": "Login Flow",
+      "steps": [
+        { "id": "s1", "screen": "login", "action": "enter credentials", "tested": false }
+      ]
+    },
+    {
+      "id": "j2"
+      "name": "MISSING COMMA ABOVE",
+  ]
+}

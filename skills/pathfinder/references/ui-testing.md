@@ -28,7 +28,7 @@ Prefer accessibility-based selectors over implementation details:
 
 ## Wait Strategy (universal)
 
-Avoid `sleep()` and deprecated `networkidle` -- prefer condition-based waits:
+Avoid `sleep()` and unreliable `networkidle` -- prefer condition-based waits:
 
 | Condition | Why |
 |-----------|-----|

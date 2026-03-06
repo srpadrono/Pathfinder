@@ -54,7 +54,7 @@ appId: com.example.app
 
 ## Screenshots
 ```yaml
-- takeScreenshot: "<checkpoint-id>"
+- takeScreenshot: "<checkpoint-id>.png"
 ```
 
 ## Common Commands

@@ -57,7 +57,7 @@ void main() {
 ## Screenshots
 ```dart
 final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-await binding.takeScreenshot('<checkpoint-id>');
+await binding.takeScreenshot('<checkpoint-id>.png');
 ```
 
 ## Common Commands

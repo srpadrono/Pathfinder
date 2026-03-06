@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Tests for aggregate.py"""
-import subprocess, json, tempfile, os
+import json
+import os
+import subprocess
+import tempfile
 
 SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "aggregate.py")
 
@@ -77,7 +80,14 @@ def test_namespaces_duplicate_ids_in_aggregate_output():
         assert r.returncode == 0, f"Failed: {r.stderr}"
 
         diagrams = open(md_path).read()
-        decision_tree = diagrams.split("## 🌳 Decision Tree — All Paths\n", 1)[1].split("\n## ", 1)[0]
+        # Extract decision tree section more robustly using marker + next section boundary
+        marker = "## 🌳 Decision Tree — All Paths\n"
+        assert marker in diagrams, "Expected decision tree section in output"
+        after_marker = diagrams.split(marker, 1)[1]
+        # Find the next section header (## ) or end of file
+        import re as _re
+        next_section = _re.search(r"\n## ", after_marker)
+        decision_tree = after_marker[:next_section.start()] if next_section else after_marker
         assert "Open A" in decision_tree
         assert "Open B" in decision_tree, decision_tree
 

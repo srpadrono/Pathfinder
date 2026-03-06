@@ -19,7 +19,14 @@ Options:
   --auto         Auto-detect: append if matching journey file exists, create otherwise
   --output FILE  Output path for new file (default: auto)
 """
-import argparse, sys, os, json, re, glob
+from __future__ import annotations
+
+import argparse
+import glob
+import json
+import os
+import re
+import sys
 
 from pathfinder_paths import find_pathfinder_config
 
@@ -227,7 +234,7 @@ TEMPLATES_APPEND = {
     "flutter-test": FLUTTER_APPEND,
 }
 
-def find_test_dir():
+def find_test_dir() -> str:
     """Auto-detect test directory from project config."""
     config_path = find_pathfinder_config()
     if config_path:
@@ -238,7 +245,10 @@ def find_test_dir():
         return os.path.dirname(os.path.dirname(config_path))
 
     # Check playwright config for testDir
-    for cfg_path in ["e2e/playwright.config.ts", "playwright.config.ts", "e2e/playwright.config.js", "playwright.config.js"]:
+    for cfg_path in [
+        "e2e/playwright.config.ts", "playwright.config.ts",
+        "e2e/playwright.config.js", "playwright.config.js",
+    ]:
         if os.path.exists(cfg_path):
             with open(cfg_path) as f:
                 content = f.read()
@@ -264,7 +274,7 @@ def find_test_dir():
     return "e2e/tests"
 
 
-def find_existing_journey_file(journey_prefix, test_dir, framework):
+def find_existing_journey_file(journey_prefix: str, test_dir: str, framework: str) -> str | None:
     """Find an existing test file that matches this journey."""
     prefix_lower = journey_prefix.lower().replace("-", "").replace("_", "")
 
@@ -273,7 +283,13 @@ def find_existing_journey_file(journey_prefix, test_dir, framework):
             "xcuitest": "Tests.swift", "espresso": "Test.kt"}
     ext = exts.get(framework, ".spec.ts")
 
-    for f in glob.glob(os.path.join(test_dir, f"*{ext}")) + glob.glob(os.path.join(test_dir, "**", f"*{ext}"), recursive=True):
+    matching = (
+        glob.glob(os.path.join(test_dir, f"*{ext}"))
+        + glob.glob(
+            os.path.join(test_dir, "**", f"*{ext}"), recursive=True
+        )
+    )
+    for f in matching:
         basename = os.path.basename(f).lower().replace("-", "").replace("_", "")
         if prefix_lower in basename:
             return f
@@ -281,7 +297,7 @@ def find_existing_journey_file(journey_prefix, test_dir, framework):
     return None
 
 
-def detect_auth_pattern(framework):
+def detect_auth_pattern(framework: str) -> str:
     """Detect if the project uses auth setup in tests."""
     if framework != "playwright":
         return ""
@@ -295,22 +311,57 @@ def detect_auth_pattern(framework):
     return ""
 
 
-def append_to_file(filepath, content, framework):
+def _find_last_describe_closing_brace(lines: list[str]) -> int | None:
+    """Find the insertion point before the last describe/group closing brace.
+
+    Uses brace-counting to find the correct closing brace of the last
+    top-level describe block. Handles edge cases: multiple describe blocks
+    (picks the last one), .only()/.skip() modifiers, and empty describe blocks.
+    """
+    # Find all top-level describe block start indices
+    describe_starts: list[int] = []
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        # Match describe, test.describe, and variants with .only/.skip
+        if re.match(r'(test\.)?describe(\.only|\.skip)?\s*\(', stripped):
+            describe_starts.append(i)
+
+    if not describe_starts:
+        return None
+
+    # Use the last describe block
+    start = describe_starts[-1]
+
+    # Count braces from the start of the last describe block to find its closing
+    brace_depth = 0
+    found_open = False
+    for i in range(start, len(lines)):
+        line = lines[i]
+        # Strip string literals to avoid counting braces inside strings
+        cleaned = re.sub(r'''(['"`])(?:(?!\1).)*\1''', '', line)
+        # Strip single-line comments
+        cleaned = re.sub(r'//.*$', '', cleaned)
+        for ch in cleaned:
+            if ch == '{':
+                brace_depth += 1
+                found_open = True
+            elif ch == '}':
+                brace_depth -= 1
+                if found_open and brace_depth == 0:
+                    # This is the closing line of the describe block
+                    return i
+    return None
+
+
+def append_to_file(filepath: str, content: str, framework: str) -> str:
     """Append a test to an existing file, inside the last describe/group block."""
     with open(filepath) as f:
         existing = f.read()
 
     if framework in ("playwright", "cypress", "detox"):
-        # Find the last closing }) of a describe block and insert before it
-        # Look for the last })\n pattern that closes a describe
         lines = existing.rstrip().split('\n')
 
-        # Find the last line that closes the surrounding block.
-        insert_idx = None
-        for i in range(len(lines) - 1, -1, -1):
-            if lines[i].strip() in ('})', '});'):
-                insert_idx = i
-                break
+        insert_idx = _find_last_describe_closing_brace(lines)
 
         if insert_idx is not None:
             lines.insert(insert_idx, content.rstrip())
@@ -322,11 +373,41 @@ def append_to_file(filepath, content, framework):
     elif framework == "flutter-test":
         # Insert before last });
         lines = existing.rstrip().split('\n')
+
+        # Use brace counting for Flutter group blocks too
         insert_idx = None
-        for i in range(len(lines) - 1, -1, -1):
-            if lines[i].strip() == '});':
-                insert_idx = i
-                break
+        brace_depth = 0
+        last_group_start = None
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if re.match(r'group\s*\(', stripped):
+                last_group_start = i
+
+        if last_group_start is not None:
+            brace_depth = 0
+            found_open = False
+            for i in range(last_group_start, len(lines)):
+                cleaned = re.sub(r'''(['"`])(?:(?!\1).)*\1''', '', lines[i])
+                cleaned = re.sub(r'//.*$', '', cleaned)
+                for ch in cleaned:
+                    if ch == '{':
+                        brace_depth += 1
+                        found_open = True
+                    elif ch == '}':
+                        brace_depth -= 1
+                        if found_open and brace_depth == 0:
+                            insert_idx = i
+                            break
+                if insert_idx is not None:
+                    break
+
+        if insert_idx is None:
+            # Fallback: find last });
+            for i in range(len(lines) - 1, -1, -1):
+                if lines[i].strip() == '});':
+                    insert_idx = i
+                    break
+
         if insert_idx is not None:
             lines.insert(insert_idx, content.rstrip())
             result = '\n'.join(lines) + '\n'
@@ -342,7 +423,7 @@ def append_to_file(filepath, content, framework):
     return filepath
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Generate or append UI tests")
     parser.add_argument("checkpoint_id", help="e.g. AUTH-01")
     parser.add_argument("description", help="What this test verifies")
@@ -357,12 +438,16 @@ def main():
     parser.add_argument("--output", help="Output path for new file")
     args = parser.parse_args()
 
-    # Derive journey name from checkpoint prefix (AUTH-01 → AUTH → Authentication)
+    # Derive journey name from checkpoint prefix (AUTH-01 -> AUTH -> Authentication)
     prefix = args.checkpoint_id.rsplit("-", 1)[0] if "-" in args.checkpoint_id else args.checkpoint_id
 
     # Validate checkpoint ID format
     if not re.match(r'^[A-Za-z]+-\d+$', args.checkpoint_id):
-        print(f"WARNING: Checkpoint ID '{args.checkpoint_id}' doesn't match expected PREFIX-NN format (e.g., AUTH-01)", file=sys.stderr)
+        print(
+            f"WARNING: Checkpoint ID '{args.checkpoint_id}' doesn't"
+            " match expected PREFIX-NN format (e.g., AUTH-01)",
+            file=sys.stderr,
+        )
 
     journey_name = args.describe or prefix.replace("-", " ").replace("_", " ").title()
 
@@ -427,7 +512,7 @@ def main():
         if args.output:
             output = args.output
         else:
-            # Use journey prefix as filename (AUTH-01 → auth.spec.ts)
+            # Use journey prefix as filename (AUTH-01 -> auth.spec.ts)
             filename = prefix.lower().replace(" ", "-").replace("_", "-") + ext
             output = os.path.join(test_dir, filename)
 

@@ -8,10 +8,27 @@
     "type": "git",
     "url": "https://github.com/srpadrono/Pathfinder.git"
   },
+  "keywords": [
+    "ui-testing",
+    "test-coverage",
+    "mermaid",
+    "playwright",
+    "xcuitest",
+    "cypress",
+    "flutter",
+    "code-agent",
+    "journey-mapping",
+    "coverage-visualization"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
   "scripts": {
     "init": "python3 skills/pathfinder/scripts/pathfinder-init.py --output-dir pathfinder-workspace",
     "coverage": "python3 skills/pathfinder/scripts/coverage-score.py",
     "diagrams": "python3 skills/pathfinder/scripts/generate-diagrams.py",
-    "test": "python3 -m pytest tests/ -v 2>/dev/null || for t in tests/test_*.py; do python3 $t; done"
+    "test": "python3 -m pytest tests/ -v",
+    "lint": "ruff check skills/pathfinder/scripts/ tests/",
+    "lint:fix": "ruff check --fix skills/pathfinder/scripts/ tests/"
   }
 }

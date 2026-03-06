@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Tests for validate-journeys.py"""
-import subprocess, json, tempfile, os
+import json
+import os
+import subprocess
+import tempfile
 
 SCRIPT = os.path.join(os.path.dirname(__file__), "..", "skills", "pathfinder", "scripts", "validate-journeys.py")
 
@@ -161,6 +164,72 @@ def test_empty_steps_array():
     print("pass: test_empty_steps_array")
 
 
+def test_tested_as_string_true():
+    """tested='true' (string) should be rejected — only bool true/false or 'partial' allowed."""
+    with tempfile.TemporaryDirectory() as d:
+        path = write_json(d, {
+            "journeys": [
+                {
+                    "id": "j1",
+                    "name": "Journey 1",
+                    "steps": [
+                        {"id": "STR-01", "action": "check", "screen": "main", "tested": "true"},
+                    ]
+                }
+            ]
+        })
+        code, out = run(path)
+        assert code == 1
+        assert out["valid"] is False
+        assert any("tested" in e for e in out["errors"])
+    print("pass: test_tested_as_string_true")
+
+
+def test_duplicate_step_ids_within_same_journey():
+    """Duplicate step IDs within a single journey should be caught."""
+    with tempfile.TemporaryDirectory() as d:
+        path = write_json(d, {
+            "journeys": [
+                {
+                    "id": "j1",
+                    "name": "Journey 1",
+                    "steps": [
+                        {"id": "DUP-01", "action": "first", "screen": "home", "tested": True},
+                        {"id": "DUP-01", "action": "second", "screen": "home", "tested": False},
+                    ]
+                }
+            ]
+        })
+        code, out = run(path)
+        assert code == 1
+        assert out["valid"] is False
+        assert any("duplicate step id" in e for e in out["errors"])
+    print("pass: test_duplicate_step_ids_within_same_journey")
+
+
+def test_extremely_long_journey():
+    """A journey with 50+ steps should validate without crashing."""
+    with tempfile.TemporaryDirectory() as d:
+        steps = [
+            {"id": f"LNG-{i:02d}", "action": f"Step {i}", "screen": "main", "tested": i % 2 == 0}
+            for i in range(1, 52)
+        ]
+        path = write_json(d, {
+            "journeys": [
+                {
+                    "id": "long",
+                    "name": "Long Journey",
+                    "steps": steps
+                }
+            ]
+        })
+        code, out = run(path)
+        assert code == 0, "Long journey should validate successfully"
+        assert out["valid"] is True
+        assert out["stats"]["steps"] == 51
+    print("pass: test_extremely_long_journey")
+
+
 if __name__ == "__main__":
     test_valid_journeys()
     test_missing_journeys_key()
@@ -169,4 +238,7 @@ if __name__ == "__main__":
     test_missing_required_step_fields()
     test_partial_without_note()
     test_empty_steps_array()
+    test_tested_as_string_true()
+    test_duplicate_step_ids_within_same_journey()
+    test_extremely_long_journey()
     print("\nAll validate-journeys tests passed")

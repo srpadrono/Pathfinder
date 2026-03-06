@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """Detect UI test framework from project files. Outputs JSON to stdout."""
-import json, os, sys
+from __future__ import annotations
+
+import json
+import os
+import sys
 
 
-def main():
+def main() -> None:
     root = sys.argv[1] if len(sys.argv) > 1 else "."
 
-    detections = [
+    detections: list[tuple[str, str, str]] = [
         # (file_to_check, framework, platform)
         ("playwright.config.ts", "playwright", "web"),
         ("playwright.config.js", "playwright", "web"),
@@ -21,8 +25,8 @@ def main():
     ]
 
     # Check for specific frameworks
-    framework = None
-    platform = None
+    framework: str | None = None
+    platform: str | None = None
 
     for path, fw, plat in detections:
         full = os.path.join(root, path)
@@ -44,7 +48,10 @@ def main():
             except (json.JSONDecodeError, KeyError):
                 pass
 
-        elif os.path.exists(os.path.join(root, "next.config.js")) or os.path.exists(os.path.join(root, "next.config.ts")) or os.path.exists(os.path.join(root, "next.config.mjs")):
+        elif any(
+            os.path.exists(os.path.join(root, f))
+            for f in ["next.config.js", "next.config.ts", "next.config.mjs"]
+        ):
             framework = "playwright"
             platform = "web"
 
@@ -52,11 +59,17 @@ def main():
             framework = "playwright"
             platform = "web"
 
-        elif any(f.endswith(".xcodeproj") or f.endswith(".xcworkspace") for f in os.listdir(root) if not f.startswith(".")):
+        elif any(
+            f.endswith(".xcodeproj") or f.endswith(".xcworkspace")
+            for f in os.listdir(root) if not f.startswith(".")
+        ):
             framework = "xcuitest"
             platform = "ios"
 
-        elif os.path.exists(os.path.join(root, "build.gradle")) or os.path.exists(os.path.join(root, "build.gradle.kts")):
+        elif any(
+            os.path.exists(os.path.join(root, f))
+            for f in ["build.gradle", "build.gradle.kts"]
+        ):
             framework = "espresso"
             platform = "android"
 
@@ -65,8 +78,8 @@ def main():
             platform = "ios"
 
     # Also detect unit test runner
-    unit_runner = None
-    unit_checks = [
+    unit_runner: str | None = None
+    unit_checks: list[tuple[str, str]] = [
         ("vitest.config.ts", "vitest"), ("vitest.config.js", "vitest"),
         ("jest.config.ts", "jest"), ("jest.config.js", "jest"), ("jest.config.json", "jest"),
         ("pytest.ini", "pytest"), ("go.mod", "gotest"),

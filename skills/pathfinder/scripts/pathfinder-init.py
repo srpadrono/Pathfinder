@@ -3,11 +3,18 @@
 
 Usage: python3 pathfinder-init.py [--name project-name] [--output-dir path]
 """
-import argparse, json, os, sys, subprocess, re
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
 from datetime import datetime, timezone
 
 
-def detect_test_dir():
+def detect_test_dir() -> str | None:
     """Auto-detect test directory from framework configs."""
     for cfg in ["e2e/playwright.config.ts", "playwright.config.ts", "cypress.config.ts"]:
         if os.path.exists(cfg):
@@ -26,7 +33,7 @@ def detect_test_dir():
     return None
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--name", help="Project name (default: current dir name)")
     parser.add_argument("--output-dir", help="Where to create pathfinder/ (default: auto-detect test dir)")
@@ -54,11 +61,23 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     detect = os.path.join(script_dir, "detect-ui-framework.py")
 
-    detection = {"uiFramework": "unknown", "unitRunner": "unknown", "platform": "unknown"}
+    detection: dict[str, str] = {"uiFramework": "unknown", "unitRunner": "unknown", "platform": "unknown"}
     if os.path.exists(detect):
         result = subprocess.run(["python3", detect, "."], capture_output=True, text=True)
         if result.returncode == 0:
             detection = json.loads(result.stdout)
+        else:
+            print(
+                f"WARNING: UI framework detection failed (exit {result.returncode}). "
+                f"Falling back to 'unknown'. stderr: {result.stderr.strip()}",
+                file=sys.stderr,
+            )
+    else:
+        print(
+            f"WARNING: detect-ui-framework.py not found at {detect}. "
+            "Framework detection skipped, using 'unknown'.",
+            file=sys.stderr,
+        )
 
     os.makedirs(pathfinder_dir, exist_ok=True)
 
@@ -66,7 +85,7 @@ def main():
     test_dir = detect_test_dir()
 
     # Detect auth pattern
-    auth = None
+    auth: dict[str, str] | None = None
     for cfg in ["e2e/playwright.config.ts", "playwright.config.ts"]:
         if os.path.exists(cfg):
             with open(cfg) as f:
@@ -74,7 +93,7 @@ def main():
                     auth = {"storageState": "auto-detected"}
             break
 
-    config = {
+    config: dict = {
         "version": "2.0.0",
         "project": name,
         "framework": detection.get("uiFramework", "unknown"),
@@ -91,7 +110,7 @@ def main():
     with open(config_path, "w") as f:
         json.dump(config, f, indent=2)
 
-    print(f"✅ Pathfinder initialized for '{name}'")
+    print(f"Pathfinder initialized for '{name}'")
     print(f"   Directory: {pathfinder_dir}/")
     print(f"   Config: {config_path}")
     print(f"   UI framework: {config['framework']}")

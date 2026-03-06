@@ -21,9 +21,30 @@ python3 -m pip install -r requirements-dev.txt
 python3 -m pytest tests/ -v
 ```
 
+The `requirements-dev.txt` file includes pytest and ruff. Install it before
+running tests or submitting a PR.
+
+## Linting
+
+All Python code must pass ruff before merge. CI runs this automatically, but
+you should check locally first:
+
+```bash
+ruff check skills/pathfinder/scripts/ tests/
+```
+
+The project configuration is in `ruff.toml` (line length 120, target Python 3.9).
+
+## Test Coverage Expectations
+
+- New scripts must include corresponding tests in `tests/`.
+- Bug fixes should include a regression test when feasible.
+- Aim for at least one test per public function in new code.
+- Run the full suite before opening a PR: `python3 -m pytest tests/ -v`
+
 ## Guidelines
 
-- Keep PRs focused — one feature or fix per PR
+- Keep PRs focused -- one feature or fix per PR
 - Follow existing code style and patterns
 - Add tests for new scripts or functionality
 - Update documentation if you change behavior

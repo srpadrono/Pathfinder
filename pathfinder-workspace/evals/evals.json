@@ -10,7 +10,13 @@
         "Creates journeys.json with discovered journeys and tested/untested status",
         "Generates Mermaid diagrams with green/amber/red nodes showing coverage"
       ],
-      "files": []
+      "files": [
+        "fixtures/nextjs-app-layout.tsx",
+        "fixtures/nextjs-page-home.tsx",
+        "fixtures/nextjs-page-dashboard.tsx",
+        "fixtures/playwright-config.ts",
+        "fixtures/playwright-home-test.ts"
+      ]
     },
     {
       "id": 2,
@@ -21,7 +27,10 @@
         "Scans existing XCUITest files to determine which screens are covered",
         "Creates journeys.json with tested/untested status per step"
       ],
-      "files": []
+      "files": [
+        "fixtures/swiftui-content-view.swift",
+        "fixtures/xcuitest-home.swift"
+      ]
     },
     {
       "id": 3,
@@ -32,7 +41,9 @@
         "Shows before/after comparison using the saved baseline",
         "Outputs a coverage delta table showing per-journey changes"
       ],
-      "files": []
+      "files": [
+        "fixtures/journeys-existing.json"
+      ]
     },
     {
       "id": 4,
@@ -43,7 +54,11 @@
         "Runs aggregate.py to merge coverage from all modules into a combined view",
         "Produces a summary showing per-module and overall coverage percentages"
       ],
-      "files": []
+      "files": [
+        "fixtures/playwright-config.ts",
+        "fixtures/swiftui-content-view.swift",
+        "fixtures/xcuitest-home.swift"
+      ]
     },
     {
       "id": 5,
@@ -54,7 +69,10 @@
         "Runs /scout to generate UI tests for untested steps only",
         "Uses the correct framework detected from config.json or project files"
       ],
-      "files": []
+      "files": [
+        "fixtures/journeys-existing.json",
+        "fixtures/playwright-config.ts"
+      ]
     },
     {
       "id": 6,
@@ -65,7 +83,10 @@
         "Creates journeys.json with all steps marked as untested",
         "Recommends flutter_test / integration_test as the testing framework"
       ],
-      "files": []
+      "files": [
+        "fixtures/pubspec.yaml",
+        "fixtures/flutter-main.dart"
+      ]
     },
     {
       "id": 7,
@@ -76,7 +97,11 @@
         "Does not crash or produce duplicate results from conflicting configs",
         "Creates journeys.json and diagrams using the chosen primary framework"
       ],
-      "files": []
+      "files": [
+        "fixtures/cypress-config.js",
+        "fixtures/playwright-config.ts",
+        "fixtures/playwright-home-test.ts"
+      ]
     },
     {
       "id": 8,
@@ -87,7 +112,49 @@
         "Does NOT crash with an unhandled exception or stack trace",
         "Suggests fixing or regenerating journeys.json by running /map"
       ],
-      "files": []
+      "files": [
+        "fixtures/malformed-journeys.json"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Run /map on my project. The pathfinder/journeys.json already exists but contains malformed JSON from a previous interrupted run.",
+      "expected_behavior": [
+        "Exits with a non-zero exit code when parsing fails",
+        "Prints an error message containing 'invalid JSON' or 'JSON parse error'",
+        "Error message includes the file path of the malformed journeys.json",
+        "Does NOT overwrite the malformed file without user confirmation",
+        "Does NOT produce a Python traceback visible to the user"
+      ],
+      "files": [
+        "fixtures/malformed-journeys.json"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "I have a brand new project with just a single empty component and no routes or navigation. Run /map to discover journeys.",
+      "expected_behavior": [
+        "Completes without error (exit code 0)",
+        "Reports exactly 0 journeys found in the output",
+        "Creates a valid journeys.json with an empty journeys array",
+        "Does NOT fabricate or hallucinate journeys that do not exist in the source"
+      ],
+      "files": [
+        "fixtures/empty-app.tsx"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Run /scout on my project to generate tests. There is no pathfinder/journeys.json file yet because I have not run /map.",
+      "expected_behavior": [
+        "Exits with a non-zero exit code",
+        "Prints an error message stating that journeys.json is missing or not found",
+        "Error message suggests running /map first to generate journeys.json",
+        "Does NOT attempt to generate tests without journey data"
+      ],
+      "files": [
+        "fixtures/empty-app.tsx"
+      ]
     }
   ]
 }

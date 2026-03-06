@@ -6,12 +6,20 @@ Usage: python3 aggregate.py [root-dir] [--output pathfinder/blazes.md]
 Discovers all **/pathfinder/journeys.json files, merges them into a
 combined summary, and optionally generates an aggregated blazes.md.
 """
-import argparse, copy, json, os, re, sys, subprocess
+from __future__ import annotations
+
+import argparse
+import copy
+import json
+import os
+import re
+import subprocess
+import sys
 
 
-def find_journey_files(root):
+def find_journey_files(root: str) -> list[str]:
     """Find all pathfinder/journeys.json files in the tree."""
-    found = []
+    found: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root):
         # Skip hidden dirs and node_modules
         dirnames[:] = [d for d in dirnames if not d.startswith('.') and d != 'node_modules']
@@ -20,12 +28,12 @@ def find_journey_files(root):
     return sorted(found)
 
 
-def namespace_module_name(module_name):
+def namespace_module_name(module_name: str) -> str:
     token = re.sub(r"[^A-Za-z0-9]+", "_", module_name).strip("_").upper()
     return token or "ROOT"
 
 
-def namespace_journey(journey, module_name):
+def namespace_journey(journey: dict, module_name: str) -> dict:
     prefix = namespace_module_name(module_name)
     namespaced = copy.deepcopy(journey)
     original_journey_id = namespaced.get("id", "JOURNEY")
@@ -41,7 +49,7 @@ def namespace_journey(journey, module_name):
     return namespaced
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("root", nargs="?", default=".", help="Project root to scan")
     parser.add_argument("--output", default=None, help="Output aggregated blazes.md")
@@ -54,11 +62,14 @@ def main():
         print("No pathfinder/journeys.json files found.", file=sys.stderr)
         sys.exit(1)
 
-    all_journeys = []
-    modules = []
+    all_journeys: list[dict] = []
+    modules: list[dict] = []
 
     for f in files:
-        module_path = os.path.relpath(os.path.dirname(os.path.dirname(f)), args.root)  # e.g., e2e/tests from e2e/tests/pathfinder/journeys.json
+        # e.g., e2e/tests from e2e/tests/pathfinder/journeys.json
+        module_path = os.path.relpath(
+            os.path.dirname(os.path.dirname(f)), args.root
+        )
         module_name = module_path or "root"
 
         with open(f) as fh:

@@ -5,7 +5,13 @@ Usage: python3 scan-test-coverage.py <project-root>
 
 Outputs JSON with test files, the routes they test, and a coverage matrix.
 """
-import os, sys, json, re, glob
+from __future__ import annotations
+
+import glob
+import json
+import os
+import re
+import sys
 
 root = sys.argv[1] if len(sys.argv) > 1 else "."
 
@@ -29,12 +35,13 @@ route_globs = [
     "lib/routes/**/*.dart",
 ]
 
-def extract_routes_from_code(filepath):
+def extract_routes_from_code(filepath: str) -> dict[str, list[str]]:
     """Extract routes/URLs and UI elements referenced in a test file."""
     try:
         with open(filepath) as f:
             content = f.read()
-    except (UnicodeDecodeError, PermissionError):
+    except (UnicodeDecodeError, PermissionError, OSError, IOError) as exc:
+        print(f"WARNING: Could not read {filepath}: {exc}", file=sys.stderr)
         return {"routes": [], "actions": [], "assertions": [], "describes": []}
 
     routes = list(set(re.findall(r'(?:goto|visit|navigate)\s*\(\s*[\'"`]([^\'"`]+)[\'"`]', content)))
@@ -63,8 +70,8 @@ def extract_routes_from_code(filepath):
         "actions": taps[:10],
     }
 
-def route_from_filepath(filepath):
-    """Convert a file path to its likely route (e.g., app/dashboard/page.tsx → /dashboard)."""
+def route_from_filepath(filepath: str) -> str | None:
+    """Convert a file path to its likely route (e.g., app/dashboard/page.tsx -> /dashboard)."""
     fp = filepath.replace("\\", "/")
     # Next.js app router
     m = re.match(r'app/(.+)/page\.\w+$', fp)
@@ -91,8 +98,8 @@ def route_from_filepath(filepath):
 
 # Collect test files
 
-def main():
-    test_files = []
+def main() -> None:
+    test_files: list[dict] = []
     for pattern in test_globs:
         for f in glob.glob(os.path.join(root, pattern), recursive=True):
             rel = os.path.relpath(f, root)
@@ -102,7 +109,7 @@ def main():
             test_files.append({"file": rel, **analysis})
 
     # Collect routes
-    routes = []
+    routes: list[dict[str, str]] = []
     for pattern in route_globs:
         for f in glob.glob(os.path.join(root, pattern), recursive=True):
             rel = os.path.relpath(f, root)
@@ -113,13 +120,13 @@ def main():
                 routes.append({"file": rel, "route": route})
 
     # Build coverage matrix: which routes have tests?
-    tested_routes = set()
+    tested_routes: set[str] = set()
     for tf in test_files:
         for r in tf.get("routes", []):
             # Normalize
             tested_routes.add(r.rstrip("/") or "/")
 
-    coverage_matrix = []
+    coverage_matrix: list[dict] = []
     for r in routes:
         route_normalized = r["route"].rstrip("/") or "/"
         is_tested = route_normalized in tested_routes
@@ -150,6 +157,8 @@ def main():
 
     if not test_files:
         print("WARNING: No UI test files found", file=sys.stderr)
+    if not routes:
+        print("WARNING: No route/screen files found", file=sys.stderr)
     if total_routes:
         print(f"Route coverage: {tested_count}/{total_routes} ({result['routeCoverage']}%)", file=sys.stderr)
 

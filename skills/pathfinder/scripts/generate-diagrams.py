@@ -3,11 +3,16 @@
 
 Usage: python3 generate-diagrams.py [<testDir>/pathfinder/journeys.json] [--output <testDir>/pathfinder/blazes.md]
 """
-import json, sys, os, argparse, re
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
 from collections import defaultdict
 
 from pathfinder_paths import find_journeys_file
-
 
 JOURNEY_ICONS = {
     "auth": "🔐", "authentication": "🔐", "login": "🔐",
@@ -23,7 +28,39 @@ JOURNEY_ICONS = {
 }
 
 
-def get_icon(journey_name):
+def validate_journey_structure(journeys: list[dict]) -> None:
+    """Validate that every journey has required fields. Exit 1 on failure."""
+    errors: list[str] = []
+    for i, journey in enumerate(journeys):
+        prefix = f"journey[{i}]"
+        for field in ("id", "name", "steps"):
+            if field not in journey:
+                errors.append(f"{prefix}: missing required field \"{field}\"")
+        steps = journey.get("steps")
+        if steps is not None and not isinstance(steps, list):
+            errors.append(f"{prefix}: \"steps\" must be a list")
+        elif isinstance(steps, list):
+            for si, step in enumerate(steps):
+                sp = f"{prefix}.steps[{si}]"
+                for field in ("id", "action", "screen"):
+                    if field not in step:
+                        errors.append(f"{sp}: missing required field \"{field}\"")
+                if "tested" not in step:
+                    errors.append(f"{sp}: missing required field \"tested\"")
+                else:
+                    tested = step["tested"]
+                    if tested is not True and tested is not False and tested != "partial":
+                        errors.append(
+                            f"{sp}: \"tested\" must be true, false,"
+                            f" or \"partial\" (got {json.dumps(tested)})"
+                        )
+    if errors:
+        for err in errors:
+            print(f"ERROR: {err}", file=sys.stderr)
+        sys.exit(1)
+
+
+def get_icon(journey_name: str) -> str:
     name_lower = journey_name.lower()
     for key, icon in JOURNEY_ICONS.items():
         if key in name_lower:
@@ -31,17 +68,17 @@ def get_icon(journey_name):
     return "📋"
 
 
-def sanitize_id(text):
+def sanitize_id(text: str) -> str:
     """Create a safe Mermaid node id."""
     return re.sub(r"[^a-zA-Z0-9]", "_", text).strip("_")
 
 
-def sanitize_label(text):
+def sanitize_label(text: str) -> str:
     """Escape characters that break Mermaid label parsing."""
     return text.replace("(", "[").replace(")", "]").replace('"', "'")
 
 
-def step_status(step):
+def step_status(step: dict) -> tuple[bool, bool, str]:
     """Return (is_tested, is_partial, marker) for a step."""
     is_tested = step.get("tested") is True
     is_partial = step.get("tested") == "partial"
@@ -49,7 +86,7 @@ def step_status(step):
     return is_tested, is_partial, marker
 
 
-def style_line(node_id, step):
+def style_line(node_id: str, step: dict) -> str:
     """Return the Mermaid style line for a node."""
     if step.get("tested") is True:
         return f"    style {node_id} fill:#2ea043,stroke:#1a7f37,color:#fff"
@@ -59,7 +96,7 @@ def style_line(node_id, step):
         return f"    style {node_id} fill:#f85149,stroke:#da3633,color:#fff"
 
 
-def node_declaration(node_id, label, is_tested, is_partial):
+def node_declaration(node_id: str, label: str, is_tested: bool, is_partial: bool) -> str:
     """Return the Mermaid node declaration."""
     quoted = f'"{label}"'
     if is_tested:
@@ -70,19 +107,20 @@ def node_declaration(node_id, label, is_tested, is_partial):
         return f"    {node_id}[{quoted}]"
 
 
-def build_decision_tree(journeys):
-    """Build a single Mermaid flowchart showing all journeys as a graph."""
-    lines = ["flowchart TD"]
-    styles = []
-    declared_nodes = set()
-    declared_decisions = set()
-    declared_edges = set()
-    nodes = {}
-    roots = []
-    incoming = defaultdict(set)
-    outgoing = defaultdict(list)
-    edge_meta = {}
-    error_anchor_candidates = defaultdict(list)
+def _build_node_graph(journeys: list[dict]) -> tuple[
+    dict[str, dict],
+    list[str],
+    defaultdict[str, set],
+    defaultdict[str, list],
+    dict[tuple[str, str], dict],
+]:
+    """Build the node graph from journeys: nodes, roots, incoming, outgoing, edge_meta."""
+    nodes: dict[str, dict] = {}
+    roots: list[str] = []
+    incoming: defaultdict[str, set] = defaultdict(set)
+    outgoing: defaultdict[str, list] = defaultdict(list)
+    edge_meta: dict[tuple[str, str], dict] = {}
+    error_anchor_candidates: defaultdict[str, list] = defaultdict(list)
 
     for journey in journeys:
         steps = journey.get("steps", [])
@@ -142,7 +180,24 @@ def build_decision_tree(journeys):
             prev_id = node_id
             prev_screen = step.get("screen", "Main")
 
-    def declare_step(node_id):
+    return nodes, roots, incoming, outgoing, edge_meta
+
+
+def _render_walk(
+    nodes: dict[str, dict],
+    roots: list[str],
+    incoming: defaultdict[str, set],
+    outgoing: defaultdict[str, list],
+    edge_meta: dict[tuple[str, str], dict],
+) -> tuple[list[str], list[str]]:
+    """Walk the graph and render Mermaid lines and styles."""
+    lines: list[str] = []
+    styles: list[str] = []
+    declared_nodes: set[str] = set()
+    declared_decisions: set[str] = set()
+    declared_edges: set[str] = set()
+
+    def declare_step(node_id: str) -> None:
         if node_id in declared_nodes:
             return
         step = nodes[node_id]
@@ -152,7 +207,7 @@ def build_decision_tree(journeys):
         styles.append(style_line(node_id, step))
         declared_nodes.add(node_id)
 
-    def declare_decision(source_id):
+    def declare_decision(source_id: str) -> str:
         decision_id = f"{source_id}_decision"
         if decision_id not in declared_decisions:
             declared_decisions.add(decision_id)
@@ -164,9 +219,9 @@ def build_decision_tree(journeys):
             declared_edges.add(edge)
         return decision_id
 
-    walked = set()
+    walked: set[str] = set()
 
-    def walk(node_id):
+    def walk(node_id: str) -> None:
         if node_id in walked:
             return
         walked.add(node_id)
@@ -212,22 +267,32 @@ def build_decision_tree(journeys):
     for node_id in nodes:
         walk(node_id)
 
+    return lines, styles
+
+
+def build_decision_tree(journeys: list[dict]) -> list[str]:
+    """Build a single Mermaid flowchart showing all journeys as a graph."""
+    nodes, roots, incoming, outgoing, edge_meta = _build_node_graph(journeys)
+    body_lines, styles = _render_walk(nodes, roots, incoming, outgoing, edge_meta)
+
+    lines: list[str] = ["flowchart TD"]
+    lines.extend(body_lines)
     lines.extend(styles)
     return lines
 
 
-def build_flowchart(journey):
+def build_flowchart(journey: dict) -> list[str]:
     """Build a Mermaid flowchart for one journey."""
     steps = journey.get("steps", [])
     if not steps:
         return []
 
-    lines = []
+    lines: list[str] = []
     lines.append("flowchart TD")
 
     # Group steps by screen for subgraphs
-    screens = {}
-    node_ids = []
+    screens: dict[str, list[tuple[str, str, bool, bool]]] = {}
+    node_ids: list[str] = []
 
     for i, step in enumerate(steps):
         screen = step.get("screen", "Main")
@@ -246,10 +311,10 @@ def build_flowchart(journey):
         screens[screen].append((node_id, label, is_tested, is_partial))
 
     # Render subgraphs (one per screen)
-    for screen, nodes in screens.items():
+    for screen, screen_nodes in screens.items():
         if len(screens) > 1:
             lines.append(f"    subgraph {screen}")
-        for node_id, label, is_tested, is_partial in nodes:
+        for node_id, label, is_tested, is_partial in screen_nodes:
             quoted = f'"{label}"'
             if is_tested:
                 lines.append(f"        {node_id}({quoted})")
@@ -283,12 +348,12 @@ def build_flowchart(journey):
     return lines
 
 
-def compute_coverage(journeys):
+def compute_coverage(journeys: list[dict]) -> tuple[int, int, int, float, list[tuple]]:
     """Compute coverage stats for a list of journeys."""
     total = 0
     tested = 0
     partial = 0
-    rows = []
+    rows: list[tuple] = []
     for j in journeys:
         steps = j.get("steps", [])
         j_tested = sum(1 for s in steps if s.get("tested") is True)
@@ -302,7 +367,7 @@ def compute_coverage(journeys):
     return total, tested, partial, overall, rows
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("journeys_file", nargs="?", help="Path to journeys.json (auto-detected if omitted)")
     parser.add_argument("--output", default=None)
@@ -334,6 +399,9 @@ def main():
     if not journeys:
         print("ERROR: No journeys found", file=sys.stderr)
         sys.exit(1)
+
+    # Validate journey structure before processing
+    validate_journey_structure(journeys)
 
     # ── Baseline management ──
     baseline_path = os.path.join(os.path.dirname(args.journeys_file), "journeys-baseline.json")
@@ -399,7 +467,11 @@ def main():
             lines.append("### 📊 Coverage Delta\n")
             lines.append("| Metric | Before | After | Delta |")
             lines.append("|--------|--------|-------|-------|")
-            lines.append(f"| Steps tested | {b_tested}/{b_total} | {total_tested}/{total_steps} | {sign}{delta_tested} |")
+            lines.append(
+                f"| Steps tested | {b_tested}/{b_total}"
+                f" | {total_tested}/{total_steps}"
+                f" | {sign}{delta_tested} |"
+            )
             lines.append(f"| Coverage | {b_overall}% | {overall}% | {sign_pct}{delta_overall}% |")
 
             # Per-journey delta
@@ -407,7 +479,7 @@ def main():
             lines.append("")
             lines.append("| Journey | Before | After | Delta |")
             lines.append("|---------|--------|-------|-------|")
-            for jid, jname, j_steps, j_tested, j_partial, j_cov in summary_rows:
+            for jid, jname, _j_steps, j_tested, _j_partial, j_cov in summary_rows:
                 icon = get_icon(jname)
                 if jid in b_lookup:
                     _, _, _, bj_tested, _, bj_cov = b_lookup[jid]
@@ -446,7 +518,8 @@ def main():
     lines.append("## Summary\n")
     lines.append("| Journey | Steps | Tested | Coverage |")
     lines.append("|---------|-------|--------|----------|")
-    for jid, jname, step_count, tested_count, partial_count, cov in summary_rows:
+    for (_jid, jname, step_count,
+         tested_count, _partial_count, cov) in summary_rows:
         icon = get_icon(jname)
         bar = "🟢" if cov >= 80 else "🟡" if cov >= 50 else "🔴"
         lines.append(f"| {icon} {jname} | {step_count} | {tested_count} | {bar} {cov}% |")
