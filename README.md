@@ -77,14 +77,30 @@ Runs all tests, reconciles results, updates the diagrams, and computes a coverag
 
 ```mermaid
 flowchart LR
-    MAP["/map\nCrawl code"] --> BLAZE["/blaze\nMermaid diagrams"]
-    BLAZE --> SCOUT["/scout\nWrite tests"]
-    SCOUT --> SUMMIT["/summit\nRun & update"]
-    SUMMIT -->|"New code?\nRepeat"| MAP
-    MAP -.-> J[(journeys.json\nsource of truth)]
-    BLAZE -.-> J
-    SCOUT -.-> J
-    SUMMIT -.-> J
+    MAP["**/map**\nDiscover journeys"]
+    BLAZE["**/blaze**\nVisualize coverage"]
+    SCOUT["**/scout**\nWrite tests"]
+    SUMMIT["**/ summit**\nRun & verify"]
+    J[("journeys.json\n\nSource of truth")]
+
+    MAP ==> BLAZE ==> SCOUT ==> SUMMIT
+    SUMMIT -.->|"Repeat"| MAP
+
+    MAP --- J
+    BLAZE --- J
+    SCOUT --- J
+    SUMMIT --- J
+
+    style MAP fill:#1f6feb,stroke:#1158c7,color:#fff,stroke-width:2px
+    style BLAZE fill:#e3b341,stroke:#b8860b,color:#000,stroke-width:2px
+    style SCOUT fill:#2ea043,stroke:#1a7f37,color:#fff,stroke-width:2px
+    style SUMMIT fill:#8957e5,stroke:#6e40c9,color:#fff,stroke-width:2px
+    style J fill:#161b22,stroke:#30363d,color:#c9d1d9,stroke-width:2px
+
+    linkStyle 4 stroke:#1f6feb,stroke-width:1px,stroke-dasharray:4
+    linkStyle 5 stroke:#e3b341,stroke-width:1px,stroke-dasharray:4
+    linkStyle 6 stroke:#2ea043,stroke-width:1px,stroke-dasharray:4
+    linkStyle 7 stroke:#8957e5,stroke-width:1px,stroke-dasharray:4
 ```
 
 The cycle repeats. New code → `/map` → new ❌ steps → `/scout` → `/summit`. The diagram always reflects reality.
