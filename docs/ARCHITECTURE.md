@@ -2,35 +2,27 @@
 
 ## Data Flow
 
-```
-pathfinder-init.py
-        |
-        v
-  config.json  (framework, testDir, auth)
-        |
-        v
-detect-ui-framework.py ---> { uiFramework, platform, unitRunner }
-        |
-        v
-scan-test-coverage.py  ---> { testFiles, routes, routeCoverage }
-        |
-        v
-  journeys.json  <--- created/updated by /map phase (agent-driven)
-        |
-        +-------> validate-journeys.py ---> { valid, errors, warnings, stats }
-        |
-        +-------> generate-diagrams.py ---> blazes.md (Mermaid flowcharts + coverage table)
-        |                |
-        |                +---> journeys-baseline.json (auto-created on first run)
-        |
-        +-------> coverage-score.py ----> { totalSteps, tested, coverage, journeys[] }
-        |
-        +-------> generate-ui-test.py --> new or appended test file
-        |
-        +-------> snapshot-compare.py --> baselines/ directory (capture + compare)
-        |
-        v
-aggregate.py (monorepos) ---> merged summary across modules
+```mermaid
+flowchart TD
+    INIT["pathfinder-init.py"] --> CONFIG[("config.json\n(framework, testDir, auth)")]
+    INIT --> DETECT["detect-ui-framework.py"]
+    DETECT -->|"{ uiFramework, platform, unitRunner }"| CONFIG
+    CONFIG --> SCAN["scan-test-coverage.py"]
+    SCAN -->|"{ testFiles, routes, routeCoverage }"| JOURNEYS[("journeys.json\n(source of truth)")]
+    MAP["/map phase (agent-driven)"] -->|"creates / updates"| JOURNEYS
+    JOURNEYS --> VALIDATE["validate-journeys.py"]
+    VALIDATE -->|"{ valid, errors, warnings, stats }"| OUT1([validation result])
+    JOURNEYS --> DIAGRAMS["generate-diagrams.py"]
+    DIAGRAMS -->|"writes"| BLAZES[("blazes.md\n(Mermaid flowcharts)")]
+    DIAGRAMS -->|"auto-creates"| BASELINE[("journeys-baseline.json")]
+    JOURNEYS --> SCORE["coverage-score.py"]
+    SCORE -->|"{ totalSteps, tested, coverage }"| OUT2([coverage result])
+    JOURNEYS --> GENTEST["generate-ui-test.py"]
+    GENTEST -->|"writes / appends"| TESTFILE([test file])
+    JOURNEYS --> SNAP["snapshot-compare.py"]
+    SNAP -->|"capture + compare"| BASELINES([baselines/ directory])
+    JOURNEYS --> AGG["aggregate.py\n(monorepos)"]
+    AGG -->|"merged summary"| OUT3([aggregate result])
 ```
 
 ## journeys.json -- Source of Truth
@@ -82,14 +74,13 @@ warnings go to stderr. Non-zero exit codes indicate failure.
 
 ## File Layout
 
-```
-<testDir>/pathfinder/
-  config.json              -- project config (created by init)
-  journeys.json            -- journey map (created by /map)
-  journeys-baseline.json   -- snapshot for before/after (auto-managed)
-  blazes.md                -- generated Mermaid diagrams (created by /blaze)
-  baselines/               -- screenshot baselines (created by snapshot-compare)
-```
+| File | Purpose | Created by |
+|------|---------|------------|
+| `config.json` | Project config (framework, testDir, auth) | `pathfinder-init.py` |
+| `journeys.json` | Journey map (source of truth) | `/map` phase |
+| `journeys-baseline.json` | Snapshot for before/after comparison | `generate-diagrams.py` (auto-managed) |
+| `blazes.md` | Mermaid coverage diagrams | `generate-diagrams.py` |
+| `baselines/` | Screenshot baselines | `snapshot-compare.py` |
 
 Scripts live in `skills/pathfinder/scripts/` and share a common helper module
 (`pathfinder_paths.py`) for locating `journeys.json` and `config.json` by
