@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate Mermaid flowchart diagrams from journeys.json.
 
-Usage: python3 generate-diagrams.py .pathfinder/journeys.json [--output .pathfinder/blazes.md]
+Usage: python3 generate-diagrams.py <testDir>/pathfinder/journeys.json [--output <testDir>/pathfinder/blazes.md]
 """
 import json, sys, os, argparse, re
 

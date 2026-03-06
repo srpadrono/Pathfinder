@@ -227,11 +227,23 @@ TEMPLATES_APPEND = {
 
 # --- Path detection ---
 
+def find_pathfinder_config():
+    """Find pathfinder config.json in common locations."""
+    for root, dirs, files in os.walk("."):
+        dirs[:] = [d for d in dirs if d not in (".git", "node_modules", ".build", "build")]
+        if "config.json" in files:
+            candidate = os.path.join(root, "config.json")
+            if os.path.basename(os.path.dirname(candidate)) == "pathfinder":
+                return candidate
+    return None
+
+
 def find_test_dir():
     """Auto-detect test directory from project config."""
-    # Check .pathfinder/config.json
-    if os.path.exists(".pathfinder/config.json"):
-        with open(".pathfinder/config.json") as f:
+    # Check <testDir>/pathfinder/config.json (anywhere in project)
+    config_path = find_pathfinder_config()
+    if config_path:
+        with open(config_path) as f:
             cfg = json.load(f)
             if "testDir" in cfg:
                 return cfg["testDir"]

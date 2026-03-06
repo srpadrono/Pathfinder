@@ -44,11 +44,11 @@ When the framework supports screenshots:
 
 1. Capture baseline: `python3 scripts/snapshot-compare.py capture <name>`
 2. Compare after changes: `python3 scripts/snapshot-compare.py compare <name>`
-3. Evidence stored in `.pathfinder/baselines/`
+3. Evidence stored in `<testDir>/pathfinder/baselines/`
 
 ## Error Handling
 
-- Framework not detected → ask user to specify, update `.pathfinder/config.json`
+- Framework not detected → ask user to specify, update `<testDir>/pathfinder/config.json`
 - Test passes without implementation → test is wrong, targets existing behavior
 - Flaky test → check for missing waits, add condition-based waiting
 - Screenshot diff > 5% → review visual change, update baseline if intentional
