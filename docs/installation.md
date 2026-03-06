@@ -12,7 +12,7 @@
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-This clones Pathfinder to `~/.agents/skills/pathfinder` and registers it as a Claude Code plugin. If a legacy `~/.pathfinder` install exists, it is automatically migrated.
+This clones the repo to `~/.agents/pathfinder` and symlinks skills into `~/.agents/skills/`. If a legacy `~/.pathfinder` install exists, it is automatically migrated.
 
 ## Plugin Install (Claude Code)
 
@@ -28,10 +28,20 @@ This registers the Pathfinder marketplace and installs the plugin with automatic
 ### 1. Clone
 
 ```bash
-git clone https://github.com/srpadrono/Pathfinder.git ~/.agents/skills/pathfinder
+git clone https://github.com/srpadrono/Pathfinder.git ~/.agents/pathfinder
 ```
 
-### 2. Add to your agent
+### 2. Symlink skills
+
+```bash
+ln -s ~/.agents/pathfinder/skills/pathfinder ~/.agents/skills/pathfinder
+ln -s ~/.agents/pathfinder/skills/map ~/.agents/skills/map
+ln -s ~/.agents/pathfinder/skills/blaze ~/.agents/skills/blaze
+ln -s ~/.agents/pathfinder/skills/scout ~/.agents/skills/scout
+ln -s ~/.agents/pathfinder/skills/summit ~/.agents/skills/summit
+```
+
+### 3. Add to your agent
 
 #### Claude Code
 
@@ -45,25 +55,25 @@ visualizes test coverage with Mermaid flowcharts, and generates framework-correc
 
 Commands: /map, /blaze, /scout, /summit — each is a skill that activates automatically.
 
-Full overview: ~/.agents/skills/pathfinder/skills/pathfinder/SKILL.md
-Scripts: ~/.agents/skills/pathfinder/skills/pathfinder/scripts/ (Python 3 CLIs, JSON output)
+Full overview: ~/.agents/skills/pathfinder/SKILL.md
+Scripts: ~/.agents/skills/pathfinder/scripts/ (Python 3 CLIs, JSON output)
 ```
 
 #### Codex (GitHub Copilot)
 
 Add the same snippet to your project's `AGENTS.md`.
 
-### 3. Initialize in your project
+### 4. Initialize in your project
 
 ```bash
 cd your-project
-python3 ~/.agents/skills/pathfinder/skills/pathfinder/scripts/pathfinder-init.py
+python3 ~/.agents/skills/pathfinder/scripts/pathfinder-init.py
 ```
 
-### 4. Git hooks (optional)
+### 5. Git hooks (optional)
 
 ```bash
-git config core.hooksPath ~/.agents/skills/pathfinder/.githooks
+git config core.hooksPath ~/.agents/pathfinder/.githooks
 ```
 
 Enables: `journeys.json` validation on commit, auto-regenerate flowcharts, block direct push to main.
@@ -71,7 +81,14 @@ Enables: `journeys.json` validation on commit, auto-regenerate flowcharts, block
 ## Updating
 
 ```bash
-cd ~/.agents/skills/pathfinder && git pull
+cd ~/.agents/pathfinder && git pull
+```
+
+## Uninstalling
+
+```bash
+rm -rf ~/.agents/pathfinder
+rm ~/.agents/skills/{pathfinder,map,blaze,scout,summit}
 ```
 
 ## Troubleshooting
@@ -81,4 +98,4 @@ cd ~/.agents/skills/pathfinder && git pull
 | `python3: command not found` | `brew install python` (macOS) or `sudo apt install python3` |
 | Agent ignores `/map` | Check instruction file contains the Pathfinder snippet |
 | `journeys.json` not found | Run `pathfinder-init.py` first |
-| Git hooks not firing | `git config core.hooksPath` should show `~/.agents/skills/pathfinder/.githooks` |
+| Git hooks not firing | `git config core.hooksPath` should show `~/.agents/pathfinder/.githooks` |
