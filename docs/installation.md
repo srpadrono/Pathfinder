@@ -6,46 +6,26 @@
 - Git
 - Pillow *(optional, for visual regression)* — `pip install Pillow`
 
-## Quick Install
+## Install
 
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
-```
-
-This clones the repo to `~/.agents/pathfinder` and symlinks skills into `~/.agents/skills/`. If a legacy `~/.pathfinder` install exists, it is automatically migrated.
-
-## Plugin Install (Claude Code)
+**Claude Code (recommended):**
 
 ```bash
 claude plugin marketplace add srpadrono/Pathfinder
 claude plugin install pathfinder
 ```
 
-This registers the Pathfinder marketplace and installs the plugin with automatic skill discovery. No CLAUDE.md snippet needed.
+Plugin install handles everything — skills, hooks, and agent configuration. No manual steps.
 
-## Manual Install
-
-### 1. Clone
+**One-liner (all agents):**
 
 ```bash
-git clone https://github.com/srpadrono/Pathfinder.git ~/.agents/pathfinder
+bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-### 2. Symlink skills
+This clones the repo to `~/.agents/pathfinder`, symlinks skills into `~/.agents/skills/`, and registers the Claude Code plugin if the CLI is available. Existing `~/.pathfinder` installs are migrated automatically.
 
-```bash
-ln -s ~/.agents/pathfinder/skills/pathfinder ~/.agents/skills/pathfinder
-ln -s ~/.agents/pathfinder/skills/map ~/.agents/skills/map
-ln -s ~/.agents/pathfinder/skills/blaze ~/.agents/skills/blaze
-ln -s ~/.agents/pathfinder/skills/scout ~/.agents/skills/scout
-ln -s ~/.agents/pathfinder/skills/summit ~/.agents/skills/summit
-```
-
-### 3. Add to your agent
-
-#### Claude Code
-
-Add this snippet to your project's `CLAUDE.md`:
+After installing, add this snippet to your project's `CLAUDE.md` (or `AGENTS.md` for Codex):
 
 ```markdown
 ## Pathfinder — UI Test Coverage Mapping
@@ -59,18 +39,14 @@ Full overview: ~/.agents/skills/pathfinder/SKILL.md
 Scripts: ~/.agents/skills/pathfinder/scripts/ (Python 3 CLIs, JSON output)
 ```
 
-#### Codex (GitHub Copilot)
-
-Add the same snippet to your project's `AGENTS.md`.
-
-### 4. Initialize in your project
+Then initialize in your project:
 
 ```bash
 cd your-project
 python3 ~/.agents/skills/pathfinder/scripts/pathfinder-init.py
 ```
 
-### 5. Git hooks (optional)
+## Git Hooks (optional)
 
 ```bash
 git config core.hooksPath ~/.agents/pathfinder/.githooks
