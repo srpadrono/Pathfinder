@@ -438,13 +438,15 @@ def main() -> None:
     parser.add_argument("--output", help="Output path for new file")
     args = parser.parse_args()
 
-    # Check that journeys.json exists before generating tests
-    journeys_file = find_journeys_file()
-    if not journeys_file:
-        print("ERROR: journeys.json is missing or not found. "
-              "Run /map first to generate journeys.json before generating tests.", file=sys.stderr)
-        print("ERROR: journeys.json is missing or not found. Run /map first.", flush=True)
-        sys.exit(1)
+    # Check that journeys.json exists when auto-discovering paths
+    # Skip the check when explicit --output or --append paths are provided
+    if not args.output and not args.append and not args.test_dir:
+        journeys_file = find_journeys_file()
+        if not journeys_file:
+            print("ERROR: journeys.json is missing or not found. "
+                  "Run /map first to generate journeys.json before generating tests.", file=sys.stderr)
+            print("ERROR: journeys.json is missing or not found. Run /map first.", flush=True)
+            sys.exit(1)
 
     print(f"Using framework: {args.framework}", file=sys.stderr)
 
