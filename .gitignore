@@ -2,3 +2,6 @@
 .private-journal/
 .claude/
 .DS_Store
+
+# Eval iteration outputs (generated at runtime)
+pathfinder-workspace/iteration-*/

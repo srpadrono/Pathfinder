@@ -2,158 +2,315 @@
   "skill_name": "pathfinder",
   "evals": [
     {
-      "id": 1,
+      "id": 0,
+      "name": "nextjs-playwright-map-and-blaze",
       "prompt": "I have a Next.js app with Playwright tests in e2e/tests/. I want to see what user journeys exist and which ones have test coverage. Can you map the app and show me a coverage diagram?",
-      "expected_behavior": [
-        "Detects Playwright as the UI test framework",
-        "Crawls app/ directory for routes and screens",
-        "Creates journeys.json with discovered journeys and tested/untested status",
-        "Generates Mermaid diagrams with green/amber/red nodes showing coverage"
-      ],
+      "expected_output": "Detects Playwright, crawls app/ routes, creates journeys.json with tested/untested status, and generates Mermaid diagrams with color-coded coverage nodes.",
       "files": [
         "fixtures/nextjs-app-layout.tsx",
         "fixtures/nextjs-page-home.tsx",
         "fixtures/nextjs-page-dashboard.tsx",
         "fixtures/playwright-config.ts",
         "fixtures/playwright-home-test.ts"
+      ],
+      "assertions": [
+        {
+          "text": "Detects Playwright as the UI test framework",
+          "category": "framework-detection"
+        },
+        {
+          "text": "Crawls app/ directory for routes and screens",
+          "category": "journey-discovery"
+        },
+        {
+          "text": "Creates journeys.json with discovered journeys and tested/untested status",
+          "category": "output-file"
+        },
+        {
+          "text": "Generates Mermaid diagrams with green/amber/red nodes showing coverage",
+          "category": "diagram-generation"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "ios-xcuitest-coverage",
+      "prompt": "I have an iOS SwiftUI app and I want to know what's not tested. The project has some XCUITests but I'm not sure how much coverage we have.",
+      "expected_output": "Detects XCUITest, finds NavigationStack/TabView patterns, scans existing XCUITest files, and creates journeys.json with tested/untested status per step.",
+      "files": [
+        "fixtures/swiftui-content-view.swift",
+        "fixtures/xcuitest-home.swift"
+      ],
+      "assertions": [
+        {
+          "text": "Detects XCUITest as the UI test framework",
+          "category": "framework-detection"
+        },
+        {
+          "text": "Finds NavigationStack/TabView patterns to identify screens",
+          "category": "journey-discovery"
+        },
+        {
+          "text": "Scans existing XCUITest files to determine which screens are covered",
+          "category": "coverage-scan"
+        },
+        {
+          "text": "Creates journeys.json with tested/untested status per step",
+          "category": "output-file"
+        }
       ]
     },
     {
       "id": 2,
-      "prompt": "I have an iOS SwiftUI app and I want to know what's not tested. The project has some XCUITests but I'm not sure how much coverage we have.",
-      "expected_behavior": [
-        "Detects XCUITest as the UI test framework",
-        "Finds NavigationStack/TabView patterns to identify screens",
-        "Scans existing XCUITest files to determine which screens are covered",
-        "Creates journeys.json with tested/untested status per step"
-      ],
+      "name": "baseline-comparison-diagrams",
+      "prompt": "We already have a pathfinder/journeys.json from last sprint. I just want to regenerate the diagrams and see our progress since the baseline.",
+      "expected_output": "Does NOT re-run /map, runs generate-diagrams.py with existing journeys.json, shows before/after comparison using baseline, and outputs a coverage delta table.",
       "files": [
-        "fixtures/swiftui-content-view.swift",
-        "fixtures/xcuitest-home.swift"
+        "fixtures/journeys-existing.json"
+      ],
+      "assertions": [
+        {
+          "text": "Does NOT re-run /map or re-crawl the codebase",
+          "category": "workflow-correctness"
+        },
+        {
+          "text": "Runs generate-diagrams.py with the existing journeys.json",
+          "category": "script-execution"
+        },
+        {
+          "text": "Shows before/after comparison using the saved baseline",
+          "category": "baseline-comparison"
+        },
+        {
+          "text": "Outputs a coverage delta table showing per-journey changes",
+          "category": "output-format"
+        }
       ]
     },
     {
       "id": 3,
-      "prompt": "We already have a pathfinder/journeys.json from last sprint. I just want to regenerate the diagrams and see our progress since the baseline.",
-      "expected_behavior": [
-        "Does NOT re-run /map or re-crawl the codebase",
-        "Runs generate-diagrams.py with the existing journeys.json",
-        "Shows before/after comparison using the saved baseline",
-        "Outputs a coverage delta table showing per-journey changes"
-      ],
-      "files": [
-        "fixtures/journeys-existing.json"
-      ]
-    },
-    {
-      "id": 4,
+      "name": "monorepo-aggregation",
       "prompt": "I have a monorepo with 3 modules: web (Playwright), ios (XCUITest), and android (Espresso). I want a combined coverage view across all of them.",
-      "expected_behavior": [
-        "Discovers all 3 modules in the monorepo",
-        "Runs pathfinder-init.py and /map in each module separately",
-        "Runs aggregate.py to merge coverage from all modules into a combined view",
-        "Produces a summary showing per-module and overall coverage percentages"
-      ],
+      "expected_output": "Discovers all 3 modules, runs pathfinder-init.py and /map in each module, runs aggregate.py to merge coverage, and produces per-module and overall coverage percentages.",
       "files": [
         "fixtures/playwright-config.ts",
         "fixtures/swiftui-content-view.swift",
         "fixtures/xcuitest-home.swift"
+      ],
+      "assertions": [
+        {
+          "text": "Discovers all 3 modules in the monorepo",
+          "category": "module-discovery"
+        },
+        {
+          "text": "Runs pathfinder-init.py and /map in each module separately",
+          "category": "per-module-execution"
+        },
+        {
+          "text": "Runs aggregate.py to merge coverage from all modules into a combined view",
+          "category": "aggregation"
+        },
+        {
+          "text": "Produces a summary showing per-module and overall coverage percentages",
+          "category": "output-format"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "scout-without-remap",
+      "prompt": "We already mapped our journeys last week. Just write tests for the gaps, don't re-map anything.",
+      "expected_output": "Does NOT run /map, reads existing journeys.json, runs /scout to generate UI tests for untested steps using the correct detected framework.",
+      "files": [
+        "fixtures/journeys-existing.json",
+        "fixtures/playwright-config.ts"
+      ],
+      "assertions": [
+        {
+          "text": "Does NOT run /map or re-crawl the codebase",
+          "category": "workflow-correctness"
+        },
+        {
+          "text": "Reads the existing journeys.json to identify untested steps",
+          "category": "data-reading"
+        },
+        {
+          "text": "Runs /scout to generate UI tests for untested steps only",
+          "category": "test-generation"
+        },
+        {
+          "text": "Uses the correct framework detected from config.json or project files",
+          "category": "framework-detection"
+        }
       ]
     },
     {
       "id": 5,
-      "prompt": "We already mapped our journeys last week. Just write tests for the gaps, don't re-map anything.",
-      "expected_behavior": [
-        "Does NOT run /map or re-crawl the codebase",
-        "Reads the existing journeys.json to identify untested steps",
-        "Runs /scout to generate UI tests for untested steps only",
-        "Uses the correct framework detected from config.json or project files"
-      ],
+      "name": "flutter-zero-tests",
+      "prompt": "I have a Flutter app with zero tests. Can you tell me what the coverage looks like and what framework to use?",
+      "expected_output": "Detects Flutter from pubspec.yaml, reports 0% coverage, creates journeys.json with all steps untested, and recommends flutter_test/integration_test.",
       "files": [
-        "fixtures/journeys-existing.json",
-        "fixtures/playwright-config.ts"
+        "fixtures/pubspec.yaml",
+        "fixtures/flutter-main.dart"
+      ],
+      "assertions": [
+        {
+          "text": "Detects Flutter as the UI framework from pubspec.yaml or project structure",
+          "category": "framework-detection"
+        },
+        {
+          "text": "Reports 0% coverage since no test files exist",
+          "category": "coverage-accuracy"
+        },
+        {
+          "text": "Creates journeys.json with all steps marked as untested",
+          "category": "output-file"
+        },
+        {
+          "text": "Recommends flutter_test / integration_test as the testing framework",
+          "category": "recommendation"
+        }
       ]
     },
     {
       "id": 6,
-      "prompt": "I have a Flutter app with zero tests. Can you tell me what the coverage looks like and what framework to use?",
-      "expected_behavior": [
-        "Detects Flutter as the UI framework from pubspec.yaml or project structure",
-        "Reports 0% coverage since no test files exist",
-        "Creates journeys.json with all steps marked as untested",
-        "Recommends flutter_test / integration_test as the testing framework"
-      ],
-      "files": [
-        "fixtures/pubspec.yaml",
-        "fixtures/flutter-main.dart"
-      ]
-    },
-    {
-      "id": 7,
+      "name": "multi-framework-conflict",
       "prompt": "My project has both a cypress.config.js and a playwright.config.ts. Map the journeys and show coverage.",
-      "expected_behavior": [
-        "Detects both Cypress and Playwright config files",
-        "Selects the primary framework based on which has more existing tests or recent usage",
-        "Does not crash or produce duplicate results from conflicting configs",
-        "Creates journeys.json and diagrams using the chosen primary framework"
-      ],
+      "expected_output": "Detects both Cypress and Playwright config files, selects the primary framework based on test count/usage, and creates journeys.json and diagrams without crashing or duplicates.",
       "files": [
         "fixtures/cypress-config.js",
         "fixtures/playwright-config.ts",
         "fixtures/playwright-home-test.ts"
+      ],
+      "assertions": [
+        {
+          "text": "Detects both Cypress and Playwright config files",
+          "category": "framework-detection"
+        },
+        {
+          "text": "Selects the primary framework based on which has more existing tests or recent usage",
+          "category": "conflict-resolution"
+        },
+        {
+          "text": "Does not crash or produce duplicate results from conflicting configs",
+          "category": "error-handling"
+        },
+        {
+          "text": "Creates journeys.json and diagrams using the chosen primary framework",
+          "category": "output-file"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "malformed-json-blaze-error",
+      "prompt": "Run /blaze on my project. The pathfinder/journeys.json file exists but it contains invalid JSON.",
+      "expected_output": "Attempts to parse journeys.json, detects malformed JSON, reports a clear error message, and suggests fixing or regenerating via /map.",
+      "files": [
+        "fixtures/malformed-journeys.json"
+      ],
+      "assertions": [
+        {
+          "text": "Attempts to read and parse journeys.json",
+          "category": "data-reading"
+        },
+        {
+          "text": "Detects the malformed JSON and reports a clear error message",
+          "category": "error-handling"
+        },
+        {
+          "text": "Does NOT crash with an unhandled exception or stack trace",
+          "category": "error-handling"
+        },
+        {
+          "text": "Suggests fixing or regenerating journeys.json by running /map",
+          "category": "user-guidance"
+        }
       ]
     },
     {
       "id": 8,
-      "prompt": "Run /blaze on my project. The pathfinder/journeys.json file exists but it contains invalid JSON.",
-      "expected_behavior": [
-        "Attempts to read and parse journeys.json",
-        "Detects the malformed JSON and reports a clear error message",
-        "Does NOT crash with an unhandled exception or stack trace",
-        "Suggests fixing or regenerating journeys.json by running /map"
-      ],
+      "name": "malformed-json-map-error",
+      "prompt": "Run /map on my project. The pathfinder/journeys.json already exists but contains malformed JSON from a previous interrupted run.",
+      "expected_output": "Exits with non-zero exit code on parse failure, prints error message with 'invalid JSON' or 'JSON parse error' and file path, does NOT overwrite without confirmation or show traceback.",
       "files": [
         "fixtures/malformed-journeys.json"
+      ],
+      "assertions": [
+        {
+          "text": "Exits with a non-zero exit code when parsing fails",
+          "category": "exit-code"
+        },
+        {
+          "text": "Prints an error message containing 'invalid JSON' or 'JSON parse error'",
+          "category": "error-message"
+        },
+        {
+          "text": "Error message includes the file path of the malformed journeys.json",
+          "category": "error-message"
+        },
+        {
+          "text": "Does NOT overwrite the malformed file without user confirmation",
+          "category": "safety"
+        },
+        {
+          "text": "Does NOT produce a Python traceback visible to the user",
+          "category": "error-handling"
+        }
       ]
     },
     {
       "id": 9,
-      "prompt": "Run /map on my project. The pathfinder/journeys.json already exists but contains malformed JSON from a previous interrupted run.",
-      "expected_behavior": [
-        "Exits with a non-zero exit code when parsing fails",
-        "Prints an error message containing 'invalid JSON' or 'JSON parse error'",
-        "Error message includes the file path of the malformed journeys.json",
-        "Does NOT overwrite the malformed file without user confirmation",
-        "Does NOT produce a Python traceback visible to the user"
-      ],
+      "name": "empty-project-no-journeys",
+      "prompt": "I have a brand new project with just a single empty component and no routes or navigation. Run /map to discover journeys.",
+      "expected_output": "Completes without error, reports 0 journeys found, creates a valid journeys.json with an empty journeys array, and does NOT fabricate journeys.",
       "files": [
-        "fixtures/malformed-journeys.json"
+        "fixtures/empty-app.tsx"
+      ],
+      "assertions": [
+        {
+          "text": "Completes without error (exit code 0)",
+          "category": "exit-code"
+        },
+        {
+          "text": "Reports exactly 0 journeys found in the output",
+          "category": "output-accuracy"
+        },
+        {
+          "text": "Creates a valid journeys.json with an empty journeys array",
+          "category": "output-file"
+        },
+        {
+          "text": "Does NOT fabricate or hallucinate journeys that do not exist in the source",
+          "category": "hallucination-guard"
+        }
       ]
     },
     {
       "id": 10,
-      "prompt": "I have a brand new project with just a single empty component and no routes or navigation. Run /map to discover journeys.",
-      "expected_behavior": [
-        "Completes without error (exit code 0)",
-        "Reports exactly 0 journeys found in the output",
-        "Creates a valid journeys.json with an empty journeys array",
-        "Does NOT fabricate or hallucinate journeys that do not exist in the source"
-      ],
-      "files": [
-        "fixtures/empty-app.tsx"
-      ]
-    },
-    {
-      "id": 11,
+      "name": "scout-missing-journeys",
       "prompt": "Run /scout on my project to generate tests. There is no pathfinder/journeys.json file yet because I have not run /map.",
-      "expected_behavior": [
-        "Exits with a non-zero exit code",
-        "Prints an error message stating that journeys.json is missing or not found",
-        "Error message suggests running /map first to generate journeys.json",
-        "Does NOT attempt to generate tests without journey data"
-      ],
+      "expected_output": "Exits with non-zero exit code, prints error that journeys.json is missing, suggests running /map first, and does NOT attempt to generate tests.",
       "files": [
         "fixtures/empty-app.tsx"
+      ],
+      "assertions": [
+        {
+          "text": "Exits with a non-zero exit code",
+          "category": "exit-code"
+        },
+        {
+          "text": "Prints an error message stating that journeys.json is missing or not found",
+          "category": "error-message"
+        },
+        {
+          "text": "Error message suggests running /map first to generate journeys.json",
+          "category": "user-guidance"
+        },
+        {
+          "text": "Does NOT attempt to generate tests without journey data",
+          "category": "safety"
+        }
       ]
     }
   ]
