@@ -36,7 +36,7 @@ SCRIPT_MAP = {
     "monorepo-aggregation": ["pathfinder-init.py", "detect-ui-framework.py", "aggregate.py"],
     "scout-without-remap": ["generate-ui-test.py"],
     "flutter-zero-tests": ["detect-ui-framework.py", "scan-test-coverage.py"],
-    "multi-framework-conflict": ["detect-ui-framework.py"],
+    "multi-framework-conflict": ["detect-ui-framework.py", "scan-test-coverage.py"],
     "malformed-json-blaze-error": ["generate-diagrams.py"],
     "malformed-json-map-error": ["validate-journeys.py"],
     "empty-project-no-journeys": ["scan-test-coverage.py"],
@@ -49,8 +49,28 @@ def load_evals() -> dict:
         return json.load(f)
 
 
+def _fixture_project_path(fixture_name: str) -> str:
+    """Map a descriptive fixture filename to its proper project path."""
+    mapping = {
+        "playwright-config.ts": "playwright.config.ts",
+        "cypress-config.js": "cypress.config.js",
+        "nextjs-app-layout.tsx": "app/layout.tsx",
+        "nextjs-page-home.tsx": "app/page.tsx",
+        "nextjs-page-dashboard.tsx": "app/dashboard/page.tsx",
+        "playwright-home-test.ts": "e2e/tests/home.spec.ts",
+        "swiftui-content-view.swift": "ContentView.swift",
+        "xcuitest-home.swift": "AppUITests/HomeUITests.swift",
+        "pubspec.yaml": "pubspec.yaml",
+        "flutter-main.dart": "lib/main.dart",
+        "empty-app.tsx": "App.tsx",
+        "journeys-existing.json": "pathfinder/journeys.json",
+        "malformed-journeys.json": "pathfinder/journeys.json",
+    }
+    return mapping.get(fixture_name, fixture_name)
+
+
 def setup_fixture_dir(eval_case: dict, iteration_dir: Path) -> Path:
-    """Copy fixture files into a temporary eval directory."""
+    """Copy fixture files into a temporary eval directory with proper names."""
     eval_name = eval_case.get("name", f"eval-{eval_case['id']}")
     eval_dir = iteration_dir / f"eval-{eval_case['id']}-{eval_name}"
     with_skill = eval_dir / "with_skill"
@@ -62,7 +82,10 @@ def setup_fixture_dir(eval_case: dict, iteration_dir: Path) -> Path:
 
     for rel_path in eval_case.get("files", []):
         src = EVALS_DIR / rel_path
-        dst = fixture_dst / Path(rel_path).name
+        fixture_name = Path(rel_path).name
+        project_path = _fixture_project_path(fixture_name)
+        dst = fixture_dst / project_path
+        dst.parent.mkdir(parents=True, exist_ok=True)
         if src.exists():
             shutil.copy2(src, dst)
 
@@ -115,25 +138,22 @@ def run_scripts_for_eval(eval_case: dict, eval_dir: Path, dry_run: bool = False)
         elif script_name == "scan-test-coverage.py":
             cmd.append(str(fixture_dir))
         elif script_name == "generate-diagrams.py":
-            # Find journeys.json in fixtures
-            journeys_file = fixture_dir / "journeys-existing.json"
-            if not journeys_file.exists():
-                # Check for malformed version
-                journeys_file = fixture_dir / "malformed-journeys.json"
+            journeys_file = fixture_dir / "pathfinder" / "journeys.json"
             if journeys_file.exists():
                 cmd.append(str(journeys_file))
             else:
                 cmd.append(str(fixture_dir / "journeys.json"))
         elif script_name == "validate-journeys.py":
-            journeys_file = fixture_dir / "malformed-journeys.json"
-            if not journeys_file.exists():
-                journeys_file = fixture_dir / "journeys-existing.json"
-            cmd.append(str(journeys_file))
+            journeys_file = fixture_dir / "pathfinder" / "journeys.json"
+            if journeys_file.exists():
+                cmd.append(str(journeys_file))
+            else:
+                cmd.append(str(fixture_dir / "journeys.json"))
         elif script_name == "aggregate.py":
             cmd.append(str(fixture_dir))
         elif script_name == "generate-ui-test.py":
             # Needs journey ID, description, and framework
-            cmd.extend(["s3", "test untested step", "playwright", "--auto"])
+            cmd.extend(["GAP-01", "test untested step", "playwright", "--auto"])
         elif script_name == "pathfinder-init.py":
             cmd.extend(["--output-dir", str(outputs_dir)])
 

@@ -24,16 +24,43 @@ def main() -> None:
         ("pubspec.yaml", "flutter-test", "flutter"),
     ]
 
-    # Check for specific frameworks
+    # Check for specific frameworks — collect ALL matches for conflict resolution
     framework: str | None = None
     platform: str | None = None
+    all_detected: list[tuple[str, str]] = []
 
     for path, fw, plat in detections:
         full = os.path.join(root, path)
         if os.path.exists(full):
-            framework = fw
-            platform = plat
-            break
+            if not any(f == fw for f, _ in all_detected):
+                all_detected.append((fw, plat))
+
+    if len(all_detected) == 1:
+        framework, platform = all_detected[0]
+    elif len(all_detected) > 1:
+        # Multi-framework conflict: count test files per framework to pick primary
+        fw_test_counts: dict[str, int] = {}
+        test_patterns: dict[str, list[str]] = {
+            "playwright": ["e2e/**/*.spec.ts", "e2e/**/*.spec.js", "**/*.spec.ts"],
+            "cypress": ["cypress/e2e/**/*.cy.ts", "cypress/e2e/**/*.cy.js", "cypress/**/*.cy.*"],
+            "detox": ["e2e/**/*.test.ts", "e2e/**/*.test.js"],
+            "maestro": ["e2e/.maestro/**/*.yaml", "e2e/flows/**/*.yaml"],
+            "flutter-test": ["integration_test/**/*_test.dart"],
+        }
+        import glob as _glob
+        for fw, _plat in all_detected:
+            count = 0
+            for pat in test_patterns.get(fw, []):
+                count += len(_glob.glob(os.path.join(root, pat), recursive=True))
+            fw_test_counts[fw] = count
+
+        # Pick framework with more existing tests; on tie, prefer order in detections list
+        best_fw = max(all_detected, key=lambda fp: fw_test_counts.get(fp[0], 0))
+        framework, platform = best_fw
+
+        detected_names = [f for f, _ in all_detected]
+        print(f"Multiple frameworks detected: {', '.join(detected_names)}. "
+              f"Selected {framework} as primary (most test files).", file=sys.stderr)
 
     # Fallback: detect by project type
     if not framework:
@@ -106,6 +133,7 @@ def main() -> None:
         "platform": platform or "unknown",
         "unitRunner": unit_runner or "unknown",
         "referenceFile": f"references/{framework}.md" if framework else None,
+        "allDetected": [f for f, _ in all_detected] if all_detected else [],
     }
 
     print(json.dumps(result, indent=2))

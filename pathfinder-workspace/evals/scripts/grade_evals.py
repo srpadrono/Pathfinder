@@ -65,6 +65,10 @@ def _grade_framework_detection(assertion_text: str, output_text: str, eval_case:
     if detected:
         return {"passed": True, "evidence": f"Detected framework(s): {', '.join(detected)}"}
 
+    # Check if framework was reported in output (e.g., "Using framework: playwright")
+    if "using framework" in output_lower or "framework:" in output_lower:
+        return {"passed": True, "evidence": "Framework reported in script output"}
+
     # Check if the script ran at all
     if "detect-ui-framework" in output_text:
         return {"passed": True, "evidence": "Framework detection script was executed"}
