@@ -69,6 +69,8 @@ def test_auto_uses_initialized_pathfinder_config():
         os.makedirs(config_dir)
         with open(os.path.join(config_dir, "config.json"), "w") as f:
             json.dump({"testDir": "custom/tests"}, f)
+        with open(os.path.join(config_dir, "journeys.json"), "w") as f:
+            json.dump({"journeys": []}, f)
 
         r = subprocess.run(
             ["python3", SCRIPT, "AUTH-01", "Login", "playwright", "--auto"],
@@ -200,6 +202,8 @@ def test_auto_path_uses_os_sep():
         os.makedirs(config_dir)
         with open(os.path.join(config_dir, "config.json"), "w") as f:
             json.dump({"testDir": "my/tests"}, f)
+        with open(os.path.join(config_dir, "journeys.json"), "w") as f:
+            json.dump({"journeys": []}, f)
 
         r = subprocess.run(
             ["python3", SCRIPT, "NAV-01", "Navigate home", "playwright", "--auto"],

@@ -28,7 +28,7 @@ import os
 import re
 import sys
 
-from pathfinder_paths import find_pathfinder_config, find_journeys_file
+from pathfinder_paths import find_journeys_file, find_pathfinder_config
 
 # --- Templates ---
 

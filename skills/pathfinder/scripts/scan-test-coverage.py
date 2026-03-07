@@ -169,7 +169,7 @@ def main() -> None:
     if total_routes:
         print(f"Route coverage: {tested_count}/{total_routes} ({result['routeCoverage']}%)", file=sys.stderr)
     else:
-        print(f"Route coverage: 0% (0 routes found)", file=sys.stderr)
+        print("Route coverage: 0% (0 routes found)", file=sys.stderr)
 
     if not test_files:
         print("WARNING: No UI test files found. Coverage is 0%.", file=sys.stderr)
