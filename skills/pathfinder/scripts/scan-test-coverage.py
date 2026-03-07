@@ -33,6 +33,7 @@ route_globs = [
     "pages/**/*.tsx", "pages/**/*.ts",
     "app/**/*.tsx",  # Expo Router
     "lib/routes/**/*.dart",
+    "lib/**/*.dart",  # Flutter screens
 ]
 
 def extract_routes_from_code(filepath: str) -> dict[str, list[str]]:
@@ -153,17 +154,47 @@ def main() -> None:
         "routeCoverage": round(tested_count / total_routes * 100, 1) if total_routes else 0,
     }
 
+    # Build journeys summary from coverage data
+    journeys: list[dict] = []
+    for entry in coverage_matrix:
+        journeys.append({
+            "route": entry["route"],
+            "tested": entry["tested"],
+        })
+    result["journeys"] = journeys
+
     print(json.dumps(result, indent=2))
 
-    if not test_files:
-        print("WARNING: No UI test files found", file=sys.stderr)
-    if not routes:
-        print("WARNING: No route/screen files found", file=sys.stderr)
+    # Report coverage stats to stderr for visibility
     if total_routes:
         print(f"Route coverage: {tested_count}/{total_routes} ({result['routeCoverage']}%)", file=sys.stderr)
+    else:
+        print("Route coverage: 0% (0 routes found)", file=sys.stderr)
+
+    if not test_files:
+        print("WARNING: No UI test files found. Coverage is 0%.", file=sys.stderr)
+    if not routes:
+        print("WARNING: No route/screen files found", file=sys.stderr)
+
+    # Report journey count
+    journey_count = len(journeys)
+    print(f"Found {journey_count} journeys", file=sys.stderr)
+    if journey_count == 0:
+        print("0 journeys discovered. The project may have no routes or navigation.", file=sys.stderr)
 
     if not test_files and not total_routes:
         print("WARNING: No UI test files or routes found. Is this the right directory?", file=sys.stderr)
+
+    # Detect framework and provide recommendations
+    flutter_indicators = [
+        os.path.exists(os.path.join(root, "pubspec.yaml")),
+        os.path.exists(os.path.join(root, "lib")),
+    ]
+    if any(flutter_indicators) and os.path.exists(os.path.join(root, "pubspec.yaml")):
+        print("Framework: flutter", file=sys.stderr)
+        if not test_files:
+            print("Recommendation: Use flutter_test for unit/widget tests "
+                  "and integration_test for end-to-end UI tests.", file=sys.stderr)
 
 
 if __name__ == "__main__":

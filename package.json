@@ -29,6 +29,12 @@
     "diagrams": "python3 skills/pathfinder/scripts/generate-diagrams.py",
     "test": "python3 -m pytest tests/ -v",
     "lint": "ruff check skills/pathfinder/scripts/ tests/",
-    "lint:fix": "ruff check --fix skills/pathfinder/scripts/ tests/"
+    "lint:fix": "ruff check --fix skills/pathfinder/scripts/ tests/",
+    "eval": "python3 pathfinder-workspace/evals/scripts/run_evals.py",
+    "eval:run": "python3 pathfinder-workspace/evals/scripts/run_evals.py",
+    "eval:grade": "python3 pathfinder-workspace/evals/scripts/grade_evals.py",
+    "eval:benchmark": "python3 pathfinder-workspace/evals/scripts/aggregate_benchmark.py",
+    "eval:all": "python3 pathfinder-workspace/evals/scripts/run_evals.py && python3 pathfinder-workspace/evals/scripts/grade_evals.py && python3 pathfinder-workspace/evals/scripts/aggregate_benchmark.py",
+    "eval:dry-run": "python3 pathfinder-workspace/evals/scripts/run_evals.py --dry-run"
   }
 }
