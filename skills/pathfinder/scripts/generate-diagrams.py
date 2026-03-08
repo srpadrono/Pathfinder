@@ -349,7 +349,14 @@ def build_flowchart(journey: dict) -> list[str]:
 
 
 def compute_coverage(journeys: list[dict]) -> tuple[int, int, int, float, list[tuple]]:
-    """Compute coverage stats for a list of journeys."""
+    """Compute coverage stats for a list of journeys.
+
+    Steps shared across journeys (same step ID) are counted once for the
+    overall totals, preventing inflated numbers when journeys reuse step IDs
+    at branching points.  Per-journey rows still reflect each journey's own
+    step count so individual coverage percentages remain meaningful.
+    """
+    seen_ids: set[str] = set()
     total = 0
     tested = 0
     partial = 0
@@ -358,11 +365,20 @@ def compute_coverage(journeys: list[dict]) -> tuple[int, int, int, float, list[t
         steps = j.get("steps", [])
         j_tested = sum(1 for s in steps if s.get("tested") is True)
         j_partial = sum(1 for s in steps if s.get("tested") == "partial")
-        total += len(steps)
-        tested += j_tested
-        partial += j_partial
-        cov = round(j_tested / len(steps) * 100, 1) if steps else 0
-        rows.append((j.get("id", ""), j.get("name", ""), len(steps), j_tested, j_partial, cov))
+        # Per-journey coverage uses the journey's own step count
+        j_total = len(steps)
+        cov = round(j_tested / j_total * 100, 1) if j_total else 0
+        rows.append((j.get("id", ""), j.get("name", ""), j_total, j_tested, j_partial, cov))
+        # Overall totals deduplicate shared step IDs
+        for s in steps:
+            sid = s.get("id", "")
+            if sid not in seen_ids:
+                seen_ids.add(sid)
+                total += 1
+                if s.get("tested") is True:
+                    tested += 1
+                elif s.get("tested") == "partial":
+                    partial += 1
     overall = round(tested / total * 100, 1) if total else 0
     return total, tested, partial, overall, rows
 
