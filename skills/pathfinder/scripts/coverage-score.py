@@ -18,6 +18,7 @@ def main() -> None:
         data = json.load(f)
 
     journeys = data.get("journeys", [])
+    seen_ids: set[str] = set()
     total = 0
     tested = 0
     partial = 0
@@ -28,11 +29,18 @@ def main() -> None:
         j_total = len(steps)
         j_tested = sum(1 for s in steps if s.get("tested") is True)
         j_partial = sum(1 for s in steps if s.get("tested") == "partial")
-        total += j_total
-        tested += j_tested
-        partial += j_partial
         cov = round(j_tested / j_total * 100, 1) if j_total else 0
         per_journey.append({"id": j["id"], "name": j["name"], "steps": j_total, "tested": j_tested, "coverage": cov})
+        # Overall totals deduplicate shared step IDs
+        for s in steps:
+            sid = s.get("id", "")
+            if sid not in seen_ids:
+                seen_ids.add(sid)
+                total += 1
+                if s.get("tested") is True:
+                    tested += 1
+                elif s.get("tested") == "partial":
+                    partial += 1
 
     overall = round(tested / total * 100, 1) if total else 0
 

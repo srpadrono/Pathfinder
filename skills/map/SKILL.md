@@ -50,6 +50,9 @@ python3 "${CLAUDE_SKILL_DIR}/../pathfinder/scripts/scan-test-coverage.py" .
 ```
 
 6. **Create journey map** (`<testDir>/pathfinder/journeys.json`):
+
+> **Key**: Reuse step IDs at branching points so the decision tree shows diamond decision nodes. In the example below, `ITEMS-01` appears in both "Create Item" and "Delete Item" journeys — this creates a `🔀 User action?` branch in the combined diagram.
+
 ```json
 {
   "version": "1.0.0",
@@ -63,6 +66,24 @@ python3 "${CLAUDE_SKILL_DIR}/../pathfinder/scripts/scan-test-coverage.py" .
         { "id": "AUTH-01", "action": "User opens login page", "screen": "LoginView", "tested": false },
         { "id": "AUTH-02", "action": "User enters credentials", "screen": "LoginView", "tested": true, "testFile": "e2e/auth.spec.ts" },
         { "id": "AUTH-03", "action": "User sees dashboard after login", "screen": "DashboardView", "tested": false }
+      ]
+    },
+    {
+      "id": "ITEMS-CREATE",
+      "name": "Create Item",
+      "steps": [
+        { "id": "ITEMS-01", "action": "User sees items list", "screen": "ItemsListView", "tested": true, "testFile": "e2e/items.spec.ts" },
+        { "id": "ICREATE-01", "action": "User taps add button", "screen": "ItemsListView", "tested": false },
+        { "id": "ICREATE-02", "action": "User fills form and saves", "screen": "ItemFormView", "tested": false }
+      ]
+    },
+    {
+      "id": "ITEMS-DELETE",
+      "name": "Delete Item",
+      "steps": [
+        { "id": "ITEMS-01", "action": "User sees items list", "screen": "ItemsListView", "tested": true, "testFile": "e2e/items.spec.ts" },
+        { "id": "IDEL-01", "action": "User swipes to delete", "screen": "ItemsListView", "tested": false },
+        { "id": "IDEL-02", "action": "User confirms deletion", "screen": "ItemsListView", "tested": false }
       ]
     },
     {
@@ -95,6 +116,8 @@ When marking `"partial"`, add a `"note"` field explaining why (e.g., `"note": "t
 
 ## Tips
 
+- **Shared step IDs for decision trees**: When multiple journeys branch from the same screen, **reuse the same step ID** at the branching point. This is what creates diamond decision nodes in the combined decision tree. For example, if "Create Item", "Edit Item", and "Delete Item" all start from the items list, each journey should begin with the same `ITEMS-01` step ID. The diagram generator merges nodes with identical IDs — a node with multiple outgoing edges becomes a `🔀 User action?` decision diamond.
+- **Navigation entry points**: Prepend shared navigation steps (e.g., tab switches) as the first step of each journey. This creates a realistic decision tree rooted at navigation, showing how users branch into different flows from the same starting point.
 - **Error journeys**: Create a dedicated `ERROR` journey for failure paths. The decision tree generator attaches error branches to loading/API steps automatically by matching `screen` names.
 - **Screen names**: Use the actual View/Component name (e.g., `TransactionConfirmationView`) so the decision tree can group steps by screen.
 - **Action text**: Write actions as "User does X" — consistent phrasing helps the decision tree merge shared prefixes.

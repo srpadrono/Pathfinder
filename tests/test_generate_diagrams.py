@@ -241,6 +241,72 @@ def test_journey_with_zero_steps():
     print("pass: test_journey_with_zero_steps")
 
 
+def test_shared_step_ids_create_decision_nodes():
+    """Journeys sharing step IDs at branching points produce diamond decision nodes."""
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [
+                {"id": "ITEMS-LIST", "name": "Items List", "steps": [
+                    {"id": "ITEMS-01", "action": "User sees items list", "screen": "ItemsListView", "tested": True},
+                    {"id": "ITEMS-02", "action": "User searches items", "screen": "ItemsListView", "tested": True},
+                ]},
+                {"id": "ITEMS-CREATE", "name": "Create Item", "steps": [
+                    {"id": "ITEMS-01", "action": "User sees items list", "screen": "ItemsListView", "tested": True},
+                    {"id": "ICREATE-01", "action": "User taps add button", "screen": "ItemsListView", "tested": False},
+                    {"id": "ICREATE-02", "action": "User fills form", "screen": "ItemFormView", "tested": False},
+                ]},
+                {"id": "ITEMS-DELETE", "name": "Delete Item", "steps": [
+                    {"id": "ITEMS-01", "action": "User sees items list", "screen": "ItemsListView", "tested": True},
+                    {"id": "IDEL-01", "action": "User swipes to delete", "screen": "ItemsListView", "tested": False},
+                ]},
+            ]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        opath = os.path.join(d, "out.md")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+
+        r = subprocess.run(["python3", SCRIPT, jpath, "--output", opath], capture_output=True, text=True)
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+        decision_tree = _decision_tree_section(open(opath).read())
+        # ITEMS_01 should have a decision diamond because it has 3 children
+        assert "ITEMS_01_decision" in decision_tree, f"Missing decision node in:\n{decision_tree}"
+        assert "🔀 User action?" in decision_tree, f"Missing decision label in:\n{decision_tree}"
+    print("✅ test_shared_step_ids_create_decision_nodes")
+
+
+def test_shared_steps_deduplicated_in_coverage():
+    """Overall coverage deduplicates shared step IDs to avoid inflated counts."""
+    with tempfile.TemporaryDirectory() as d:
+        journeys = {
+            "journeys": [
+                {"id": "A", "name": "Flow A", "steps": [
+                    {"id": "SHARED-01", "action": "Start", "screen": "/", "tested": True},
+                    {"id": "A-01", "action": "Step A", "screen": "/a", "tested": False},
+                ]},
+                {"id": "B", "name": "Flow B", "steps": [
+                    {"id": "SHARED-01", "action": "Start", "screen": "/", "tested": True},
+                    {"id": "B-01", "action": "Step B", "screen": "/b", "tested": True},
+                ]},
+            ]
+        }
+        jpath = os.path.join(d, "journeys.json")
+        opath = os.path.join(d, "out.md")
+        with open(jpath, "w") as f:
+            json.dump(journeys, f)
+
+        r = subprocess.run(["python3", SCRIPT, jpath, "--output", opath], capture_output=True, text=True)
+        assert r.returncode == 0, f"Failed: {r.stderr}"
+        content = open(opath).read()
+        # 3 unique steps: SHARED-01 (tested), A-01 (not), B-01 (tested)
+        # Overall = 2/3 = 66.7%
+        assert "66.7%" in content, f"Expected 66.7% overall coverage in:\n{content}"
+        # Per-journey: Flow A = 1/2 = 50%, Flow B = 2/2 = 100%
+        assert "50.0%" in content, f"Expected 50.0% per-journey coverage in:\n{content}"
+        assert "100.0%" in content, f"Expected 100.0% per-journey coverage in:\n{content}"
+    print("✅ test_shared_steps_deduplicated_in_coverage")
+
+
 if __name__ == "__main__":
     test_basic_diagram()
     test_empty_journeys()
@@ -253,4 +319,6 @@ if __name__ == "__main__":
     test_step_missing_tested_field()
     test_tested_as_string_instead_of_boolean()
     test_journey_with_zero_steps()
+    test_shared_step_ids_create_decision_nodes()
+    test_shared_steps_deduplicated_in_coverage()
     print("\nAll generate-diagrams tests passed")
