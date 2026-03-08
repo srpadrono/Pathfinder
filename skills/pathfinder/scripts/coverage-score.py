@@ -28,7 +28,6 @@ def main() -> None:
         steps = j.get("steps", [])
         j_total = len(steps)
         j_tested = sum(1 for s in steps if s.get("tested") is True)
-        j_partial = sum(1 for s in steps if s.get("tested") == "partial")
         cov = round(j_tested / j_total * 100, 1) if j_total else 0
         per_journey.append({"id": j["id"], "name": j["name"], "steps": j_total, "tested": j_tested, "coverage": cov})
         # Overall totals deduplicate shared step IDs
