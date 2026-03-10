@@ -1,6 +1,7 @@
 ---
 name: scout
-description: "Writes UI tests for untested steps in the journey map using framework-correct selectors, waits, and patterns. Use when the user says /scout or wants to write tests for coverage gaps."
+description: "Writes UI tests for untested steps in the journey map using framework-correct selectors, waits, and patterns. Use when writing tests to fill coverage gaps or generating E2E tests for untested journey steps."
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
 # Scouting

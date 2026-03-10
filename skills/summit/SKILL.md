@@ -1,6 +1,7 @@
 ---
 name: summit
-description: "Runs all tests, updates the journey map, regenerates diagrams with before/after comparison, and reports coverage score. Use when the user says /summit or wants to finalize coverage."
+description: "Runs all tests, updates the journey map, regenerates diagrams with before/after comparison, and reports coverage score. Use when finalizing a coverage sprint, verifying test results, or preparing coverage reports for a PR."
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
 # Summiting
