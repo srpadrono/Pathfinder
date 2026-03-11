@@ -1,6 +1,7 @@
 ---
 name: map
-description: "Crawls a codebase to discover all user journeys and creates a journey map (journeys.json) with test coverage status. Use when starting UI test coverage work or when the user says /map."
+description: "Crawls a codebase to discover all user journeys and creates a journey map (journeys.json) with test coverage status. Use when starting UI test coverage work, auditing existing coverage, or exploring a new codebase's user flows."
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
 # Mapping

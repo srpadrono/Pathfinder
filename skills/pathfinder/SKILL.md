@@ -1,6 +1,7 @@
 ---
 name: pathfinder
 description: "Maps user journeys in any codebase, visualizes UI test coverage with color-coded Mermaid diagrams, and generates framework-correct E2E tests to fill gaps. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, and Flutter. Not for unit tests, API tests, or backend-only projects."
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
 # Pathfinder

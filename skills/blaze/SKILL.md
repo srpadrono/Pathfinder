@@ -1,6 +1,7 @@
 ---
 name: blaze
-description: "Generates Mermaid flowcharts and decision trees from journeys.json showing test coverage with before/after comparison. Use when the user says /blaze or wants to visualize coverage."
+description: "Generates Mermaid flowcharts and decision trees from journeys.json showing test coverage with before/after comparison. Use when visualizing coverage, generating diagrams, or showing progress since last sprint."
+allowed-tools: Bash, Read, Write, Glob
 ---
 
 # Blazing
