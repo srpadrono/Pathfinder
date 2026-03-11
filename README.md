@@ -372,7 +372,6 @@ One command — installs the repo, symlinks skills, and registers the Claude Cod
 | `skills/pathfinder/scripts/` | 10 Python CLI tools |
 | `skills/pathfinder/assets/` | Starter templates |
 | `skills/map/`, `blaze/`, `scout/`, `summit/` | `/map`, `/blaze`, `/scout`, `/summit` command skills |
-| `hooks/` | SessionStart hook |
 | `install/` | Installer |
 | `tests/` | 55 self-tests |
 | `.githooks/` | pre-commit, post-commit, pre-push |
