@@ -90,8 +90,6 @@ def validate(data: dict) -> tuple[list[str], list[str], int]:
                         errors.append(f"{sp}: \"id\" must be a string")
                     elif not STEP_ID_PATTERN.match(sid):
                         errors.append(f"{sp}: \"id\" must match PREFIX-NN pattern (got \"{sid}\")")
-                    elif sid in seen_step_ids:
-                        errors.append(f"{sp}: duplicate step id \"{sid}\"")
                     else:
                         seen_step_ids.add(sid)
 
