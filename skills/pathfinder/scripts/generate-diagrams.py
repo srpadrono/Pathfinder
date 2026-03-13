@@ -495,7 +495,8 @@ def build_journey_flowchart(journey: dict, all_journeys: list[dict]) -> list[str
                 err_node_id = sanitize_id(err_sid)
                 if err_node_id not in declared:
                     declared.add(err_node_id)
-                    err_marker = "✅" if err_step.get("tested") is True else "⚠️" if err_step.get("tested") == "partial" else "❌"
+                    tested = err_step.get("tested")
+                    err_marker = "✅" if tested is True else "⚠️" if tested == "partial" else "❌"
                     err_label = sanitize_label(f"{err_marker} {err_step.get('action', err_sid)}")
                     lines.append(f'    {err_node_id}["{err_label}"]')
                     styles.append(style_line(err_node_id, err_step))
