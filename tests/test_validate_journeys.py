@@ -57,6 +57,7 @@ def test_missing_journeys_key():
 
 
 def test_duplicate_step_ids():
+    """Shared step IDs across different journeys are valid — they enable decision tree branching."""
     with tempfile.TemporaryDirectory() as d:
         path = write_json(d, {
             "journeys": [
@@ -77,9 +78,9 @@ def test_duplicate_step_ids():
             ]
         })
         code, out = run(path)
-        assert code == 1
-        assert out["valid"] is False
-        assert any("duplicate step id" in e for e in out["errors"])
+        assert code == 0, "Cross-journey shared step IDs should be allowed"
+        assert out["valid"] is True
+        assert out["errors"] == []
     print("pass: test_duplicate_step_ids")
 
 

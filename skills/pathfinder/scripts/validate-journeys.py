@@ -24,7 +24,6 @@ def validate(data: dict) -> tuple[list[str], list[str], int]:
     warnings: list[str] = []
     total_steps = 0
     seen_journey_ids: set[str] = set()
-    seen_step_ids: set[str] = set()
 
     # Check top-level fields
     if not isinstance(data, dict):
@@ -72,6 +71,7 @@ def validate(data: dict) -> tuple[list[str], list[str], int]:
                 errors.append(f"{prefix}: \"steps\" must not be empty")
                 continue
 
+            seen_step_ids_in_journey: set[str] = set()
             for si, step in enumerate(steps):
                 sp = f"{prefix}.steps[{si}]"
                 total_steps += 1
@@ -90,10 +90,10 @@ def validate(data: dict) -> tuple[list[str], list[str], int]:
                         errors.append(f"{sp}: \"id\" must be a string")
                     elif not STEP_ID_PATTERN.match(sid):
                         errors.append(f"{sp}: \"id\" must match PREFIX-NN pattern (got \"{sid}\")")
-                    elif sid in seen_step_ids:
+                    elif sid in seen_step_ids_in_journey:
                         errors.append(f"{sp}: duplicate step id \"{sid}\"")
                     else:
-                        seen_step_ids.add(sid)
+                        seen_step_ids_in_journey.add(sid)
 
                 if "action" in step and not isinstance(step["action"], str):
                     errors.append(f"{sp}: \"action\" must be a string")
