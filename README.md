@@ -413,7 +413,9 @@ Enable with: `git config core.hooksPath ~/.agents/pathfinder/.githooks`
 
 ## 📄 License
 
-MIT — use it, fork it, improve it.
+MIT License — see [LICENSE](LICENSE) for details.
+
+Copyright (c) 2026 Sergio Padron and [Pathfinder contributors](https://github.com/srpadrono/Pathfinder/graphs/contributors).
 
 ---
 
