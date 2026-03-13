@@ -1,6 +1,9 @@
 MIT License
 
-Copyright (c) 2026 Sergio Padron
+SPDX-License-Identifier: MIT
+
+Copyright (c) 2026 Sergio Padron and Pathfinder contributors
+https://github.com/srpadrono/Pathfinder
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +22,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+Third-Party Notices
+
+This project may include or depend on third-party open-source software, each
+governed by its own license. These licenses can typically be found in the
+respective package directories or source repositories. Nothing in this license
+grants rights to any third-party trademarks, trade names, or service marks.
+
+For a complete list of dependencies and their licenses, refer to the project's
+package manifest files (package.json, requirements-dev.txt).
