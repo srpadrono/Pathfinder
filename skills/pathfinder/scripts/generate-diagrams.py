@@ -283,69 +283,7 @@ def build_decision_tree(journeys: list[dict]) -> list[str]:
 
 def build_flowchart(journey: dict) -> list[str]:
     """Build a Mermaid flowchart for one journey (basic, no cross-journey context)."""
-    steps = journey.get("steps", [])
-    if not steps:
-        return []
-
-    lines: list[str] = []
-    lines.append("flowchart TD")
-
-    # Group steps by screen for subgraphs
-    screens: dict[str, list[tuple[str, str, bool, bool]]] = {}
-    node_ids: list[str] = []
-
-    for i, step in enumerate(steps):
-        screen = step.get("screen", "Main")
-        action = step.get("action", step.get("id", f"step_{i}"))
-        step_id = step.get("id", f"step_{i}")
-        node_id = sanitize_id(f"{step_id}_{i}")
-        node_ids.append(node_id)
-
-        is_tested = step.get("tested") is True
-        is_partial = step.get("tested") == "partial"
-        marker = "✅" if is_tested else "⚠️" if is_partial else "❌"
-        label = sanitize_label(f"{marker} {action}")
-
-        if screen not in screens:
-            screens[screen] = []
-        screens[screen].append((node_id, label, is_tested, is_partial))
-
-    # Render subgraphs (one per screen)
-    for screen, screen_nodes in screens.items():
-        if len(screens) > 1:
-            lines.append(f"    subgraph {screen}")
-        for node_id, label, is_tested, is_partial in screen_nodes:
-            quoted = f'"{label}"'
-            if is_tested:
-                lines.append(f"        {node_id}({quoted})")
-            elif is_partial:
-                lines.append(f"        {node_id}[/{quoted}/]")
-            else:
-                lines.append(f"        {node_id}[{quoted}]")
-        if len(screens) > 1:
-            lines.append("    end")
-
-    # Edges: connect steps in order
-    for i in range(len(node_ids) - 1):
-        # Dotted arrow between screens, solid within
-        screen_a = steps[i].get("screen", "Main")
-        screen_b = steps[i + 1].get("screen", "Main")
-        if screen_a != screen_b:
-            lines.append(f"    {node_ids[i]} -.-> {node_ids[i+1]}")
-        else:
-            lines.append(f"    {node_ids[i]} --> {node_ids[i+1]}")
-
-    # Style nodes by coverage status
-    for i, step in enumerate(steps):
-        node_id = node_ids[i]
-        if step.get("tested") is True:
-            lines.append(f"    style {node_id} fill:#2ea043,stroke:#1a7f37,color:#fff")
-        elif step.get("tested") == "partial":
-            lines.append(f"    style {node_id} fill:#d29922,stroke:#b87d14,color:#fff")
-        else:
-            lines.append(f"    style {node_id} fill:#f85149,stroke:#da3633,color:#fff")
-
-    return lines
+    return _build_journey_chart(journey, {})
 
 
 def _build_branch_map(all_journeys: list[dict]) -> dict[str, list[tuple[str, str]]]:
@@ -380,130 +318,100 @@ def _build_error_screen_map(all_journeys: list[dict]) -> dict[str, list[dict]]:
     return dict(error_map)
 
 
-def build_journey_flowchart(journey: dict, all_journeys: list[dict]) -> list[str]:
-    """Build a Mermaid flowchart for one journey with decision diamonds from cross-journey context.
+def _build_journey_chart(journey: dict, branch_map: dict[str, list[tuple[str, str]]]) -> list[str]:
+    """Build a Mermaid flowchart for one journey matching the decision tree style.
 
-    When a step in this journey is a branching point (leads to different next steps in
-    other journeys), a decision diamond is shown with the current journey's path highlighted
-    and other branches shown as greyed-out alternatives.
+    Uses the same node shapes, edge styles, and decision diamonds as
+    build_decision_tree.  At decision points the diamond fans out to ALL
+    branches (current journey highlighted, alternatives shown as muted
+    leaf nodes) — identical to the decision tree rendering.
     """
     steps = journey.get("steps", [])
     if not steps:
         return []
 
-    branch_map = _build_branch_map(all_journeys)
-    error_screen_map = _build_error_screen_map(all_journeys)
-
-    lines: list[str] = []
-    lines.append("flowchart TD")
+    lines: list[str] = ["flowchart TD"]
     styles: list[str] = []
+    declared: set[str] = set()
+    declared_edges: set[str] = set()
 
-    # Build node info for this journey's steps
     journey_step_ids: list[str] = []
     step_lookup: dict[str, dict] = {}
+    journey_id_set: set[str] = set()
     for step in steps:
         sid = step.get("id", "")
         journey_step_ids.append(sid)
         step_lookup[sid] = step
-
-    # Track which node IDs we've declared
-    declared: set[str] = set()
+        journey_id_set.add(sid)
 
     def declare_node(sid: str, step: dict) -> str:
         node_id = sanitize_id(sid)
         if node_id in declared:
             return node_id
         declared.add(node_id)
-        is_tested = step.get("tested") is True
-        is_partial = step.get("tested") == "partial"
-        marker = "✅" if is_tested else "⚠️" if is_partial else "❌"
+        is_tested, is_partial, marker = step_status(step)
         label = sanitize_label(f"{marker} {step.get('action', sid)}")
         lines.append(node_declaration(node_id, label, is_tested, is_partial))
         styles.append(style_line(node_id, step))
         return node_id
 
-    # Group steps by screen for subgraph rendering
-    screen_order: list[str] = []
-    screen_steps: dict[str, list[str]] = defaultdict(list)
+    # Declare all nodes for this journey
     for step in steps:
-        screen = step.get("screen", "Main")
-        sid = step.get("id", "")
-        if screen not in screen_order:
-            screen_order.append(screen)
-        if sid not in screen_steps[screen]:
-            screen_steps[screen].append(sid)
+        declare_node(step.get("id", ""), step)
 
-    # Render subgraphs
-    multi_screen = len(screen_order) > 1
-    for screen in screen_order:
-        if multi_screen:
-            lines.append(f"    subgraph {screen}")
-        for sid in screen_steps[screen]:
-            step = step_lookup.get(sid, {})
-            declare_node(sid, step)
-        if multi_screen:
-            lines.append("    end")
-
-    # Render edges with decision diamonds at branching points
+    # Render edges with decision diamonds at branch points
     for i in range(len(journey_step_ids) - 1):
         sid = journey_step_ids[i]
         next_sid = journey_step_ids[i + 1]
         node_id = sanitize_id(sid)
         next_node_id = sanitize_id(next_sid)
-
-        branches = branch_map.get(sid, [])
         cross_screen = step_lookup.get(sid, {}).get("screen", "") != step_lookup.get(next_sid, {}).get("screen", "")
 
+        branches = branch_map.get(sid, [])
+
         if len(branches) > 1:
-            # This is a decision point — show diamond
+            # Decision point — show diamond with all branches
             decision_id = f"{node_id}_decision"
             if decision_id not in declared:
                 declared.add(decision_id)
-                lines.append(f'    {decision_id}{{"🔀 Choose path"}}')
+                lines.append(f'    {decision_id}{{"🔀 User action?"}}')
                 styles.append(f"    style {decision_id} fill:#1f6feb,stroke:#1158c7,color:#fff")
                 lines.append(f"    {node_id} --> {decision_id}")
 
-            # Current journey's path (bold arrow)
+            # Current journey's path (primary edge)
             next_action = sanitize_label(step_lookup.get(next_sid, {}).get("action", next_sid))
             arrow = " -.-> " if cross_screen else " --> "
-            lines.append(f'    {decision_id}{arrow}|"{next_action}"| {next_node_id}')
+            edge = f'    {decision_id}{arrow}|"{next_action}"| {next_node_id}'
+            if edge not in declared_edges:
+                lines.append(edge)
+                declared_edges.add(edge)
 
-            # Other branches (greyed out alternatives)
+            # Alternative branches (muted leaf nodes, same style as decision tree)
             for alt_sid, alt_action in branches:
                 if alt_sid == next_sid:
                     continue
                 alt_node_id = sanitize_id(alt_sid)
                 if alt_node_id not in declared:
                     declared.add(alt_node_id)
-                    alt_label = sanitize_label(f"↗ {alt_action}")
-                    lines.append(f'    {alt_node_id}["{alt_label}"]')
+                    alt_label = sanitize_label(alt_action)
+                    lines.append(f'    {alt_node_id}(["{alt_label}"])')
                     styles.append(f"    style {alt_node_id} fill:#484f58,stroke:#6e7681,color:#8b949e")
-                lines.append(f'    {decision_id} -.->|"{sanitize_label(alt_action)}"| {alt_node_id}')
+                edge = f'    {decision_id} -.->|"{sanitize_label(alt_action)}"| {alt_node_id}'
+                if edge not in declared_edges:
+                    lines.append(edge)
+                    declared_edges.add(edge)
         else:
-            # Simple edge, no branching
             arrow = " -.-> " if cross_screen else " --> "
             lines.append(f"    {node_id}{arrow}{next_node_id}")
 
-        # Check for error branches from this step's screen
-        screen = step_lookup.get(sid, {}).get("screen", "")
-        action_lower = step_lookup.get(sid, {}).get("action", "").lower()
-        if ("api" in action_lower or "loading" in action_lower or "oauth" in action_lower
-                or "authenticat" in action_lower or "import" in action_lower or "download" in action_lower):
-            error_steps = error_screen_map.get(screen, [])
-            for err_step in error_steps:
-                err_sid = err_step.get("id", "")
-                err_node_id = sanitize_id(err_sid)
-                if err_node_id not in declared:
-                    declared.add(err_node_id)
-                    tested = err_step.get("tested")
-                    err_marker = "✅" if tested is True else "⚠️" if tested == "partial" else "❌"
-                    err_label = sanitize_label(f"{err_marker} {err_step.get('action', err_sid)}")
-                    lines.append(f'    {err_node_id}["{err_label}"]')
-                    styles.append(style_line(err_node_id, err_step))
-                lines.append(f'    {node_id} -.->|"⚡ Error"| {err_node_id}')
-
     lines.extend(styles)
     return lines
+
+
+def build_journey_flowchart(journey: dict, all_journeys: list[dict]) -> list[str]:
+    """Build a per-journey flowchart using the same style as the decision tree."""
+    branch_map = _build_branch_map(all_journeys)
+    return _build_journey_chart(journey, branch_map)
 
 
 def compute_coverage(journeys: list[dict]) -> tuple[int, int, int, float, list[tuple]]:
