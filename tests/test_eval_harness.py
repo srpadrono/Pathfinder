@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.abspath(EVALS_SCRIPTS))
 
 import _common as common  # noqa: E402
 import aggregate_benchmark as agg  # noqa: E402
+import grade_evals as grade  # noqa: E402
 import run_loop as loop  # noqa: E402
 import run_triggering as trig  # noqa: E402
 
@@ -187,6 +188,16 @@ def test_model_unavailable_detection():
                                     "exist or you may not have access to it.") is True
     assert common.model_unavailable("Here is the journey map you asked for.") is False
     assert common.model_unavailable("") is False
+
+
+def test_already_graded_resume_predicate(tmp_path):
+    import json as _json
+    p = tmp_path / "grading.json"
+    assert grade.already_graded(p) is False                       # missing
+    p.write_text(_json.dumps({"expectations": [], "error": "x"}))
+    assert grade.already_graded(p) is False                       # ungraded (judge was down)
+    p.write_text(_json.dumps({"expectations": [{"id": "a", "passed": True}]}))
+    assert grade.already_graded(p) is True                        # has verdicts → skip on resume
 
 
 def test_collect_records_skips_ungraded_runs(tmp_path):

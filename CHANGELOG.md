@@ -69,6 +69,8 @@ cross-agent support.
 - **Eval honesty under failure**: a backend session/usage limit or unavailable model
   now makes the runners and grader abort with a clear message, and the aggregator
   excludes ungraded runs — so a model outage is never reported as a 0% skill failure.
+  `grade_evals.py` resumes incrementally (skips already-graded runs; `--regrade` to
+  redo), so grading completes across usage windows without re-running the agent.
 - **Triggering: description sharpened** after a real eval run showed perfect precision
   (no false triggers) but only 40% recall, missing mobile-framework, "write E2E tests",
   and "diagram" framings. The `description` now names those framings explicitly.

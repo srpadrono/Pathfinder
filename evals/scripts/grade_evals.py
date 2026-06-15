@@ -35,6 +35,11 @@ from _common import (
 GRADER_PROMPT = (EVALS_DIR / "agents" / "grader.md").read_text()
 
 
+def already_graded(grading_path: Path) -> bool:
+    """True if this run already has a non-empty grading (used to resume incrementally)."""
+    return grading_path.exists() and bool(load_json(grading_path).get("expectations"))
+
+
 def latest_run_dir() -> Path | None:
     if not RUNS_DIR.exists():
         return None
@@ -120,6 +125,10 @@ def main() -> int:
     parser.add_argument("--model", help="Judge model id/alias "
                         "(default: $PATHFINDER_EVAL_JUDGE_MODEL or 'opus' — use the most "
                         "capable model to grade).")
+    parser.add_argument("--regrade", action="store_true",
+                        help="Re-grade runs that already have a grading.json. Default: skip "
+                             "already-graded runs so grading resumes incrementally (e.g. across "
+                             "usage-limit windows) instead of restarting each time.")
     args = parser.parse_args()
 
     if not args.model:
@@ -142,12 +151,17 @@ def main() -> int:
     judge = judge_claude if args.backend == "claude" else judge_anthropic
 
     graded = 0
+    skipped = 0
     try:
         for transcript_path in sorted(run_dir.rglob("transcript.json")):
             transcript = load_json(transcript_path)
             case = suite.get(transcript["eval_id"])
             if not case:
                 continue
+            grading_path = transcript_path.parent / "grading.json"
+            if not args.regrade and already_graded(grading_path):
+                skipped += 1
+                continue  # resume: leave already-graded runs in place
             artifacts = load_json(transcript_path.parent / "artifacts.json")
             payload = build_payload(case, transcript, artifacts)
             print(f"  grading {transcript['eval_id']} / {transcript['config']} / run {transcript['run']} ...",
@@ -164,7 +178,10 @@ def main() -> int:
               f"so no 0% gradings were fabricated.", file=sys.stderr)
         return 2
 
-    print(f"\nGraded {graded} run(s). Next: python3 aggregate_benchmark.py --run-dir {run_dir}")
+    msg = f"\nGraded {graded} run(s)"
+    if skipped:
+        msg += f" ({skipped} already-graded skipped; --regrade to redo)"
+    print(f"{msg}. Next: python3 aggregate_benchmark.py --run-dir {run_dir}")
     return 0
 
 
