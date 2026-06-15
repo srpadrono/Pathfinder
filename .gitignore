@@ -4,5 +4,5 @@
 .DS_Store
 __pycache__/
 
-# Eval iteration outputs (generated at runtime)
-pathfinder-workspace/iteration-*/
+# Eval run artifacts (generated at runtime)
+evals/runs/

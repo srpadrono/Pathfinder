@@ -1,7 +1,11 @@
 ---
 name: pathfinder
-description: "Maps user journeys in any codebase, visualizes UI test coverage with color-coded Mermaid diagrams, and generates framework-correct E2E tests to fill gaps. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, and Flutter. Not for unit tests, API tests, or backend-only projects."
+description: "Maps user journeys in any web or mobile codebase, visualizes UI/E2E test coverage as color-coded Mermaid diagrams, and writes framework-correct end-to-end tests to fill the gaps. Use whenever the user wants to find untested user flows, audit or visualize UI/E2E test coverage, see which screens or journeys are tested, track coverage over time, or generate E2E/UI tests — for web (Playwright, Cypress), iOS (XCUITest), Android (Espresso), React Native (Detox, Maestro), or Flutter — even when they don't say the words 'coverage map'. Not for unit tests, API/backend tests, or debugging a single existing test."
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep
+license: MIT
+metadata:
+  author: Sergio Padron
+  version: 3.0.0
 ---
 
 # Pathfinder
@@ -112,18 +116,29 @@ All scripts are Python 3 CLIs in the `scripts/` directory of this skill. They ou
 
 ## Configuration
 
-Optional `<testDir>/pathfinder/config.json`:
+Optional `<testDir>/pathfinder/config.json` (schema: [schema/config.schema.json](schema/config.schema.json)):
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/srpadrono/Pathfinder/main/skills/pathfinder/schema/config.schema.json",
   "project": "my-app",
   "framework": "playwright",
   "testDir": "e2e/tests",
-  "auth": { "storageState": "e2e/.auth/user.json" }
+  "auth": { "storageState": "e2e/.auth/user.json" },
+  "coverage": { "thresholds": { "excellent": 80, "acceptable": 50 }, "failUnder": null, "countPartialAsTested": false },
+  "ignore": ["**/admin/**"],
+  "commands": { "test": "npx playwright test" },
+  "selectors": { "strategy": "accessibility-first", "testIdAttribute": "data-testid" }
 }
 ```
 
-If absent, Pathfinder auto-detects from framework config files.
+All fields are optional — if absent, Pathfinder auto-detects from framework config files. Read this file before scoring or generating tests, and honor it:
+- `coverage.thresholds` / `failUnder` / `countPartialAsTested` drive `coverage-score.py` (pass `--fail-under N` to gate CI).
+- `ignore` globs are skipped by `scan-test-coverage.py` during mapping.
+- `commands.test` is the command to run in the **summit** phase.
+- `selectors` guide the test stubs you write in the **scout** phase.
+
+Both `config.json` and `journeys.json` are JSON-Schema validated ([schema/](schema/)).
 
 ## Platform Notes
 

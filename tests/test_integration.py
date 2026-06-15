@@ -121,14 +121,20 @@ def test_full_flow():
         assert summary_json["journeys"] == 2
         assert summary_json["coverage"] == 40.0
 
-        # Step 5: Run coverage-score.py
+        # Step 5: Run coverage-score.py — a report exits 0 by default...
         r = subprocess.run(
             ["python3", COVERAGE_SCRIPT, journeys_path],
             capture_output=True,
             text=True,
         )
-        # 40% coverage is below 50% threshold, so exit code should be 1
-        assert r.returncode == 1, f"Expected exit 1 for low coverage, got {r.returncode}"
+        assert r.returncode == 0, f"Report run should exit 0, got {r.returncode}: {r.stderr}"
+        # ...but a CI gate via --fail-under flags coverage below the threshold.
+        r_gate = subprocess.run(
+            ["python3", COVERAGE_SCRIPT, journeys_path, "--fail-under", "50"],
+            capture_output=True,
+            text=True,
+        )
+        assert r_gate.returncode == 1, "Expected exit 1 when 40% is below the --fail-under 50 gate"
 
         # Verify coverage output is valid JSON
         coverage = json.loads(r.stdout)

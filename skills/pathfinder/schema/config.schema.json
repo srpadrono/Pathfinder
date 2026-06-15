@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/srpadrono/Pathfinder/main/skills/pathfinder/schema/config.schema.json",
+  "title": "Pathfinder project config",
+  "description": "Configuration for Pathfinder UI test coverage mapping. Lives at <testDir>/pathfinder/config.json. All fields are optional — Pathfinder auto-detects sensible defaults.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string", "description": "Config schema version." },
+    "project": { "type": "string", "description": "Human-readable project name." },
+    "framework": {
+      "type": "string",
+      "description": "UI test framework. Auto-detected if omitted.",
+      "enum": ["playwright", "cypress", "maestro", "detox", "xcuitest", "espresso", "flutter-test", "unknown"]
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["web", "ios", "android", "react-native", "flutter", "mobile", "macos", "unknown"]
+    },
+    "unitRunner": { "type": "string", "description": "Detected unit test runner (informational)." },
+    "testDir": { "type": "string", "description": "Directory containing UI tests, relative to project root." },
+    "created": { "type": "string", "description": "ISO-8601 timestamp set at init." },
+    "auth": {
+      "type": "object",
+      "description": "Authenticated-session setup for tests.",
+      "additionalProperties": true,
+      "properties": {
+        "storageState": { "type": "string", "description": "Path to a saved auth state (e.g. Playwright storageState)." }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "description": "How coverage is scored and reported.",
+      "additionalProperties": false,
+      "properties": {
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Percent cutoffs for the 🟢/🟡/🔴 status used by coverage-score.py and generate-diagrams.py.",
+          "properties": {
+            "excellent": { "type": "number", "minimum": 0, "maximum": 100, "default": 80 },
+            "acceptable": { "type": "number", "minimum": 0, "maximum": 100, "default": 50 }
+          }
+        },
+        "countPartialAsTested": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, steps marked \"partial\" count toward the coverage percentage."
+        },
+        "failUnder": {
+          "type": ["number", "null"],
+          "default": null,
+          "description": "If set, coverage-score.py exits non-zero when overall coverage is below this percent (for CI gating). Null disables the gate."
+        }
+      }
+    },
+    "ignore": {
+      "type": "array",
+      "description": "Glob patterns (relative to project root) to skip when crawling code and scanning tests, e.g. \"**/admin/**\".",
+      "items": { "type": "string" }
+    },
+    "commands": {
+      "type": "object",
+      "description": "Command overrides the agent should use instead of guessing.",
+      "additionalProperties": false,
+      "properties": {
+        "test": { "type": "string", "description": "Command to run the UI test suite (e.g. \"npx playwright test\", \"xcodebuild test ...\")." },
+        "install": { "type": "string", "description": "Command to install test dependencies." }
+      }
+    },
+    "selectors": {
+      "type": "object",
+      "description": "Selector preferences for generated tests.",
+      "additionalProperties": false,
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["accessibility-first", "testid-first"],
+          "default": "accessibility-first",
+          "description": "Whether generated tests prefer role/label selectors or test-id selectors."
+        },
+        "testIdAttribute": {
+          "type": "string",
+          "description": "Test-id attribute used in this project (e.g. data-testid, data-cy, testID)."
+        }
+      }
+    }
+  }
+}

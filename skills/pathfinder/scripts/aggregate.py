@@ -125,15 +125,24 @@ def main() -> None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         gen_script = os.path.join(script_dir, "generate-diagrams.py")
 
-        # Write merged journeys to temp file
+        # Write merged journeys into an isolated temp directory. Using a dedicated
+        # directory (not a bare temp file in the shared system temp dir) keeps the
+        # baseline that generate-diagrams.py would otherwise write from leaking
+        # across runs. The aggregated view is ephemeral, so pass --no-baseline too.
         import tempfile
         merged = {"version": "1.0.0", "journeys": all_journeys}
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp:
-            json.dump(merged, tmp, indent=2)
-            tmp_path = tmp.name
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = os.path.join(tmp_dir, "journeys.json")
+            with open(tmp_path, "w") as tmp:
+                json.dump(merged, tmp, indent=2)
 
-        subprocess.run(["python3", gen_script, tmp_path, "--output", args.output])
-        os.unlink(tmp_path)
+            gen = subprocess.run(
+                ["python3", gen_script, tmp_path, "--output", args.output, "--no-baseline"]
+            )
+            if gen.returncode != 0:
+                print(f"ERROR: aggregated diagram generation failed (exit {gen.returncode})",
+                      file=sys.stderr)
+                sys.exit(gen.returncode)
 
 
 if __name__ == "__main__":

@@ -94,6 +94,7 @@ def main() -> None:
             break
 
     config: dict = {
+        "$schema": "https://raw.githubusercontent.com/srpadrono/Pathfinder/main/skills/pathfinder/schema/config.schema.json",
         "version": "2.0.0",
         "project": name,
         "framework": detection.get("uiFramework", "unknown"),

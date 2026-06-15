@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# Auto-regenerate blazes.md when any journeys.json changes
+# Regenerate blazes.md when any journeys.json changed in the last commit.
+# Does NOT auto-stage the result — it tells you, so the commit stays exactly what you made.
 
-CHANGED=$(git diff --cached --name-only HEAD~1 2>/dev/null | grep "pathfinder/journeys.json" || true)
-if [ -z "$CHANGED" ]; then
-  CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | grep "pathfinder/journeys.json" || true)
-fi
+CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | grep "pathfinder/journeys.json" || true)
 
 if [ -n "$CHANGED" ]; then
   SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)/skills/pathfinder/scripts"
@@ -12,14 +10,19 @@ if [ -n "$CHANGED" ]; then
     SCRIPT_DIR="$HOME/.agents/pathfinder/skills/pathfinder/scripts"
   fi
 
-  for jfile in $CHANGED; do
+  LOGFILE="$HOME/.agents/pathfinder/.diagram-regen.log"
+  mkdir -p "$(dirname "$LOGFILE")"
+
+  # Read newline-delimited paths safely (handles spaces).
+  while IFS= read -r jfile; do
+    [ -n "$jfile" ] || continue
     if [ -f "$jfile" ]; then
-      echo "🔥 Regenerating diagrams for $jfile..."
-      LOGFILE="$HOME/.agents/pathfinder/.diagram-regen.log"
-      mkdir -p "$(dirname "$LOGFILE")"
-      python3 "$SCRIPT_DIR/generate-diagrams.py" "$jfile" 2>>"$LOGFILE" && \
-        git add "$(dirname "$jfile")/blazes.md" 2>>"$LOGFILE" || \
-        echo "warning: diagram regeneration failed, see ~/.agents/pathfinder/.diagram-regen.log"
+      echo "🔥 Pathfinder: regenerating diagrams for $jfile..."
+      if python3 "$SCRIPT_DIR/generate-diagrams.py" "$jfile" 2>>"$LOGFILE"; then
+        echo "   blazes.md regenerated — review and 'git add' it if you want it committed."
+      else
+        echo "   warning: diagram regeneration failed, see ~/.agents/pathfinder/.diagram-regen.log"
+      fi
     fi
-  done
+  done <<< "$CHANGED"
 fi

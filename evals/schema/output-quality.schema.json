@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/srpadrono/Pathfinder/evals/schema/output-quality.schema.json",
+  "title": "Pathfinder output-quality eval suite",
+  "description": "A/B output-quality evaluation cases for an agent skill, graded by an LLM judge against discriminating expectations.",
+  "type": "object",
+  "required": ["skill", "evals"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "skill": { "type": "string", "minLength": 1 },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "evals": {
+      "type": "array",
+      "minItems": 3,
+      "description": "At least three cases (Anthropic best-practice minimum).",
+      "items": {
+        "type": "object",
+        "required": ["id", "prompt", "expectations"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "prompt": { "type": "string", "minLength": 10 },
+          "expected_output": { "type": "string" },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["from", "to"],
+              "additionalProperties": false,
+              "properties": {
+                "from": { "type": "string", "description": "Path relative to evals/ of the fixture file to copy." },
+                "to": { "type": "string", "description": "Destination path inside the temp project, relative to its root." }
+              }
+            }
+          },
+          "expectations": {
+            "type": "array",
+            "minItems": 2,
+            "description": "At least two discriminating, objectively-verifiable expectations per case.",
+            "items": {
+              "type": "object",
+              "required": ["id", "text"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+                "text": { "type": "string", "minLength": 10 },
+                "discriminating": {
+                  "type": "boolean",
+                  "description": "True if this expectation would FAIL for a clearly-wrong output (i.e. it discriminates skill value). At least one per case must be true."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

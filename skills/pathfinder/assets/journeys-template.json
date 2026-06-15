@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/srpadrono/Pathfinder/main/skills/pathfinder/schema/journeys.schema.json",
   "version": "1.0.0",
   "project": "my-app",
   "framework": "playwright",

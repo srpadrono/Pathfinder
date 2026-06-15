@@ -2,6 +2,10 @@
 name: blaze
 description: "Generates Mermaid flowcharts and decision trees from journeys.json showing test coverage with before/after comparison. Use when visualizing coverage, generating diagrams, or showing progress since last sprint."
 allowed-tools: Bash, Read, Write, Glob
+license: MIT
+metadata:
+  author: Sergio Padron
+  version: 3.0.0
 ---
 
 # Blazing
