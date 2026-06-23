@@ -131,6 +131,35 @@ warnings go to stderr. Non-zero exit codes indicate failure.
 | `blazes.md` | Mermaid coverage diagrams | `generate-diagrams.py` |
 | `baselines/` | Screenshot baselines | `snapshot-compare.py` |
 
-Scripts live in `skills/pathfinder/scripts/` and share a common helper module
-(`pathfinder_paths.py`) for locating `journeys.json` and `config.json` by
-walking up the directory tree.
+Scripts live in `skills/pathfinder/scripts/` and share two helper modules:
+`pathfinder_paths.py` (locating `journeys.json`/`config.json` by walking the tree)
+and `pathfinder_config.py` (merging `config.json` over documented defaults).
+
+## Configuration & Schemas
+
+`config.json` and `journeys.json` are both backed by JSON Schemas in
+`skills/pathfinder/schema/`. Editors that honor `$schema` get autocomplete and
+inline validation; `validate-journeys.py` and `validate_suite.py` validate
+programmatically.
+
+Configurable behavior flows through `pathfinder_config.load_config()`, so defaults
+live in exactly one place and match the schema:
+
+| Config | Consumed by |
+|--------|-------------|
+| `coverage.thresholds` | `coverage-score.py`, `generate-diagrams.py` (status colors) |
+| `coverage.failUnder` / `--fail-under` | `coverage-score.py` (CI exit gate) |
+| `coverage.countPartialAsTested` | `coverage-score.py` |
+| `ignore` (globs) | `scan-test-coverage.py` |
+| `commands.test` | the agent, in the **summit** phase |
+| `selectors` | the agent, in the **scout** phase |
+
+## Evals
+
+`evals/` holds an A/B, LLM-judged output-quality suite and a triggering suite. The
+runner builds isolated temp projects, makes the skill available only in the
+`with_skill` arm, runs a real agent backend (`claude`/`codex`), and an LLM judge
+grades each expectation. `aggregate_benchmark.py` reports variance, skill lift, and
+flags non-discriminating assertions. Pure logic is unit-tested in
+`tests/test_eval_harness.py`; CI validates the datasets and smoke-tests the plumbing.
+See [../evals/README.md](../evals/README.md).

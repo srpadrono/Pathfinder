@@ -8,7 +8,8 @@ An AI-agent skill that discovers user journeys in any codebase, visualizes test 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3](https://img.shields.io/badge/Python-3.x-green.svg)](https://python.org)
-[![Tests-20 passing](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)](tests/)
+[![Tests-99 passing](https://img.shields.io/badge/Tests-99%20passing-brightgreen.svg)](tests/)
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-open%20standard-1f6feb.svg)](https://agentskills.io)
 
 **Works with:** Claude Code (plugin) · Codex · Gemini CLI · Cursor
 
@@ -80,7 +81,7 @@ flowchart LR
     MAP["**/map**\nDiscover journeys"]
     BLAZE["**/blaze**\nVisualize coverage"]
     SCOUT["**/scout**\nWrite tests"]
-    SUMMIT["**/ summit**\nRun & verify"]
+    SUMMIT["**/summit**\nRun & verify"]
     J[("journeys.json\n\nSource of truth")]
 
     MAP ==> BLAZE ==> SCOUT ==> SUMMIT
@@ -336,13 +337,88 @@ python3 ~/.agents/skills/pathfinder/scripts/generate-ui-test.py \
 
 ---
 
-## Installation
+## ⚙️ Configurable
+
+Drop a `pathfinder/config.json` to tune behavior — it's schema-backed, so editors autocomplete every option:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/srpadrono/Pathfinder/main/skills/pathfinder/schema/config.schema.json",
+  "framework": "playwright",
+  "testDir": "e2e/tests",
+  "coverage": { "thresholds": { "excellent": 90, "acceptable": 60 }, "failUnder": 80, "countPartialAsTested": true },
+  "ignore": ["**/admin/**", "**/legacy/**"],
+  "commands": { "test": "npx playwright test --reporter=line" },
+  "selectors": { "strategy": "testid-first", "testIdAttribute": "data-test" }
+}
+```
+
+| Option | Effect |
+|--------|--------|
+| `coverage.thresholds` | 🟢/🟡/🔴 cutoffs used by the score and diagrams |
+| `coverage.failUnder` | Make `coverage-score.py` exit non-zero below N% — a CI gate |
+| `coverage.countPartialAsTested` | Count `partial` steps toward coverage |
+| `ignore` | Globs to skip when crawling code and scanning tests |
+| `commands.test` | The exact command Summit runs for the suite |
+| `selectors` | Selector strategy + test-id attribute for generated tests |
+
+Both `config.json` and `journeys.json` ship [JSON Schemas](skills/pathfinder/schema/) for validation and autocomplete. No config? Everything auto-detects.
+
+---
+
+## 🧪 Evaluated, not hand-waved
+
+Pathfinder ships a real, **honest** eval suite — modeled on [Anthropic's skill-creator](https://github.com/anthropics/skills) and [OpenAI's skill-eval](https://developers.openai.com/blog/eval-skills) methodology. Two axes:
+
+- **Output quality** — every case runs **A/B** (with the skill vs. a plain agent), graded by an **LLM judge** (no partial credit, every verdict cites an artifact), across multiple runs for **mean ± stddev** and **skill lift**. The aggregator automatically flags assertions that *don't* discriminate skill value.
+- **Triggering** — 20 queries (half deliberate near-misses) check the skill fires when it should and stays quiet on unit-test / API / line-coverage asks, with a held-out test split.
+
+```bash
+npm run eval:validate    # schema + structure (CI, no model)
+npm run eval:run && npm run eval:grade && npm run eval:benchmark   # full A/B (needs claude CLI)
+npm run eval:trigger     # triggering accuracy / precision / recall
+```
+
+No grader is rigged to pass. See **[evals/README.md](evals/README.md)** and a real run in **[evals/SAMPLE_RESULTS.md](evals/SAMPLE_RESULTS.md)**. A description optimizer (`evals/scripts/run_loop.py`) tunes triggering against a held-out split.
+
+---
+
+## 🔌 Also an MCP server
+
+Beyond the skill, Pathfinder's deterministic tools (`detect_ui_framework`, `coverage_score`, `validate_journeys`, `generate_diagrams`, `scan_test_coverage`) are exposed via a dependency-free **MCP server** — usable from any MCP client. It's auto-registered with the Claude Code plugin and reuses the exact same scripts. See **[mcp/README.md](mcp/README.md)**.
+
+---
+
+## 📦 Installation
+
+Pick whichever fits your agent. All install the same skills.
+
+### Any agent — one command (recommended)
+
+Works with Claude Code, Codex, Gemini, Cursor, and more via the universal [`skills`](https://agentskills.io) installer. It asks which agents to install into and whether to scope to one project or all of them:
+
+```bash
+npx skills add https://github.com/srpadrono/Pathfinder
+```
+
+> No `npx`? Install Node first: `brew install node` (macOS) — and if *that* fails, install [Homebrew](https://brew.sh). Then re-run the command.
+
+### Claude Code — native plugin marketplace
+
+```text
+/plugin marketplace add srpadrono/Pathfinder
+/plugin install pathfinder@pathfinder
+```
+
+### Self-contained installer (no Node required)
+
+Clones to `~/.agents/pathfinder`, symlinks the skills into `~/.agents/skills/` (where both Claude Code and **Codex** auto-discover them), and registers the Claude Code plugin:
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/srpadrono/Pathfinder/main/install/install.sh)
 ```
 
-One command — installs the repo, symlinks skills, and registers the Claude Code plugin. Supports `update`, `uninstall`, and `--version` flags. See **[docs/installation.md](docs/installation.md)** for details.
+Supports `update`, `uninstall`, and `--version`. **Or just clone it and use it however you want.** See **[docs/installation.md](docs/installation.md)** for details and troubleshooting.
 
 ---
 
@@ -366,14 +442,20 @@ One command — installs the repo, symlinks skills, and registers the Claude Cod
 | Path | Purpose |
 |------|---------|
 | `.claude-plugin/` | Plugin + marketplace manifest (`plugin.json`, `marketplace.json`) |
+| `AGENTS.md` | Cross-agent contributor instructions ([open standard](https://agents.md)) |
 | `skills/pathfinder/` | Main skill — auto-triggers on coverage questions |
 | `skills/pathfinder/SKILL.md` | Entry point |
 | `skills/pathfinder/references/` | 8 framework + testing reference docs |
-| `skills/pathfinder/scripts/` | 10 Python CLI tools |
+| `skills/pathfinder/scripts/` | 9 Python CLIs + 2 shared helpers |
+| `skills/pathfinder/schema/` | JSON Schemas for `config.json` + `journeys.json` |
+| `skills/pathfinder/agents/` | Codex presentation metadata (`openai.yaml`) |
 | `skills/pathfinder/assets/` | Starter templates |
 | `skills/map/`, `blaze/`, `scout/`, `summit/` | `/map`, `/blaze`, `/scout`, `/summit` command skills |
-| `install/` | Installer |
-| `tests/` | 55 self-tests |
+| `evals/` | Honest A/B + triggering eval harness + description optimizer |
+| `mcp/` | MCP server exposing the deterministic tools to any MCP client |
+| `scripts/` | Repo tooling (skill-frontmatter validator) |
+| `install/` | Self-contained installer |
+| `tests/` | 99 self-tests |
 | `.githooks/` | pre-commit, post-commit, pre-push |
 
 **`~/.agents/skills/`** (symlinks)
@@ -425,6 +507,6 @@ Copyright (c) 2026 Sergio Padron and [Pathfinder contributors](https://github.co
 
 🗺️ → 🔥 → 🔭 → ⛰️
 
-[Get Started](#-quick-start) · [View on GitHub](https://github.com/srpadrono/Pathfinder)
+[Get Started](#-installation) · [View on GitHub](https://github.com/srpadrono/Pathfinder)
 
 </div>

@@ -34,9 +34,11 @@ def _walk_pathfinder_files(root: str, filename: str) -> list[str]:
 def _load_json(path: str) -> dict | None:
     try:
         with open(path) as fh:
-            return json.load(fh)
+            data = json.load(fh)
     except (FileNotFoundError, json.JSONDecodeError, OSError):
         return None
+    # Honor the dict|None contract: a malformed config (list/str/number) is not usable.
+    return data if isinstance(data, dict) else None
 
 
 def find_pathfinder_config(root: str = ".") -> str | None:

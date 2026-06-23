@@ -1,7 +1,7 @@
 {
   "name": "pathfinder",
-  "version": "2.1.0",
-  "description": "UI test coverage mapping tool for AI coding agents",
+  "version": "3.0.0",
+  "description": "UI test coverage mapping skill for AI coding agents (Claude Code, Codex, and more)",
   "author": "Sergio Padron <srpadron@outlook.com>",
   "license": "MIT",
   "repository": {
@@ -24,17 +24,19 @@
     "node": ">=16"
   },
   "scripts": {
-    "init": "python3 skills/pathfinder/scripts/pathfinder-init.py --output-dir pathfinder-workspace",
     "coverage": "python3 skills/pathfinder/scripts/coverage-score.py",
     "diagrams": "python3 skills/pathfinder/scripts/generate-diagrams.py",
     "test": "python3 -m pytest tests/ -v",
-    "lint": "ruff check skills/pathfinder/scripts/ tests/",
-    "lint:fix": "ruff check --fix skills/pathfinder/scripts/ tests/",
-    "eval": "python3 pathfinder-workspace/evals/scripts/run_evals.py",
-    "eval:run": "python3 pathfinder-workspace/evals/scripts/run_evals.py",
-    "eval:grade": "python3 pathfinder-workspace/evals/scripts/grade_evals.py",
-    "eval:benchmark": "python3 pathfinder-workspace/evals/scripts/aggregate_benchmark.py",
-    "eval:all": "python3 pathfinder-workspace/evals/scripts/run_evals.py && python3 pathfinder-workspace/evals/scripts/grade_evals.py && python3 pathfinder-workspace/evals/scripts/aggregate_benchmark.py",
-    "eval:dry-run": "python3 pathfinder-workspace/evals/scripts/run_evals.py --dry-run"
+    "lint": "ruff check skills/pathfinder/scripts/ tests/ evals/scripts/ scripts/ mcp/",
+    "lint:fix": "ruff check --fix skills/pathfinder/scripts/ tests/ evals/scripts/ scripts/ mcp/",
+    "mcp": "python3 mcp/server.py",
+    "validate:skills": "python3 scripts/validate-skill.py skills/pathfinder skills/map skills/blaze skills/scout skills/summit",
+    "eval:validate": "python3 evals/scripts/validate_suite.py",
+    "eval:run": "python3 evals/scripts/run_evals.py --backend claude",
+    "eval:grade": "python3 evals/scripts/grade_evals.py",
+    "eval:benchmark": "python3 evals/scripts/aggregate_benchmark.py",
+    "eval:trigger": "python3 evals/scripts/run_triggering.py",
+    "eval:smoke": "python3 evals/scripts/run_evals.py --backend mock --runs 1",
+    "eval:all": "python3 evals/scripts/run_evals.py --backend claude && python3 evals/scripts/grade_evals.py && python3 evals/scripts/aggregate_benchmark.py"
   }
 }

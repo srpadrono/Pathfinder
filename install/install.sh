@@ -12,7 +12,7 @@ set -euo pipefail
 #   bash <(curl -fsSL .../install.sh) --help             # help
 # ─────────────────────────────────────────────────────────────────────────
 
-VERSION="2.1.0"
+VERSION="3.0.0"
 REPO="https://github.com/srpadrono/Pathfinder.git"
 REPO_HOME="${HOME}/.agents/pathfinder"
 SKILLS_HOME="${HOME}/.agents/skills"
@@ -199,10 +199,12 @@ checkout_version() {
 
 cmd_install() {
   local pin_version=""
+  local no_config=0
 
   while [ $# -gt 0 ]; do
     case "$1" in
       --version) pin_version="${2:-}"; [ -n "$pin_version" ] || { error "--version requires a value"; exit 1; }; shift 2 ;;
+      --no-config) no_config=1; shift ;;
       *) error "Unknown option: $1"; cmd_help; exit 1 ;;
     esac
   done
@@ -250,9 +252,16 @@ cmd_install() {
   echo ""
   register_plugin
 
-  # Inject agent instructions into global config files
+  # Inject agent instructions into global config files (disclosed + opt-out-able)
   echo ""
-  inject_agent_instructions
+  if [ "$no_config" -eq 1 ]; then
+    info "Skipping global config edits (--no-config)."
+  else
+    info "Adding a Pathfinder pointer to your global agent config (if present):"
+    info "  ~/.claude/CLAUDE.md  and  ~/.codex/AGENTS.md"
+    info "  (re-run with --no-config to skip this)"
+    inject_agent_instructions
+  fi
 
   # Done
   CLEANUP_ACTION=""
@@ -376,7 +385,8 @@ ${BOLD}COMMANDS${RESET}
   uninstall   Remove Pathfinder completely
 
 ${BOLD}OPTIONS${RESET}
-  --version <tag>   Pin to a specific version (e.g., v2.1.0)
+  --version <tag>   Pin to a specific version (e.g., v3.0.0)
+  --no-config       Don't add the Pathfinder pointer to ~/.claude/CLAUDE.md or ~/.codex/AGENTS.md
   --help            Show this help
 
 ${BOLD}EXAMPLES${RESET}

@@ -7,11 +7,14 @@ Outputs JSON with test files, the routes they test, and a coverage matrix.
 """
 from __future__ import annotations
 
+import fnmatch
 import glob
 import json
 import os
 import re
 import sys
+
+from pathfinder_config import load_config
 
 root = sys.argv[1] if len(sys.argv) > 1 else "."
 
@@ -100,11 +103,17 @@ def route_from_filepath(filepath: str) -> str | None:
 # Collect test files
 
 def main() -> None:
+    ignore_globs = load_config(root).get("ignore", [])
+
+    def is_ignored(rel: str) -> bool:
+        rel = rel.replace("\\", "/")
+        return any(fnmatch.fnmatch(rel, pat) for pat in ignore_globs)
+
     test_files: list[dict] = []
     for pattern in test_globs:
         for f in glob.glob(os.path.join(root, pattern), recursive=True):
             rel = os.path.relpath(f, root)
-            if "node_modules" in rel:
+            if "node_modules" in rel or is_ignored(rel):
                 continue
             analysis = extract_routes_from_code(f)
             test_files.append({"file": rel, **analysis})
@@ -115,6 +124,8 @@ def main() -> None:
         for f in glob.glob(os.path.join(root, pattern), recursive=True):
             rel = os.path.relpath(f, root)
             if "node_modules" in rel or "__tests__" in rel or ".test." in rel or "_layout" in rel:
+                continue
+            if is_ignored(rel):
                 continue
             route = route_from_filepath(rel)
             if route:

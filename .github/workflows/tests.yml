@@ -1,4 +1,4 @@
-name: Tests
+name: CI
 on:
   push:
     branches: [main]
@@ -12,17 +12,21 @@ jobs:
       matrix:
         python-version: ["3.9", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dev dependencies
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements-dev.txt
-      - name: Run tests
-        run: |
-          python3 -m pytest tests/ -v
       - name: Lint
-        run: |
-          ruff check skills/pathfinder/scripts/ tests/
+        run: ruff check skills/pathfinder/scripts/ tests/ evals/scripts/ scripts/ mcp/
+      - name: Validate skill frontmatter (Agent Skills open standard)
+        run: python3 scripts/validate-skill.py skills/pathfinder skills/map skills/blaze skills/scout skills/summit
+      - name: Validate eval suite (schema + structure)
+        run: python3 evals/scripts/validate_suite.py
+      - name: Run tests
+        run: python3 -m pytest tests/ -v
+      - name: Eval harness smoke test (plumbing, no model)
+        run: python3 evals/scripts/run_evals.py --backend mock --runs 1 --eval-id empty-project-no-hallucination

@@ -1,0 +1,28 @@
+{
+  "$schema": "./schema/triggering.schema.json",
+  "skill": "pathfinder",
+  "description": "Triggering evals: does the Pathfinder skill fire when it should, and stay quiet when it shouldn't? Negatives are deliberate near-misses that share keywords (test, coverage, journey) but need a different tool. Pathfinder is for UI/E2E journey coverage mapping — NOT unit tests, API tests, or backend-only work.",
+  "queries": [
+    { "id": "t01", "query": "Map the user journeys in my Next.js app and show me which ones have Playwright coverage.", "should_trigger": true, "rationale": "Core use case: journey discovery + UI coverage visualization." },
+    { "id": "t02", "query": "Which end-to-end user flows in this iOS app are actually covered by our XCUITests?", "should_trigger": true, "rationale": "UI test coverage question across journeys." },
+    { "id": "t03", "query": "I have line coverage at 80% but no idea which real user flows are tested end to end. Can you show me a coverage map?", "should_trigger": true, "rationale": "The exact gap Pathfinder fills: journeys vs line coverage." },
+    { "id": "t04", "query": "Generate a Mermaid diagram of our checkout flow showing tested vs untested steps.", "should_trigger": true, "rationale": "Coverage visualization of a journey." },
+    { "id": "t05", "query": "Write E2E tests for the untested steps in our signup journey using Cypress.", "should_trigger": true, "rationale": "Filling UI coverage gaps with framework-correct tests." },
+    { "id": "t06", "query": "Audit our Flutter app's UI test coverage and tell me where the biggest gaps are.", "should_trigger": true, "rationale": "UI coverage audit for a supported mobile framework." },
+    { "id": "t07", "query": "We finished a testing sprint — regenerate the coverage diagrams and show progress since the baseline.", "should_trigger": true, "rationale": "Before/after coverage reporting (Blaze/Summit)." },
+    { "id": "t08", "query": "Set up a coverage map for our React Native app's onboarding and payment flows with Detox tests for the gaps.", "should_trigger": true, "rationale": "Journey mapping + Detox test generation." },
+    { "id": "t09", "query": "I want a living map of every user journey in this web app and a way to track which are tested over time.", "should_trigger": true, "rationale": "Pathfinder's headline value: a living journey/coverage map." },
+    { "id": "t10", "query": "Show me the untested user paths in our Espresso-tested Android app so I can prioritize.", "should_trigger": true, "rationale": "UI coverage gap analysis for Android/Espresso." },
+
+    { "id": "t11", "query": "Write a unit test for my formatCurrency() utility function.", "should_trigger": false, "rationale": "Near-miss: it's a 'test' but a unit test, explicitly out of scope." },
+    { "id": "t12", "query": "Our /api/orders endpoint returns 500 sometimes — help me write integration tests for the backend.", "should_trigger": false, "rationale": "Near-miss: API/backend tests, not UI journeys." },
+    { "id": "t13", "query": "Increase our Jest line coverage from 70% to 90%.", "should_trigger": false, "rationale": "Near-miss: 'coverage' but line/unit coverage, not journey coverage." },
+    { "id": "t14", "query": "Plan the user journey for a new onboarding feature we're designing — what screens should it have?", "should_trigger": false, "rationale": "Near-miss: 'user journey' as UX design, not test coverage mapping." },
+    { "id": "t15", "query": "This Playwright test is flaky — figure out why it intermittently fails and fix it.", "should_trigger": false, "rationale": "Near-miss: Playwright, but debugging one flaky test, not coverage mapping." },
+    { "id": "t16", "query": "Review my pull request for security issues.", "should_trigger": false, "rationale": "Unrelated: code review / security." },
+    { "id": "t17", "query": "Set up a CI pipeline that runs our test suite on every push.", "should_trigger": false, "rationale": "Near-miss: tests + CI, but infra setup, not coverage mapping." },
+    { "id": "t18", "query": "Generate an architecture diagram of our microservices.", "should_trigger": false, "rationale": "Near-miss: 'diagram', but architecture, not coverage." },
+    { "id": "t19", "query": "Run the existing test suite and tell me if it passes.", "should_trigger": false, "rationale": "Near-miss: running tests, no journey/coverage mapping involved." },
+    { "id": "t20", "query": "Add load testing for our checkout API to see how it handles 10k concurrent users.", "should_trigger": false, "rationale": "Near-miss: 'checkout' + 'testing', but performance/API, not UI coverage." }
+  ]
+}

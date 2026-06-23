@@ -2,6 +2,10 @@
 name: summit
 description: "Runs all tests, updates the journey map, regenerates diagrams with before/after comparison, and reports coverage score. Use when finalizing a coverage sprint, verifying test results, or preparing coverage reports for a PR."
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep
+license: MIT
+metadata:
+  author: Sergio Padron
+  version: 3.0.0
 ---
 
 # Summiting

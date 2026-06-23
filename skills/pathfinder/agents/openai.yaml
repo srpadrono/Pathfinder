@@ -1,0 +1,8 @@
+# Codex / OpenAI presentation metadata for the Pathfinder skill.
+# https://developers.openai.com/codex/skills
+interface:
+  display_name: "Pathfinder"
+  short_description: "Map user journeys, visualize UI test coverage, and fill the gaps."
+  default_prompt: "Use $pathfinder to map my app's user journeys and show UI test coverage."
+policy:
+  allow_implicit_invocation: true

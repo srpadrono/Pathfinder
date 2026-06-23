@@ -2,6 +2,10 @@
 name: scout
 description: "Writes UI tests for untested steps in the journey map using framework-correct selectors, waits, and patterns. Use when writing tests to fill coverage gaps or generating E2E tests for untested journey steps."
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep
+license: MIT
+metadata:
+  author: Sergio Padron
+  version: 3.0.0
 ---
 
 # Scouting

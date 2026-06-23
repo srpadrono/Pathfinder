@@ -1,12 +1,26 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "pathfinder",
+  "displayName": "Pathfinder",
   "description": "Maps user journeys, visualizes UI test coverage with Mermaid flowcharts, and generates framework-correct E2E tests to fill gaps. Supports Playwright, Cypress, Maestro, Detox, XCUITest, Espresso, and Flutter.",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "author": {
     "name": "Sergio Padron",
     "email": "srpadron@outlook.com"
   },
   "repository": "https://github.com/srpadrono/Pathfinder",
   "homepage": "https://github.com/srpadrono/Pathfinder",
-  "license": "MIT"
+  "license": "MIT",
+  "mcpServers": "./.mcp.json",
+  "keywords": [
+    "ui-testing",
+    "test-coverage",
+    "e2e",
+    "mermaid",
+    "playwright",
+    "cypress",
+    "xcuitest",
+    "flutter",
+    "journey-mapping"
+  ]
 }

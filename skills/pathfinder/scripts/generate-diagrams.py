@@ -12,6 +12,7 @@ import re
 import sys
 from collections import defaultdict
 
+from pathfinder_config import load_config, status_bar
 from pathfinder_paths import find_journeys_file
 
 JOURNEY_ICONS = {
@@ -457,6 +458,9 @@ def main() -> None:
                         help="Force-save current state as the baseline snapshot")
     parser.add_argument("--clear-baseline", action="store_true",
                         help="Remove baseline to start fresh")
+    parser.add_argument("--no-baseline", action="store_true",
+                        help="Render the current tree only; never read or write a baseline "
+                             "(used for ephemeral/aggregated views)")
     args = parser.parse_args()
 
     args.journeys_file = args.journeys_file or find_journeys_file() or "pathfinder/journeys.json"
@@ -482,31 +486,37 @@ def main() -> None:
         print("ERROR: No journeys found", file=sys.stderr)
         sys.exit(1)
 
+    config = load_config(os.path.dirname(args.journeys_file) or ".")
+
     # Validate journey structure before processing
     validate_journey_structure(journeys)
 
     # ── Baseline management ──
     baseline_path = os.path.join(os.path.dirname(args.journeys_file), "journeys-baseline.json")
-
-    if args.clear_baseline and os.path.exists(baseline_path):
-        os.remove(baseline_path)
-        print(f"Cleared baseline: {baseline_path}")
-
     baseline_journeys = None
-    if os.path.exists(baseline_path) and not args.save_baseline:
-        try:
-            with open(baseline_path) as f:
-                baseline_data = json.load(f)
-            baseline_journeys = baseline_data.get("journeys", [])
-        except json.JSONDecodeError as e:
-            print(f"WARNING: Corrupt baseline JSON in {baseline_path}: {e}", file=sys.stderr)
-            baseline_journeys = None
 
-    if args.save_baseline or not os.path.exists(baseline_path):
-        # Save current state as baseline
-        import shutil
-        shutil.copy2(args.journeys_file, baseline_path)
-        print(f"Baseline saved: {baseline_path}")
+    if args.no_baseline:
+        # Ephemeral view (e.g. aggregated multi-module diagrams): never touch a baseline.
+        pass
+    else:
+        if args.clear_baseline and os.path.exists(baseline_path):
+            os.remove(baseline_path)
+            print(f"Cleared baseline: {baseline_path}")
+
+        if os.path.exists(baseline_path) and not args.save_baseline:
+            try:
+                with open(baseline_path) as f:
+                    baseline_data = json.load(f)
+                baseline_journeys = baseline_data.get("journeys", [])
+            except json.JSONDecodeError as e:
+                print(f"WARNING: Corrupt baseline JSON in {baseline_path}: {e}", file=sys.stderr)
+                baseline_journeys = None
+
+        if args.save_baseline or not os.path.exists(baseline_path):
+            # Save current state as baseline
+            import shutil
+            shutil.copy2(args.journeys_file, baseline_path)
+            print(f"Baseline saved: {baseline_path}")
 
     lines = ["# Pathfinder Coverage Map\n"]
     total_steps, total_tested, total_partial, overall, summary_rows = compute_coverage(journeys)
@@ -603,7 +613,7 @@ def main() -> None:
     for (_jid, jname, step_count,
          tested_count, _partial_count, cov) in summary_rows:
         icon = get_icon(jname)
-        bar = "🟢" if cov >= 80 else "🟡" if cov >= 50 else "🔴"
+        bar = status_bar(cov, config)
         lines.append(f"| {icon} {jname} | {step_count} | {tested_count} | {bar} {cov}% |")
     lines.append(f"| **Total** | **{total_steps}** | **{total_tested}** | **{overall}%** |")
 

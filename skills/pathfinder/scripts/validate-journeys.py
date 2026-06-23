@@ -15,7 +15,7 @@ import sys
 VALID_TESTED_VALUES = {True, False, "partial"}
 STEP_ID_PATTERN = re.compile(r'^[A-Z]+-\d{2}$')
 REQUIRED_TOP_LEVEL = {"journeys"}
-OPTIONAL_TOP_LEVEL = {"version", "project", "framework"}
+OPTIONAL_TOP_LEVEL = {"$schema", "version", "project", "framework"}
 ALLOWED_TOP_LEVEL = REQUIRED_TOP_LEVEL | OPTIONAL_TOP_LEVEL
 
 
@@ -37,6 +37,11 @@ def validate(data: dict) -> tuple[list[str], list[str], int]:
     if not isinstance(data["journeys"], list):
         errors.append("\"journeys\" must be an array")
         return errors, warnings, 0
+
+    # Warn (don't fail) on unrecognized top-level keys — likely typos.
+    for key in data:
+        if key not in ALLOWED_TOP_LEVEL:
+            warnings.append(f"unrecognized top-level key \"{key}\" (allowed: {', '.join(sorted(ALLOWED_TOP_LEVEL))})")
 
     for ji, journey in enumerate(data["journeys"]):
         prefix = f"journey[{ji}]"

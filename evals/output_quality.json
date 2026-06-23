@@ -1,0 +1,111 @@
+{
+  "$schema": "./schema/output-quality.schema.json",
+  "skill": "pathfinder",
+  "version": "3.0.0",
+  "description": "Output-quality evals. Each case is run A/B (with the Pathfinder skill available vs. a baseline agent without it), graded by an LLM judge against discriminating expectations. See evals/README.md.",
+  "evals": [
+    {
+      "id": "nextjs-playwright-map",
+      "prompt": "I have a Next.js app with Playwright tests in e2e/tests/. Map the user journeys in this codebase and tell me which steps already have test coverage and which are gaps. Create the journey map and a coverage summary.",
+      "files": [
+        { "from": "files/nextjs-app-layout.tsx", "to": "app/layout.tsx" },
+        { "from": "files/nextjs-page-home.tsx", "to": "app/page.tsx" },
+        { "from": "files/nextjs-page-dashboard.tsx", "to": "app/dashboard/page.tsx" },
+        { "from": "files/playwright-config.ts", "to": "playwright.config.ts" },
+        { "from": "files/playwright-home-test.ts", "to": "e2e/tests/home.spec.ts" }
+      ],
+      "expected_output": "A journeys.json mapping the app's flows with per-step tested/untested status reflecting the existing home.spec.ts, plus the skill's signature colour-coded Mermaid coverage visualization.",
+      "expectations": [
+        { "id": "signature-visualization", "text": "A Mermaid coverage visualization is produced (a blazes.md file or Mermaid flowchart) with colour-coded tested vs. untested nodes — the skill's signature decision-tree output — rather than only a prose or table summary.", "discriminating": true },
+        { "id": "schema-conformant-journeys", "text": "The journeys.json uses Pathfinder's schema: step ids in PREFIX-NN form (e.g. AUTH-01), and each step has id, action, screen, and a tested value of true/false/\"partial\". (A free-form structure that downstream scripts could not consume fails this.)", "discriminating": true },
+        { "id": "framework-playwright", "text": "The agent identifies Playwright as the UI test framework, citing playwright.config.ts or the .spec.ts file rather than guessing.", "discriminating": false },
+        { "id": "coverage-reflects-existing-test", "text": "Steps exercised by the existing e2e/tests/home.spec.ts are marked tested:true while steps with no corresponding test are marked tested:false — i.e. the coverage status reflects the real tests present, not a blanket value.", "discriminating": false },
+        { "id": "dashboard-route-discovered", "text": "The dashboard route (app/dashboard/page.tsx) is represented as a screen/step in the journey map, showing the route crawl actually read the app/ directory.", "discriminating": false }
+      ]
+    },
+    {
+      "id": "ios-xcuitest-coverage",
+      "prompt": "This is an iOS SwiftUI app with some XCUITests. I want to know how much of the UI is actually covered and where the gaps are. Produce a journey map with per-step coverage status.",
+      "files": [
+        { "from": "files/swiftui-content-view.swift", "to": "ContentView.swift" },
+        { "from": "files/xcuitest-home.swift", "to": "AppUITests/HomeUITests.swift" }
+      ],
+      "expected_output": "A journey map derived from the SwiftUI navigation with steps marked tested/untested based on the existing XCUITest, identifying XCUITest as the framework.",
+      "expectations": [
+        { "id": "framework-xcuitest", "text": "The agent identifies XCUITest as the UI test framework for the iOS project.", "discriminating": false },
+        { "id": "screens-from-swiftui", "text": "Screens/steps are derived from the SwiftUI source (e.g. views referenced in ContentView.swift such as NavigationStack/TabView destinations), not invented generically.", "discriminating": false },
+        { "id": "coverage-from-xcuitest", "text": "Coverage status is informed by the existing AppUITests/HomeUITests.swift — steps it exercises are tested, others are not.", "discriminating": true },
+        { "id": "schema-conformant-journeys", "text": "A journeys.json is written using Pathfinder's schema (PREFIX-NN step ids; each step has id, action, screen, tested:true/false/\"partial\") so the bundled scripts can consume it.", "discriminating": true }
+      ]
+    },
+    {
+      "id": "baseline-comparison-no-remap",
+      "prompt": "We already have a pathfinder/journeys.json from last sprint (it's in the repo). Don't re-crawl the codebase — just regenerate the coverage diagrams and show me the progress since our baseline.",
+      "files": [
+        { "from": "files/journeys-existing.json", "to": "pathfinder/journeys.json" }
+      ],
+      "expected_output": "Diagrams regenerated from the existing journeys.json with a before/after comparison against the saved baseline, without re-running discovery.",
+      "expectations": [
+        { "id": "no-recrawl", "text": "The agent does NOT re-crawl the codebase or regenerate journeys.json from scratch — it reuses the existing pathfinder/journeys.json.", "discriminating": true },
+        { "id": "diagrams-generated", "text": "Mermaid coverage diagrams are produced (a blazes.md is written or diagram content is generated from the existing journeys.json).", "discriminating": false },
+        { "id": "before-after-or-delta", "text": "The result includes a before/after or delta view of coverage relative to the baseline, rather than only a single current snapshot.", "discriminating": true }
+      ]
+    },
+    {
+      "id": "flutter-zero-tests",
+      "prompt": "I have a Flutter app with zero tests. What does coverage look like, and what test framework should I use? Map the journeys.",
+      "files": [
+        { "from": "files/pubspec.yaml", "to": "pubspec.yaml" },
+        { "from": "files/flutter-main.dart", "to": "lib/main.dart" }
+      ],
+      "expected_output": "Detects Flutter, reports 0% coverage with every step untested, recommends flutter_test/integration_test, and does not fabricate passing tests.",
+      "expectations": [
+        { "id": "framework-flutter", "text": "The agent identifies the project as Flutter (from pubspec.yaml) and recommends flutter_test / integration_test for UI/E2E testing.", "discriminating": false },
+        { "id": "zero-coverage", "text": "Coverage is reported as 0% (or equivalent: all steps untested) because no test files exist.", "discriminating": true },
+        { "id": "all-steps-untested", "text": "Every step in the produced journey map is marked tested:false; no step is fabricated as tested when there are no tests.", "discriminating": true }
+      ]
+    },
+    {
+      "id": "scout-write-tests-for-gaps",
+      "prompt": "We already mapped our journeys (pathfinder/journeys.json exists). Write Playwright UI tests for the untested steps — don't re-map anything. Match our existing test style.",
+      "files": [
+        { "from": "files/journeys-existing.json", "to": "pathfinder/journeys.json" },
+        { "from": "files/playwright-config.ts", "to": "playwright.config.ts" },
+        { "from": "files/playwright-home-test.ts", "to": "e2e/tests/home.spec.ts" }
+      ],
+      "expected_output": "Playwright test code generated for the untested steps only, in the project's e2e/tests directory, using accessibility-first selectors and condition-based waits, without re-running discovery.",
+      "expectations": [
+        { "id": "no-remap", "text": "The agent does NOT re-map or overwrite journeys.json with a fresh crawl; it reads the existing journey map to find untested steps.", "discriminating": true },
+        { "id": "tests-target-untested", "text": "New test code is written specifically for steps that were marked untested in journeys.json, not for already-tested steps.", "discriminating": true },
+        { "id": "playwright-idioms", "text": "Generated tests use Playwright idioms consistent with the project (e.g. @playwright/test imports, page.goto, getByRole/getByTestId selectors) rather than another framework's syntax.", "discriminating": false },
+        { "id": "no-sleep-antipattern", "text": "Generated tests avoid hard sleeps/arbitrary timeouts in favor of condition-based waits (e.g. waitForLoadState, expect(...).toBeVisible()).", "discriminating": false }
+      ]
+    },
+    {
+      "id": "malformed-journeys-graceful",
+      "prompt": "Regenerate my Pathfinder coverage diagrams. The pathfinder/journeys.json file exists but I think it might be corrupted.",
+      "files": [
+        { "from": "files/malformed-journeys.json", "to": "pathfinder/journeys.json" }
+      ],
+      "expected_output": "The corruption is detected and reported clearly with the file path; the agent does not crash or silently overwrite the file, and suggests a fix (e.g. repair or re-run /map).",
+      "expectations": [
+        { "id": "detects-corruption", "text": "The agent detects that pathfinder/journeys.json is not valid JSON and reports this clearly, including the file path.", "discriminating": true },
+        { "id": "no-traceback", "text": "The agent does not surface a raw Python traceback or unhandled stack trace to the user as the result.", "discriminating": true },
+        { "id": "no-silent-overwrite", "text": "The agent does not silently overwrite or delete the malformed file without explaining what it is doing; it surfaces the problem first.", "discriminating": true },
+        { "id": "suggests-fix", "text": "The agent suggests a concrete next step (repair the JSON, or re-run discovery/map to regenerate it).", "discriminating": true }
+      ]
+    },
+    {
+      "id": "empty-project-no-hallucination",
+      "prompt": "Map the user journeys in this project.",
+      "files": [
+        { "from": "files/empty-app.tsx", "to": "App.tsx" }
+      ],
+      "expected_output": "Reports that there are no meaningful user journeys to map (an empty/placeholder component), produces an empty or near-empty journey map, and does not invent journeys.",
+      "expectations": [
+        { "id": "reports-no-journeys", "text": "The agent reports that there are essentially no user journeys to map given the single empty/placeholder component.", "discriminating": true },
+        { "id": "no-fabrication", "text": "The agent does NOT fabricate journeys, screens, or steps that have no basis in the provided source (e.g. it does not invent login/checkout flows that don't exist).", "discriminating": true }
+      ]
+    }
+  ]
+}
